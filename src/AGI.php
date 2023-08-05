@@ -136,30 +136,19 @@ class AGI
     public function __construct(string $config = null, array $optconfig = [])
     {
         // load config
-        if (!is_null($config) && file_exists($config)) {
-            $this->config = parse_ini_file($config, true);
-        } elseif (file_exists(self::DEFAULT_PHPAGI_CONFIG)) {
-            $this->config = parse_ini_file(self::DEFAULT_PHPAGI_CONFIG, true);
+        if (file_exists($config ?? self::DEFAULT_PHPAGI_CONFIG)) {
+            $this->config = parse_ini_file($config ?? self::DEFAULT_PHPAGI_CONFIG, true);
         }
 
-        // If optconfig is specified, stuff vals and vars into 'phpagi' config array.
-        foreach ($optconfig as $var => $val) {
-            $this->config['phpagi'][$var] = $val;
-        }
-
+        // If optconfig is specified, stuff vals and vars into 'phpagi' config array,
         // add default values to config for uninitialized values
-        if (!isset($this->config['phpagi']['error_handler'])) {
-            $this->config['phpagi']['error_handler'] = true;
-        }
-        if (!isset($this->config['phpagi']['debug'])) {
-            $this->config['phpagi']['debug'] = false;
-        }
-        if (!isset($this->config['phpagi']['admin'])) {
-            $this->config['phpagi']['admin'] = null;
-        }
-        if (!isset($this->config['phpagi']['tempdir'])) {
-            $this->config['phpagi']['tempdir'] = self::AST_TMP_DIR;
-        }
+        $defaults = [
+            'error_handler' => true,
+            'debug' => false,
+            'admin' => null,
+            'tempdir' => self::AST_TMP_DIR,
+        ];
+        $this->config['phpagi'] = array_merge($defaults, $optconfig);
 
         // festival TTS config
         if (!isset($this->config['festival']['text2wave'])) {

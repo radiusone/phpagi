@@ -106,33 +106,20 @@ class AMI
     public function __construct(string $config = null, array $optconfig = [])
     {
         // load config
-        if (!is_null($config) && file_exists($config)) {
-            $this->config = parse_ini_file($config, true);
-        } elseif (file_exists(AGI::DEFAULT_PHPAGI_CONFIG)) {
-            $this->config = parse_ini_file(AGI::DEFAULT_PHPAGI_CONFIG, true);
+        if (file_exists($config ?? AGI::DEFAULT_PHPAGI_CONFIG)) {
+            $this->config = parse_ini_file($config ?? AGI::DEFAULT_PHPAGI_CONFIG, true);
         }
 
-        // If optconfig is specified, stuff vals and vars into 'asmanager' config array.
-        foreach ($optconfig as $var => $val) {
-            $this->config['asmanager'][$var] = $val;
-        }
-
+        // If optconfig is specified, stuff vals and vars into 'asmanager' config array,
         // add default values to config for uninitialized values
-        if (!isset($this->config['asmanager']['server'])) {
-            $this->config['asmanager']['server'] = 'localhost';
-        }
-        if (!isset($this->config['asmanager']['port'])) {
-            $this->config['asmanager']['port'] = 5038;
-        }
-        if (!isset($this->config['asmanager']['username'])) {
-            $this->config['asmanager']['username'] = 'phpagi';
-        }
-        if (!isset($this->config['asmanager']['secret'])) {
-            $this->config['asmanager']['secret'] = 'phpagi';
-        }
-        if (!isset($this->config['asmanager']['write_log'])) {
-            $this->config['asmanager']['write_log'] = false;
-        }
+        $defaults = [
+            'server' => 'localhost',
+            'port' => 5038,
+            'username' => 'phpagi',
+            'secret' => 'phpagi',
+            'write_log' => false,
+        ];
+        $this->config['asmanager'] = array_merge($defaults, $optconfig);
     }
 
     /**
