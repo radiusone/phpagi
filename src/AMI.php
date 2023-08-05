@@ -2,6 +2,8 @@
 
 namespace PhpAgi;
 
+use Exception;
+
  /**
   * phpagi-asmanager.php : PHP Asterisk Manager functions
   *
@@ -32,7 +34,7 @@ namespace PhpAgi;
   * @example examples/sip_show_peer.php Get information about a sip peer
   * @package phpAGI
   */
-  class AGI_AsteriskManager
+  class AMI
   {
    /**
     * Config variables

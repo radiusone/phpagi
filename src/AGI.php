@@ -21,7 +21,7 @@ namespace PhpAgi;
  * website.  Drop me an Email if you'd like us to list your program.
  */
 
-if (!class_exists('PhpAgi\\AGI_AsteriskManager'))
+if (!class_exists('PhpAgi\\AMI'))
 {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi-asmanager.php');
 }
@@ -93,10 +93,10 @@ class AGI
     /**
      * Asterisk Manager
      *
-     * @var AGI_AsteriskManager
+     * @var AMI
      * @access public
      */
-    public AGI_AsteriskManager $asmanager;
+    public AMI $asmanager;
 
     /**
      * Input Stream
@@ -1555,9 +1555,9 @@ class AGI
     /**
      * Create a new AGI_AsteriskManager.
      */
-    public function &new_AsteriskManager(): AGI_AsteriskManager
+    public function &new_AsteriskManager(): AMI
     {
-        $this->asm = new AGI_AsteriskManager(null, $this->config['asmanager']);
+        $this->asm = new AMI(null, $this->config['asmanager']);
         $this->asm->setPagi($this);
         $this->config['asmanager'] =& $this->asm->config['asmanager'];
         return $this->asm;
