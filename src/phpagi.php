@@ -142,7 +142,7 @@ class AGI
      * @param string $config is the name of the config file to parse
      * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
-    function __construct($config=null, $optconfig= [])
+    public function __construct($config=null, $optconfig= [])
     {
         // load config
         if(!is_null($config) && file_exists($config))
@@ -228,7 +228,7 @@ class AGI
      *
      * @return array, see evaluate for return information.  ['result'] is 0 on success, -1 on failure.
      */
-    function answer()
+    public function answer()
     {
         return $this->evaluate('ANSWER');
     }
@@ -240,7 +240,7 @@ class AGI
      * @param string $channel
      * @return array, see evaluate for return information. ['data'] contains description.
      */
-    function channel_status($channel='')
+    public function channel_status($channel='')
     {
         $ret = $this->evaluate("CHANNEL STATUS $channel");
         switch($ret['result'])
@@ -269,7 +269,7 @@ class AGI
      * @param string $key
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
      */
-    function database_del($family, $key)
+    public function database_del($family, $key)
     {
         return $this->evaluate("DATABASE DEL \"$family\" \"$key\"");
     }
@@ -282,7 +282,7 @@ class AGI
      * @param string $keytree
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
      */
-    function database_deltree($family, $keytree='')
+    public function database_deltree($family, $keytree='')
     {
         $cmd = "DATABASE DELTREE \"$family\"";
         if($keytree != '') $cmd .= " \"$keytree\"";
@@ -297,7 +297,7 @@ class AGI
      * @param string $key
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 failure. ['data'] holds the value
      */
-    function database_get($family, $key)
+    public function database_get($family, $key)
     {
         return $this->evaluate("DATABASE GET \"$family\" \"$key\"");
     }
@@ -310,7 +310,7 @@ class AGI
      * @param string $value
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
-    function database_put($family, $key, $value)
+    public function database_put($family, $key, $value)
     {
         $value = str_replace("\n", '\n', addslashes($value));
         return $this->evaluate("DATABASE PUT \"$family\" \"$key\" \"$value\"");
@@ -326,7 +326,7 @@ class AGI
      * @param string|int|float $pValue
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
-    function set_global_var($pVariable, $pValue)
+    public function set_global_var($pVariable, $pValue)
     {
         if (is_numeric($pValue))
             return $this->evaluate("Set({$pVariable}={$pValue},g);");
@@ -344,7 +344,7 @@ class AGI
      * @param string|int|float $pValue
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
-    function set_var($pVariable, $pValue)
+    public function set_var($pVariable, $pValue)
     {
         if (is_numeric($pValue))
             return $this->evaluate("Set({$pVariable}={$pValue});");
@@ -362,7 +362,7 @@ class AGI
      * @param mixed $options
      * @return array, see evaluate for return information. ['result'] is whatever the application returns, or -2 on failure to find application
      */
-    function exec($application, $options)
+    public function exec($application, $options)
     {
         if(is_array($options)) $options = join('|', $options);
         return $this->evaluate("EXEC $application $options");
@@ -405,7 +405,7 @@ class AGI
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
-    function get_data($filename, $timeout=null, $max_digits=null)
+    public function get_data($filename, $timeout=null, $max_digits=null)
     {
         return $this->evaluate(rtrim("GET DATA $filename $timeout $max_digits"));
     }
@@ -421,7 +421,7 @@ class AGI
      * @param boolean $getvalue return the value only
      * @return array, see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value. returns value if $getvalue is TRUE
      */
-    function get_variable($variable,$getvalue=false)
+    public function get_variable($variable,$getvalue=false)
     {
         $res=$this->evaluate("GET VARIABLE $variable");
 
@@ -443,7 +443,7 @@ class AGI
      * @param boolean $getvalue return the value only
      * @return array, see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value.  returns value if $getvalue is TRUE
      */
-    function get_fullvariable($variable,$channel=false,$getvalue=false)
+    public function get_fullvariable($variable,$channel=false,$getvalue=false)
     {
         if($channel==false){
             $req = $variable;
@@ -474,7 +474,7 @@ class AGI
      * @param string $channel
      * @return array, see evaluate for return information. ['result'] is 1 on success, -1 on failure.
      */
-    function hangup($channel='')
+    public function hangup($channel='')
     {
         return $this->evaluate("HANGUP $channel");
     }
@@ -485,7 +485,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-noop
      * @return array, see evaluate for return information.
      */
-    function noop($string="")
+    public function noop($string="")
     {
         return $this->evaluate("NOOP \"$string\"");
     }
@@ -499,7 +499,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is 0 on timeout or not supported, -1 on failure. Otherwise
      * it is the decimal value of the DTMF tone. Use chr() to convert to ASCII.
      */
-    function receive_char($timeout=-1)
+    public function receive_char($timeout=-1)
     {
         return $this->evaluate("RECEIVE CHAR $timeout");
     }
@@ -520,7 +520,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
      * DTMF tone. Use chr() to convert to ASCII.
      */
-    function record_file($file, $format, $escape_digits='', $timeout=-1, $offset=null, $beep=false, $silence=null)
+    public function record_file($file, $format, $escape_digits='', $timeout=-1, $offset=null, $beep=false, $silence=null)
     {
         $cmd = trim("RECORD FILE $file $format \"$escape_digits\" $timeout $offset");
         if($beep) $cmd .= ' BEEP';
@@ -537,7 +537,7 @@ class AGI
     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
     */
-    function say_alpha($text, $escape_digits='')
+    public function say_alpha($text, $escape_digits='')
     {
         return $this->evaluate("SAY ALPHA $text \"$escape_digits\"");
     }
@@ -550,7 +550,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function say_digits($digits, $escape_digits='')
+    public function say_digits($digits, $escape_digits='')
     {
         return $this->evaluate("SAY DIGITS $digits \"$escape_digits\"");
     }
@@ -564,7 +564,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function say_number($number, $escape_digits='')
+    public function say_number($number, $escape_digits='')
     {
         return $this->evaluate("SAY NUMBER $number \"$escape_digits\"");
     }
@@ -578,7 +578,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function say_phonetic($text, $escape_digits='')
+    public function say_phonetic($text, $escape_digits='')
     {
         return $this->evaluate("SAY PHONETIC $text \"$escape_digits\"");
     }
@@ -592,7 +592,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function say_time($time=null, $escape_digits='')
+    public function say_time($time=null, $escape_digits='')
     {
         if(is_null($time)) $time = time();
         return $this->evaluate("SAY TIME $time \"$escape_digits\"");
@@ -608,7 +608,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the image is sent or
      * channel does not support image transmission.
      */
-    function send_image($image)
+    public function send_image($image)
     {
         return $this->evaluate("SEND IMAGE $image");
     }
@@ -623,7 +623,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the text is sent or
      * channel does not support text transmission.
      */
-    function send_text($text)
+    public function send_text($text)
     {
         return $this->evaluate("SEND TEXT \"$text\"");
     }
@@ -638,7 +638,7 @@ class AGI
      * @param integer $time until automatic hangup
      * @return array, see evaluate for return information.
      */
-    function set_autohangup($time=0)
+    public function set_autohangup($time=0)
     {
         return $this->evaluate("SET AUTOHANGUP $time");
     }
@@ -655,7 +655,7 @@ class AGI
      * number will be considered to be part of the name.
      * @return array, see evaluate for return information.
      */
-    function set_callerid($cid)
+    public function set_callerid($cid)
     {
         return $this->evaluate("SET CALLERID $cid");
     }
@@ -673,7 +673,7 @@ class AGI
      * @param string $context
      * @return array, see evaluate for return information.
      */
-    function set_context($context)
+    public function set_context($context)
     {
         return $this->evaluate("SET CONTEXT $context");
     }
@@ -691,7 +691,7 @@ class AGI
      * @param string $extension
      * @return array, see evaluate for return information.
      */
-    function set_extension($extension)
+    public function set_extension($extension)
     {
         return $this->evaluate("SET EXTENSION $extension");
     }
@@ -704,7 +704,7 @@ class AGI
      * @param string $class
      * @return array, see evaluate for return information.
      */
-    function set_music($enabled=true, $class='')
+    public function set_music($enabled=true, $class='')
     {
         $enabled = ($enabled) ? 'ON' : 'OFF';
         return $this->evaluate("SET MUSIC $enabled $class");
@@ -720,7 +720,7 @@ class AGI
      * @param integer $priority
      * @return array, see evaluate for return information.
      */
-    function set_priority($priority)
+    public function set_priority($priority)
     {
         return $this->evaluate("SET PRIORITY $priority");
     }
@@ -738,7 +738,7 @@ class AGI
      * @param string $value
      * @return array, see evaluate for return information.
      */
-    function set_variable($variable, $value)
+    public function set_variable($variable, $value)
     {
         $value = str_replace("\n", '\n', addslashes($value));
         return $this->evaluate("SET VARIABLE $variable \"$value\"");
@@ -758,7 +758,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function stream_file($filename, $escape_digits='', $offset=0)
+    public function stream_file($filename, $escape_digits='', $offset=0)
     {
         return $this->evaluate("STREAM FILE $filename \"$escape_digits\" $offset");
     }
@@ -770,7 +770,7 @@ class AGI
      * @param string $setting can be on, off or mate
      * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 if the channel is not TDD capable.
      */
-    function tdd_mode($setting)
+    public function tdd_mode($setting)
     {
         return $this->evaluate("TDD MODE $setting");
     }
@@ -790,7 +790,7 @@ class AGI
      * @param integer $level from 1 to 4
      * @return array, see evaluate for return information.
      */
-    function verbose($message, $level=1)
+    public function verbose($message, $level=1)
     {
         foreach(explode("\n", str_replace("\r\n", "\n", print_r($message, true))) as $msg)
         {
@@ -808,7 +808,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is 0 if wait completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function wait_for_digit($timeout=-1)
+    public function wait_for_digit($timeout=-1)
     {
         return $this->evaluate("WAIT FOR DIGIT $timeout");
     }
@@ -831,7 +831,7 @@ class AGI
      * @param $seconds allowed, 0 disables timeout
      * @return array, see evaluate for return information.
      */
-    function exec_absolutetimeout($seconds=0)
+    public function exec_absolutetimeout($seconds=0)
     {
         return $this->exec('AbsoluteTimeout', $seconds);
     }
@@ -843,7 +843,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or if application requested hangup, or 0 on non-hangup exit.
      * @param string $args
      */
-    function exec_agi($command, $args)
+    public function exec_agi($command, $args)
     {
         return $this->exec("AGI $command", $args);
     }
@@ -854,7 +854,7 @@ class AGI
      * @param string $language code
      * @return array, see evaluate for return information.
      */
-    function exec_setlanguage($language='en')
+    public function exec_setlanguage($language='en')
     {
         return $this->exec('Set', 'CHANNEL(language)='. $language);
     }
@@ -868,7 +868,7 @@ class AGI
      * @param $exten
      * @return array, see evaluate for return information.
      */
-    function exec_enumlookup($exten)
+    public function exec_enumlookup($exten)
     {
         return $this->exec('EnumLookup', $exten);
     }
@@ -889,7 +889,7 @@ class AGI
      * @param string $url
      * @return array, see evaluate for return information.
      */
-    function exec_dial($type, $identifier, $timeout=null, $options=null, $url=null)
+    public function exec_dial($type, $identifier, $timeout=null, $options=null, $url=null)
     {
         return $this->exec('Dial', trim("$type/$identifier".$this->option_delim.$timeout.$this->option_delim.$options.$this->option_delim.$url, $this->option_delim));
     }
@@ -905,7 +905,7 @@ class AGI
      * @param string $c;
      * @return array, see evaluate for return information.
      */
-    function exec_goto($a, $b=null, $c=null)
+    public function exec_goto($a, $b=null, $c=null)
     {
         return $this->exec('Goto', trim($a.$this->option_delim.$b.$this->option_delim.$c, $this->option_delim));
     }
@@ -926,7 +926,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function fastpass_say_digits(&$buffer, $digits, $escape_digits='')
+    public function fastpass_say_digits(&$buffer, $digits, $escape_digits='')
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -955,7 +955,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function fastpass_say_number(&$buffer, $number, $escape_digits='')
+    public function fastpass_say_number(&$buffer, $number, $escape_digits='')
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -984,7 +984,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function fastpass_say_phonetic(&$buffer, $text, $escape_digits='')
+    public function fastpass_say_phonetic(&$buffer, $text, $escape_digits='')
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1013,7 +1013,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function fastpass_say_time(&$buffer, $time=null, $escape_digits='')
+    public function fastpass_say_time(&$buffer, $time=null, $escape_digits='')
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1045,7 +1045,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    function fastpass_stream_file(&$buffer, $filename, $escape_digits='', $offset=0)
+    public function fastpass_stream_file(&$buffer, $filename, $escape_digits='', $offset=0)
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1074,7 +1074,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function fastpass_text2wav(&$buffer, $text, $escape_digits='', $frequency=8000)
+    public function fastpass_text2wav(&$buffer, $text, $escape_digits='', $frequency=8000)
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1103,7 +1103,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function fastpass_swift(&$buffer, $text, $escape_digits='', $frequency=8000, $voice=null)
+    public function fastpass_swift(&$buffer, $text, $escape_digits='', $frequency=8000, $voice=null)
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1131,7 +1131,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function fastpass_say_punctuation(&$buffer, $text, $escape_digits='', $frequency=8000)
+    public function fastpass_say_punctuation(&$buffer, $text, $escape_digits='', $frequency=8000)
     {
         $proceed = false;
         if($escape_digits != '' && $buffer != '')
@@ -1186,7 +1186,7 @@ class AGI
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
-    function fastpass_get_data(&$buffer, $filename, $timeout=null, $max_digits=null)
+    public function fastpass_get_data(&$buffer, $filename, $timeout=null, $max_digits=null)
     {
         if(is_null($max_digits) || strlen($buffer) < $max_digits)
         {
@@ -1226,7 +1226,7 @@ class AGI
      *           '*'=>'*Press star for help');
      * @return mixed key pressed on sucess, -1 on failure
      */
-    function menu($choices, $timeout=2000)
+    public function menu($choices, $timeout=2000)
     {
         $keys = join('', array_keys($choices));
         $choice = null;
@@ -1271,7 +1271,7 @@ class AGI
      * @param string $extension
      * @param string $priority
      */
-    function setContext($context, $extension='s', $priority=1)
+    public function setContext($context, $extension='s', $priority=1)
     {
         $this->set_context($context);
         $this->set_extension($extension);
@@ -1289,7 +1289,7 @@ class AGI
      * @param string $callerid
      * @return array('Name'=>$name, 'Number'=>$number)
      */
-    function parse_callerid($callerid=null)
+    public function parse_callerid($callerid=null)
     {
         if(is_null($callerid))
             $callerid = $this->request['agi_callerid'];
@@ -1341,7 +1341,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function text2wav($text, $escape_digits='', $frequency=8000)
+    public function text2wav($text, $escape_digits='', $frequency=8000)
     {
         $text = trim($text);
         if($text == '') return true;
@@ -1390,7 +1390,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function swift($text, $escape_digits='', $frequency=8000, $voice=null)
+    public function swift($text, $escape_digits='', $frequency=8000, $voice=null)
     {
         if(!is_null($voice))
             $voice = "-n $voice";
@@ -1444,7 +1444,7 @@ class AGI
      *
      * @return string
      */
-    function text_input($mode='NUMERIC')
+    public function text_input($mode='NUMERIC')
     {
         $alpha = [
             'k0'=>' ', 'k00'=>',', 'k000'=>'.', 'k0000'=>'?', 'k00000'=>'0',
@@ -1515,7 +1515,7 @@ class AGI
      * @param integer $frequency
      * @return array, see evaluate for return information.
      */
-    function say_punctuation($text, $escape_digits='', $frequency=8000)
+    public function say_punctuation($text, $escape_digits='', $frequency=8000)
     {
         $ret="";
         for($i = 0; $i < strlen($text); $i++)
@@ -1564,7 +1564,7 @@ class AGI
     /**
      * Create a new AGI_AsteriskManager.
      */
-    function &new_AsteriskManager()
+    public function &new_AsteriskManager()
     {
         $this->asm = new AGI_AsteriskManager(null, $this->config['asmanager']);
         $this->asm->setPagi($this);
@@ -1585,7 +1585,7 @@ class AGI
      * @param string $command
      * @return array ('code'=>$code, 'result'=>$result, 'data'=>$data)
      */
-    function evaluate($command)
+    public function evaluate($command)
     {
         $broken = ['code'=>500, 'result'=>-1, 'data'=>''];
 
@@ -1681,7 +1681,7 @@ class AGI
      * @param string $str
      * @param integer $vbl verbose level
      */
-    function conlog($str, $vbl=1)
+    public function conlog($str, $vbl=1)
     {
         static $busy = false;
 
@@ -1704,7 +1704,7 @@ class AGI
      * @param string $checkpath path to check
      * @return string the path to the command
      */
-    function which($cmd, $checkpath=null)
+    public function which($cmd, $checkpath=null)
     {
         if (is_null($checkpath)) {
             $chpath = getenv('PATH');
@@ -1731,7 +1731,7 @@ class AGI
      * @param integer $perms
      * @return boolean
      */
-    function make_folder($folder, $perms=0755)
+    public function make_folder($folder, $perms=0755)
     {
         $f = explode(DIRECTORY_SEPARATOR, $folder);
         $base = '';
