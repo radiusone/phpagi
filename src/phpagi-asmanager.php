@@ -62,7 +62,7 @@
     * @access public
     * @var string
     */
-    public $server;
+    public string $server;
 
    /**
     * Port on the server we are connected to
@@ -70,7 +70,7 @@
     * @access public
     * @var integer
     */
-    public $port;
+    public int $port;
 
    /**
     * Parent AGI
@@ -86,7 +86,7 @@
     * @access private
     * @var array
     */
-    private $event_handlers;
+    private array $event_handlers;
 
     private $_buffer = null;
 
@@ -96,7 +96,7 @@
      * @access private
      * @var boolean
      */
-    private $_logged_in = false;
+    private bool $_logged_in = false;
 
     public function setPagi(&$agi)
     {

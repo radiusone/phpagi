@@ -89,7 +89,7 @@ class AGI
      * @var array
      * @access public
      */
-    var $request;
+    public array $request;
 
     /**
      * Config variables
@@ -97,7 +97,7 @@ class AGI
      * @var array
      * @access public
      */
-    var $config;
+    public $config;
 
     /**
      * Asterisk Manager
@@ -105,28 +105,28 @@ class AGI
      * @var AGI_AsteriskManager
      * @access public
      */
-    var $asmanager;
+    public AGI_AsteriskManager $asmanager;
 
     /**
      * Input Stream
      *
      * @access private
      */
-    var $in = null;
+    public $in = null;
 
     /**
      * Output Stream
      *
      * @access private
      */
-    var $out = null;
+    public $out = null;
 
     /**
      * Audio Stream
      *
      * @access public
      */
-    var $audio = null;
+    public $audio = null;
 
 
     /**
@@ -134,7 +134,7 @@ class AGI
      *
      * @access public
      */
-    public $option_delim = ",";
+    public string $option_delim = ",";
 
     /**
      * Constructor
