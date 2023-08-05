@@ -31,27 +31,27 @@ if (!class_exists('AGI_AsteriskManager'))
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi-asmanager.php');
 }
 
-define('AST_CONFIG_DIR', '/etc/asterisk/');
-define('AST_SPOOL_DIR', '/var/spool/asterisk/');
-define('AST_TMP_DIR', AST_SPOOL_DIR . '/tmp/');
-define('DEFAULT_PHPAGI_CONFIG', AST_CONFIG_DIR . '/phpagi.conf');
+const AST_CONFIG_DIR = '/etc/asterisk/';
+const AST_SPOOL_DIR = '/var/spool/asterisk/';
+const AST_TMP_DIR = AST_SPOOL_DIR . '/tmp/';
+const DEFAULT_PHPAGI_CONFIG = AST_CONFIG_DIR . '/phpagi.conf';
 
-define('AST_DIGIT_ANY', '0123456789#*');
+const AST_DIGIT_ANY = '0123456789#*';
 
-define('AGIRES_OK', 200);
+const AGIRES_OK = 200;
 
-define('AST_STATE_DOWN', 0);
-define('AST_STATE_RESERVED', 1);
-define('AST_STATE_OFFHOOK', 2);
-define('AST_STATE_DIALING', 3);
-define('AST_STATE_RING', 4);
-define('AST_STATE_RINGING', 5);
-define('AST_STATE_UP', 6);
-define('AST_STATE_BUSY', 7);
-define('AST_STATE_DIALING_OFFHOOK', 8);
-define('AST_STATE_PRERING', 9);
+const AST_STATE_DOWN = 0;
+const AST_STATE_RESERVED = 1;
+const AST_STATE_OFFHOOK = 2;
+const AST_STATE_DIALING = 3;
+const AST_STATE_RING = 4;
+const AST_STATE_RINGING = 5;
+const AST_STATE_UP = 6;
+const AST_STATE_BUSY = 7;
+const AST_STATE_DIALING_OFFHOOK = 8;
+const AST_STATE_PRERING = 9;
 
-define('AUDIO_FILENO', 3); // STDERR_FILENO + 1
+const AUDIO_FILENO = 3; // STDERR_FILENO + 1
 
 /**
  * AGI class
