@@ -76,54 +76,31 @@ class AGI
      *   agi_network_script - name of the script to execute
      *
      * NOTE: program arguments are still in $_SERVER['argv'].
-     *
-     * @var array
-     * @access public
      */
     public array $request;
 
     /**
      * Config variables
-     *
-     * @var array
-     * @access public
      */
-    public $config;
-
-    /**
-     * Asterisk Manager
-     *
-     * @var AMI
-     * @access public
-     */
-    public AMI $asmanager;
+    public array $config;
 
     /**
      * Input Stream
-     *
-     * @access private
      */
-    public $in = null;
+    private $in = null;
 
     /**
      * Output Stream
-     *
-     * @access private
      */
-    public $out = null;
+    private $out = null;
 
     /**
      * Audio Stream
-     *
-     * @access public
      */
     public $audio = null;
 
-
     /**
      * Application option delimiter
-     *
-     * @access public
      */
     public string $option_delim = ",";
 
