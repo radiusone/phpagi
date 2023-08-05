@@ -163,7 +163,10 @@
       return $this->wait_response(false, $actionid);
     }
 
-    public function read_one_msg($allow_timeout = false)
+      /**
+       * @throws Exception
+       */
+      public function read_one_msg($allow_timeout = false)
     {
       $type = null;
 
@@ -198,21 +201,19 @@
           $lastline = strpos($str, '--END COMMAND--');
           if (false !== $lastline) {
               $parameters['data'] = substr($str, 0, $lastline-1); // cut '\n' too
-          } else {
-              if ($m[1] == 'Command output follows') {
-                  $n = 3;
-                  $c = count($msgarr_tmp) - 1;
-                  $output = explode(': ', $msgarr_tmp[3]);
-                  if ($output[1]) {
-                      $data = $output[1];
-                      while ($n++<$c) {
-                          $output = explode(': ', $msgarr_tmp[$n]);
-                          if ($output[1]) {
-                              $data .= "\n".$output[1];
-                          }
+          } elseif ($m[1] == 'Command output follows') {
+              $n = 3;
+              $c = count($msgarr_tmp) - 1;
+              $output = explode(': ', $msgarr_tmp[3]);
+              if ($output[1]) {
+                  $data = $output[1];
+                  while ($n++<$c) {
+                      $output = explode(': ', $msgarr_tmp[$n]);
+                      if ($output[1]) {
+                          $data .= "\n".$output[1];
                       }
-                      $parameters['data'] = $data;
                   }
+                  $parameters['data'] = $data;
               }
           }
       }
@@ -246,22 +247,26 @@
       return $parameters;
     }
 
-   /**
-    * Wait for a response
-    *
-    * If a request was just sent, this will return the response.
-    * Otherwise, it will loop forever, handling events.
-    *
-    * XXX this code is slightly better then the original one
-    * however it's still totally screwed up and needs to be rewritten,
-    * for two reasons at least:
-    * 1. it does not handle socket errors in any way
-    * 2. it is terribly synchronous, esp. with eventlists,
-    *    i.e. your code is blocked on waiting until full responce is received
-    *
-    * @param bool $allow_timeout if the socket times out, return an empty array
-    * @return array of parameters, empty on timeout
-    */
+      /**
+       * Wait for a response
+       *
+       * If a request was just sent, this will return the response.
+       * Otherwise, it will loop forever, handling events.
+       *
+       * XXX this code is slightly better then the original one
+       * however it's still totally screwed up and needs to be rewritten,
+       * for two reasons at least:
+       * 1. it does not handle socket errors in any way
+       * 2. it is terribly synchronous, esp. with eventlists,
+       *    i.e. your code is blocked on waiting until full responce is received
+       *
+       * @param bool $allow_timeout if the socket times out, return an empty array
+       * @return array of parameters, empty on timeout
+       * @throws Exception
+       * @throws Exception
+       * @throws Exception
+       * @throws Exception
+       */
     public function wait_response($allow_timeout = false, $actionid = null)
     {
       $res = [];
@@ -297,7 +302,7 @@
     * @param string $username
     * @param string $secret
     * @return bool true on success
-    *@example examples/sip_show_peer.php Get information about a sip peer
+    * @example examples/sip_show_peer.php Get information about a sip peer
     *
     */
     public function connect($server=null, $username=null, $secret=null)
@@ -323,15 +328,15 @@
       // connect the socket
       $errno = $errstr = null;
       $this->socket = @fsockopen($this->server, $this->port, $errno, $errstr);
-      if($this->socket == false)
+      if(!$this->socket)
       {
-        $this->log("Unable to connect to manager {$this->server}:{$this->port} ($errno): $errstr");
+        $this->log("Unable to connect to manager $this->server:$this->port ($errno): $errstr");
         return false;
       }
 
       // read the header
       $str = fgets($this->socket);
-      if($str == false)
+      if(!$str)
       {
         // a problem.
         $this->log("Asterisk Manager header not received.");
@@ -362,8 +367,8 @@
     */
     public function disconnect()
     {
-      if($this->_logged_in==true)
-        $this->logoff();
+      if($this->_logged_in)
+        $this->Logoff();
       fclose($this->socket);
     }
 
@@ -871,7 +876,7 @@
     */
     public function log($message, $level=1)
     {
-      if($this->pagi != false)
+      if($this->pagi)
         $this->pagi->conlog($message, $level);
       elseif($this->config['asmanager']['write_log'])
         error_log(date('r') . ' - ' . $message);
@@ -976,4 +981,4 @@
       return $ret;
     }
   }
-?>
+

@@ -173,7 +173,7 @@ class AGI
         $this->out = defined('STDOUT') ? STDOUT : fopen('php://stdout', 'w');
 
         // initialize error handler
-        if($this->config['phpagi']['error_handler'] == true)
+        if($this->config['phpagi']['error_handler'])
         {
             set_error_handler('phpagi_error_handler');
             global $phpagi_error_handler_email;
@@ -329,9 +329,9 @@ class AGI
     public function set_global_var($pVariable, $pValue)
     {
         if (is_numeric($pValue))
-            return $this->evaluate("Set({$pVariable}={$pValue},g);");
+            return $this->evaluate("Set($pVariable=$pValue,g);");
         else
-            return $this->evaluate("Set({$pVariable}=\"{$pValue}\",g);");
+            return $this->evaluate("Set($pVariable=\"$pValue\",g);");
     }
 
 
@@ -347,9 +347,9 @@ class AGI
     public function set_var($pVariable, $pValue)
     {
         if (is_numeric($pValue))
-            return $this->evaluate("Set({$pVariable}={$pValue});");
+            return $this->evaluate("Set($pVariable=$pValue});");
         else
-            return $this->evaluate("Set({$pVariable}=\"{$pValue}\");");
+            return $this->evaluate("Set($pVariable=\"$pValue\");");
     }
 
 
@@ -401,7 +401,7 @@ class AGI
      * @return array, see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
-     *@example examples/ping.php Ping an IP address
+     * @example examples/ping.php Ping an IP address
      *
      * @link http://www.voip-info.org/wiki-get+data
      */
@@ -425,7 +425,7 @@ class AGI
     {
         $res=$this->evaluate("GET VARIABLE $variable");
 
-        if($getvalue==false)
+        if(!$getvalue)
             return($res);
 
         return($res['data']);
@@ -445,7 +445,7 @@ class AGI
      */
     public function get_fullvariable($variable,$channel=false,$getvalue=false)
     {
-        if($channel==false){
+        if(!$channel){
             $req = $variable;
         } else {
             $req = $variable.' '.$channel;
@@ -453,7 +453,7 @@ class AGI
 
         $res=$this->evaluate('GET FULL VARIABLE '.$req);
 
-        if($getvalue==false)
+        if(!$getvalue)
             return($res);
 
         return($res['data']);
@@ -754,7 +754,7 @@ class AGI
      * @param int $offset
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
-     *@example examples/ping.php Ping an IP address
+     * @example examples/ping.php Ping an IP address
      *
      * @link http://www.voip-info.org/wiki-stream+file
      */
@@ -1294,7 +1294,7 @@ class AGI
         if(is_null($callerid))
             $callerid = $this->request['agi_callerid'];
 
-        $ret = ['name'=>'', 'protocol'=>'', 'username'=>'', 'host'=>'', 'port'=>''];
+        $ret = ['name'=>'', 'protocol'=>'', 'port'=>''];
         $callerid = trim($callerid);
 
         if($callerid[0] == '"' || $callerid[0] == "'")
@@ -1335,7 +1335,7 @@ class AGI
      * @param string $escape_digits
      * @param int $frequency
      * @return array, see evaluate for return information.
-     *@example examples/dtmf.php Get DTMF tones from the user and say the digits
+     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @example examples/input.php Get text input from the user and say it back
      * @example examples/ping.php Ping an IP address
      *
@@ -1678,14 +1678,14 @@ class AGI
      *
      * @param string $str
      * @param int $vbl verbose level
-     *@example examples/ping.php Ping an IP address
+     * @example examples/ping.php Ping an IP address
      *
      */
     public function conlog($str, $vbl=1)
     {
         static $busy = false;
 
-        if($this->config['phpagi']['debug'] != false)
+        if($this->config['phpagi']['debug'])
         {
             if(!$busy) // no conlogs inside conlog!!!
             {
@@ -1739,7 +1739,7 @@ class AGI
         {
             $base .= $f[$i];
             if($f[$i] != '' && !file_exists($base)) {
-                if(mkdir($base, $perms)==false){
+                if(!mkdir($base, $perms)){
                     return(false);
                 }
             }
