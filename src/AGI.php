@@ -1684,13 +1684,12 @@ class AGI
     /**
      * Evaluate an AGI command.
      *
-     * @access private
      * @param string $command
      * @param mixed $args if present, $command is a printf format specification that $args are applied to;
      *    string values will be escaped and quoted
      * @return array<string,mixed> ('code'=>$code, 'result'=>$result, 'data'=>$data)
      */
-    public function evaluate(string $command, ...$args): array
+    private function evaluate(string $command, ...$args): array
     {
         $broken = ['code' => 500, 'result' => -1, 'data' => ''];
 
@@ -1808,12 +1807,11 @@ class AGI
     /**
      * Find an execuable in the path.
      *
-     * @access private
      * @param string $cmd command to find
      * @param string|null $checkpath path to check
      * @return string the path to the command
      */
-    public function which(string $cmd, string $checkpath = null)
+    private function which(string $cmd, string $checkpath = null)
     {
         if (is_null($checkpath)) {
             $chpath = getenv('PATH');
@@ -1837,12 +1835,11 @@ class AGI
     /**
      * Make a folder recursively.
      *
-     * @access private
      * @param string $folder
      * @param int $perms
      * @return bool
      */
-    public function make_folder(string $folder, int $perms = 0755): bool
+    private function make_folder(string $folder, int $perms = 0755): bool
     {
         $f = explode(DIRECTORY_SEPARATOR, $folder);
         $base = '';

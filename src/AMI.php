@@ -37,48 +37,31 @@ class AMI
 {
     /**
      * Config variables
-     *
-     * @var array
-     * @access public
      */
-    public $config;
+    public array $config;
 
     /**
      * Socket
-     *
-     * @access public
      */
     public $socket = null;
 
     /**
      * Server we are connected to
-     *
-     * @access public
-     * @var string
      */
     public string $server;
 
     /**
      * Port on the server we are connected to
-     *
-     * @access public
-     * @var int
      */
     public int $port;
 
     /**
      * Parent AGI
-     *
-     * @access private
-     * @var AGI
      */
-    public ?AGI $pagi = null;
+    private ?AGI $pagi = null;
 
     /**
      * Event Handlers
-     *
-     * @access private
-     * @var array
      */
     private array $event_handlers;
 
@@ -86,9 +69,6 @@ class AMI
 
     /**
      * Whether we're successfully logged in
-     *
-     * @access private
-     * @var bool
      */
     private bool $_logged_in = false;
 
@@ -1017,11 +997,10 @@ class AMI
     /**
      * Process event
      *
-     * @access private
      * @param array $parameters
      * @return mixed result of event handler or false if no handler was found
      */
-    public function process_event(array $parameters)
+    private function process_event(array $parameters)
     {
         $ret = false;
         $e = strtolower($parameters['Event']);
