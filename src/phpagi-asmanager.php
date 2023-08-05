@@ -68,7 +68,7 @@
     * Port on the server we are connected to
     *
     * @access public
-    * @var integer
+    * @var int
     */
     public int $port;
 
@@ -94,7 +94,7 @@
      * Whether we're successfully logged in
      *
      * @access private
-     * @var boolean
+     * @var bool
      */
     private bool $_logged_in = false;
 
@@ -259,7 +259,7 @@
     * 2. it is terribly synchronous, esp. with eventlists,
     *    i.e. your code is blocked on waiting until full responce is received
     *
-    * @param boolean $allow_timeout if the socket times out, return an empty array
+    * @param bool $allow_timeout if the socket times out, return an empty array
     * @return array of parameters, empty on timeout
     */
     public function wait_response($allow_timeout = false, $actionid = null)
@@ -293,12 +293,12 @@
    /**
     * Connect to Asterisk
     *
-    * @example examples/sip_show_peer.php Get information about a sip peer
-    *
     * @param string $server
     * @param string $username
     * @param string $secret
-    * @return boolean true on success
+    * @return bool true on success
+    *@example examples/sip_show_peer.php Get information about a sip peer
+    *
     */
     public function connect($server=null, $username=null, $secret=null)
     {
@@ -378,7 +378,7 @@
     *
     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+AbsoluteTimeout
     * @param string $channel Channel name to hangup
-    * @param integer $timeout Maximum duration of the call (sec)
+    * @param int $timeout Maximum duration of the call (sec)
     */
     public function AbsoluteTimeout($channel, $timeout)
     {
@@ -576,7 +576,7 @@
     * @param string $channel
     * @param string $file
     * @param string $format
-    * @param boolean $mix
+    * @param bool $mix
     */
     public function Monitor($channel, $file=null, $format=null, $mix=null)
     {
@@ -597,11 +597,11 @@
     * @param string $priority Priority to use (requires 'Exten' and 'Context')
     * @param string $application Application to use
     * @param string $data Data to use (requires 'Application')
-    * @param integer $timeout How long to wait for call to be answered (in ms)
+    * @param int $timeout How long to wait for call to be answered (in ms)
     * @param string $callerid Caller ID to be set on the outgoing channel
     * @param string $variable Channel variable to set (VAR1=value1|VAR2=value2)
     * @param string $account Account code
-    * @param boolean $async true fast origination
+    * @param bool $async true fast origination
     * @param string $actionid message matching variable
     */
     public function Originate($channel,
@@ -658,7 +658,7 @@
     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+QueueAdd
     * @param string $queue
     * @param string $interface
-    * @param integer $penalty
+    * @param int $penalty
     * @param string $memberName
     */
     public function QueueAdd($queue, $interface, $penalty=0, $memberName = false)
@@ -915,7 +915,7 @@
     *
     * @param string $event type or * for default handler
     * @param string $callback function
-    * @return boolean sucess
+    * @return bool sucess
     */
     public function add_event_handler($event, $callback)
     {
@@ -933,7 +933,7 @@
     *   Remove event handler
     *
     *   @param string $event type or * for default handler
-    *   @return boolean sucess
+    *   @return bool sucess
     **/
     public function remove_event_handler($event)
     {

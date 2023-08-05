@@ -395,15 +395,15 @@ class AGI
      * any previously keyed digits are returned. A side effect of this is that there is no
      * way to read a # key using this command.
      *
-     * @example examples/ping.php Ping an IP address
-     *
-     * @link http://www.voip-info.org/wiki-get+data
      * @param string $filename file to play. Do not include file extension.
-     * @param integer $timeout milliseconds
-     * @param integer $max_digits
+     * @param int $timeout milliseconds
+     * @param int $max_digits
      * @return array, see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
+     *@example examples/ping.php Ping an IP address
+     *
+     * @link http://www.voip-info.org/wiki-get+data
      */
     public function get_data($filename, $timeout=null, $max_digits=null)
     {
@@ -418,7 +418,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-get+variable
      * @link http://www.voip-info.org/wiki-Asterisk+variables
      * @param string $variable name
-     * @param boolean $getvalue return the value only
+     * @param bool $getvalue return the value only
      * @return array, see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value. returns value if $getvalue is TRUE
      */
     public function get_variable($variable,$getvalue=false)
@@ -440,7 +440,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-Asterisk+variables
      * @param string $variable name
      * @param string $channel channel
-     * @param boolean $getvalue return the value only
+     * @param bool $getvalue return the value only
      * @return array, see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value.  returns value if $getvalue is TRUE
      */
     public function get_fullvariable($variable,$channel=false,$getvalue=false)
@@ -495,7 +495,7 @@ class AGI
      * a character to arrive, or infinitely if $timeout is zero.
      *
      * @link http://www.voip-info.org/wiki-receive+char
-     * @param integer $timeout milliseconds
+     * @param int $timeout milliseconds
      * @return array, see evaluate for return information. ['result'] is 0 on timeout or not supported, -1 on failure. Otherwise
      * it is the decimal value of the DTMF tone. Use chr() to convert to ASCII.
      */
@@ -512,10 +512,10 @@ class AGI
      * @param string $file to record, without extension, often created in /var/lib/asterisk/sounds
      * @param string $format of the file. GSM and WAV are commonly used formats. MP3 is read-only and thus cannot be used.
      * @param string $escape_digits
-     * @param integer $timeout is the maximum record time in milliseconds, or -1 for no timeout.
-     * @param integer $offset to seek to without exceeding the end of the file.
-     * @param boolean $beep
-     * @param integer $silence number of seconds of silence allowed before the function returns despite the
+     * @param int $timeout is the maximum record time in milliseconds, or -1 for no timeout.
+     * @param int $offset to seek to without exceeding the end of the file.
+     * @param bool $beep
+     * @param int $silence number of seconds of silence allowed before the function returns despite the
      * lack of dtmf digits or reaching timeout.
      * @return array, see evaluate for return information. ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
      * DTMF tone. Use chr() to convert to ASCII.
@@ -545,7 +545,7 @@ class AGI
      * Say the given digit string, returning early if any of the given DTMF escape digits are received on the channel.
      *
      * @link http://www.voip-info.org/wiki-say+digits
-     * @param integer $digits
+     * @param int $digits
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -559,7 +559,7 @@ class AGI
      * Say the given number, returning early if any of the given DTMF escape digits are received on the channel.
      *
      * @link http://www.voip-info.org/wiki-say+number
-     * @param integer $number
+     * @param int $number
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -587,7 +587,7 @@ class AGI
      * Say a given time, returning early if any of the given DTMF escape digits are received on the channel.
      *
      * @link http://www.voip-info.org/wiki-say+time
-     * @param integer $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+     * @param int $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -635,7 +635,7 @@ class AGI
      * If the channel is hungup prior to $time seconds, this setting has no effect.
      *
      * @link http://www.voip-info.org/wiki-set+autohangup
-     * @param integer $time until automatic hangup
+     * @param int $time until automatic hangup
      * @return array, see evaluate for return information.
      */
     public function set_autohangup($time=0)
@@ -700,7 +700,7 @@ class AGI
      * Enable/Disable Music on hold generator.
      *
      * @link http://www.voip-info.org/wiki-set+music
-     * @param boolean $enabled
+     * @param bool $enabled
      * @param string $class
      * @return array, see evaluate for return information.
      */
@@ -717,7 +717,7 @@ class AGI
      * and no warning is issued on the Asterisk console.
      *
      * @link http://www.voip-info.org/wiki-set+priority
-     * @param integer $priority
+     * @param int $priority
      * @return array, see evaluate for return information.
      */
     public function set_priority($priority)
@@ -749,14 +749,14 @@ class AGI
      * command but this command returns after the first DTMF digit has been pressed while GET DATA can accumulated any number of
      * digits before returning.
      *
-     * @example examples/ping.php Ping an IP address
-     *
-     * @link http://www.voip-info.org/wiki-stream+file
      * @param string $filename without extension, often in /var/lib/asterisk/sounds
      * @param string $escape_digits
-     * @param integer $offset
+     * @param int $offset
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     *@example examples/ping.php Ping an IP address
+     *
+     * @link http://www.voip-info.org/wiki-stream+file
      */
     public function stream_file($filename, $escape_digits='', $offset=0)
     {
@@ -787,7 +787,7 @@ class AGI
      *
      * @link http://www.voip-info.org/wiki-verbose
      * @param string $message
-     * @param integer $level from 1 to 4
+     * @param int $level from 1 to 4
      * @return array, see evaluate for return information.
      */
     public function verbose($message, $level=1)
@@ -804,7 +804,7 @@ class AGI
      * Waits up to $timeout milliseconds for channel to receive a DTMF digit.
      *
      * @link http://www.voip-info.org/wiki-wait+for+digit
-     * @param integer $timeout in millisecons. Use -1 for the timeout value if you want the call to wait indefinitely.
+     * @param int $timeout in millisecons. Use -1 for the timeout value if you want the call to wait indefinitely.
      * @return array, see evaluate for return information. ['result'] is 0 if wait completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
@@ -828,7 +828,7 @@ class AGI
      *
      * @link http://www.voip-info.org/wiki-Asterisk+-+documentation+of+application+commands
      * @link http://www.dynx.net/ASTERISK/AGI/ccard/agi-ccard.agi
-     * @param $seconds allowed, 0 disables timeout
+     * @param int $seconds allowed, 0 disables timeout
      * @return array, see evaluate for return information.
      */
     public function exec_absolutetimeout($seconds=0)
@@ -884,7 +884,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-Asterisk+cmd+Dial
      * @param string $type
      * @param string $identifier
-     * @param integer $timeout
+     * @param int $timeout
      * @param string $options
      * @param string $url
      * @return array, see evaluate for return information.
@@ -921,7 +921,7 @@ class AGI
      *
      * @link http://www.voip-info.org/wiki-say+digits
      * @param string $buffer
-     * @param integer $digits
+     * @param int $digits
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -950,7 +950,7 @@ class AGI
      *
      * @link http://www.voip-info.org/wiki-say+number
      * @param string $buffer
-     * @param integer $number
+     * @param int $number
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -1008,7 +1008,7 @@ class AGI
      *
      * @link http://www.voip-info.org/wiki-say+time
      * @param string $buffer
-     * @param integer $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+     * @param int $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
      * @param string $escape_digits
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
@@ -1041,7 +1041,7 @@ class AGI
      * @param string $buffer
      * @param string $filename without extension, often in /var/lib/asterisk/sounds
      * @param string $escape_digits
-     * @param integer $offset
+     * @param int $offset
      * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
@@ -1071,7 +1071,7 @@ class AGI
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
-     * @param integer $frequency
+     * @param int $frequency
      * @return array, see evaluate for return information.
      */
     public function fastpass_text2wav(&$buffer, $text, $escape_digits='', $frequency=8000)
@@ -1100,7 +1100,7 @@ class AGI
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
-     * @param integer $frequency
+     * @param int $frequency
      * @return array, see evaluate for return information.
      */
     public function fastpass_swift(&$buffer, $text, $escape_digits='', $frequency=8000, $voice=null)
@@ -1128,7 +1128,7 @@ class AGI
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
-     * @param integer $frequency
+     * @param int $frequency
      * @return array, see evaluate for return information.
      */
     public function fastpass_say_punctuation(&$buffer, $text, $escape_digits='', $frequency=8000)
@@ -1180,8 +1180,8 @@ class AGI
      * @link http://www.voip-info.org/wiki-get+data
      * @param string $buffer
      * @param string $filename file to play. Do not include file extension.
-     * @param integer $timeout milliseconds
-     * @param integer $max_digits
+     * @param int $timeout milliseconds
+     * @param int $max_digits
      * @return array, see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
@@ -1331,15 +1331,15 @@ class AGI
     /**
      * Use festival to read text.
      *
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
+     * @param string $text
+     * @param string $escape_digits
+     * @param int $frequency
+     * @return array, see evaluate for return information.
+     *@example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @example examples/input.php Get text input from the user and say it back
      * @example examples/ping.php Ping an IP address
      *
      * @link http://www.cstr.ed.ac.uk/projects/festival/
-     * @param string $text
-     * @param string $escape_digits
-     * @param integer $frequency
-     * @return array, see evaluate for return information.
      */
     public function text2wav($text, $escape_digits='', $frequency=8000)
     {
@@ -1387,7 +1387,7 @@ class AGI
      * @link http://www.cepstral.com/
      * @param string $text
      * @param string $escape_digits
-     * @param integer $frequency
+     * @param int $frequency
      * @return array, see evaluate for return information.
      */
     public function swift($text, $escape_digits='', $frequency=8000, $voice=null)
@@ -1512,7 +1512,7 @@ class AGI
      *
      * @param string $text
      * @param string $escape_digits
-     * @param integer $frequency
+     * @param int $frequency
      * @return array, see evaluate for return information.
      */
     public function say_punctuation($text, $escape_digits='', $frequency=8000)
@@ -1676,10 +1676,10 @@ class AGI
     /**
      * Log to console if debug mode.
      *
-     * @example examples/ping.php Ping an IP address
-     *
      * @param string $str
-     * @param integer $vbl verbose level
+     * @param int $vbl verbose level
+     *@example examples/ping.php Ping an IP address
+     *
      */
     public function conlog($str, $vbl=1)
     {
@@ -1728,8 +1728,8 @@ class AGI
      *
      * @access private
      * @param string $folder
-     * @param integer $perms
-     * @return boolean
+     * @param int $perms
+     * @return bool
      */
     public function make_folder($folder, $perms=0755)
     {
@@ -1754,10 +1754,10 @@ class AGI
 /**
  * error handler for phpagi.
  *
- * @param integer $level PHP error level
+ * @param int $level PHP error level
  * @param string $message error message
  * @param string $file path to file
- * @param integer $line line number of error
+ * @param int $line line number of error
  * @param array $context variables in the current scope
  */
 function phpagi_error_handler($level, $message, $file, $line, $context)
