@@ -1,9 +1,13 @@
 {
-    "name": "welltime/phpagi",
+    "name": "radiusone/phpagi",
     "description": "PHPAGI is a PHP class for the Asterisk Gateway Interface.",
     "type": "library",
     "license": "LGPL-2.1-or-later",
+    "version": "3.0",
     "autoload": {
+        "psr-4": {
+            "PhpAgi\\": "src/"
+        },
         "classmap": [
             "src/phpagi.php",
             "src/phpagi-asmanager.php"

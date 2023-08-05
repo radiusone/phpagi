@@ -1,5 +1,7 @@
 <?php
 
+namespace PhpAgi;
+
 /**
  * phpagi.php : PHP AGI Functions for Asterisk
  * @package phpAGI
@@ -19,7 +21,7 @@
  * website.  Drop me an Email if you'd like us to list your program.
  */
 
-if (!class_exists('AGI_AsteriskManager'))
+if (!class_exists('PhpAgi\\AGI_AsteriskManager'))
 {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi-asmanager.php');
 }
@@ -27,7 +29,7 @@ if (!class_exists('AGI_AsteriskManager'))
 /**
  * AGI class
  *
- * @package phpAGI
+ * @package PhpAgi
  * @link http://www.voip-info.org/wiki-Asterisk+agi
  * @example examples/dtmf.php Get DTMF tones from the user and say the digits
  * @example examples/input.php Get text input from the user and say it back

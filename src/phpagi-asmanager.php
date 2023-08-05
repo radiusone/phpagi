@@ -1,8 +1,11 @@
 <?php
+
+namespace PhpAgi;
+
  /**
   * phpagi-asmanager.php : PHP Asterisk Manager functions
   *
-  * @package phpAGI
+  * @package PhpAgi
   * @version 3.0
   * @filesource https://github.com/welltime/phpagi
   * @see http://phpagi.sourceforge.net/
@@ -16,7 +19,7 @@
   *  A copy of which is available from http://www.gnu.org/copyleft/lesser.html
   */
 
-  if(!class_exists('AGI'))
+  if(!class_exists('PhpAgi\\AGI'))
   {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi.php');
   }
