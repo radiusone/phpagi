@@ -22,7 +22,7 @@ use Exception;
  */
 
 if (!class_exists('PhpAgi\\AGI')) {
-    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi.php');
+    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AGI.php');
 }
 
 /**
@@ -324,12 +324,13 @@ class AMI
 
         // connect the socket
         $errno = $errstr = null;
-        $this->socket = @fsockopen($this->server, $this->port, $errno, $errstr);
-        if (!$this->socket) {
+        $result = fsockopen($this->server, $this->port, $errno, $errstr);
+        if ($result === false) {
             $this->log("Unable to connect to manager $this->server:$this->port ($errno): $errstr");
 
             return false;
         }
+        $this->socket = $result;
 
         // read the header
         $str = fgets($this->socket);
@@ -338,8 +339,6 @@ class AMI
             $this->log("Asterisk Manager header not received.");
 
             return false;
-        } else {
-            // note: don't $this->log($str) until someone looks to see why it mangles the logging
         }
 
         // login

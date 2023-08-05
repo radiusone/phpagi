@@ -23,7 +23,7 @@ namespace PhpAgi;
  */
 
 if (!class_exists('PhpAgi\\AMI')) {
-    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'phpagi-asmanager.php');
+    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AMI.php');
 }
 
 /**
@@ -832,7 +832,7 @@ class AGI
     public function verbose(string $message, int $level = 1): array
     {
         foreach (explode("\n", str_replace("\r\n", "\n", print_r($message, true))) as $msg) {
-            @syslog(LOG_WARNING, $msg);
+            syslog(LOG_WARNING, $msg);
             $ret = $this->evaluate("VERBOSE \"$msg\" $level");
         }
 
@@ -1725,7 +1725,7 @@ class AGI
         $broken = ['code' => 500, 'result' => -1, 'data' => ''];
 
         // write command
-        if (!@fwrite($this->out, trim($command) . "\n")) {
+        if (!fwrite($this->out, trim($command) . "\n")) {
             return $broken;
         }
         fflush($this->out);
