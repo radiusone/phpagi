@@ -142,7 +142,7 @@ class AGI
      * @param string $config is the name of the config file to parse
      * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
-    function __construct($config=null, $optconfig=array())
+    function __construct($config=null, $optconfig= [])
     {
         // load config
         if(!is_null($config) && file_exists($config))
@@ -941,7 +941,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]));
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1])];
     }
 
     /**
@@ -970,7 +970,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]));
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1])];
     }
 
     /**
@@ -999,7 +999,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]));
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1])];
     }
 
     /**
@@ -1028,7 +1028,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]));
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1])];
     }
 
     /**
@@ -1060,7 +1060,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0);
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0];
     }
 
     /**
@@ -1089,7 +1089,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0);
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0];
     }
 
     /**
@@ -1118,7 +1118,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0);
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]), 'endpos'=>0];
     }
 
     /**
@@ -1146,7 +1146,7 @@ class AGI
                 $buffer .= chr($res['result']);
             return $res;
         }
-        return array('code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1]));
+        return ['code'=>AGIRES_OK, 'result'=>ord($buffer[strlen($buffer)-1])];
     }
 
     /**
@@ -1208,7 +1208,7 @@ class AGI
                 }
             }
         }
-        return array('code'=>AGIRES_OK, 'result'=>$buffer);
+        return ['code'=>AGIRES_OK, 'result'=>$buffer];
     }
 
     // *********************************************************************************************************
@@ -1294,7 +1294,7 @@ class AGI
         if(is_null($callerid))
             $callerid = $this->request['agi_callerid'];
 
-        $ret = array('name'=>'', 'protocol'=>'', 'username'=>'', 'host'=>'', 'port'=>'');
+        $ret = ['name'=>'', 'protocol'=>'', 'username'=>'', 'host'=>'', 'port'=>''];
         $callerid = trim($callerid);
 
         if($callerid[0] == '"' || $callerid[0] == "'")
@@ -1446,7 +1446,8 @@ class AGI
      */
     function text_input($mode='NUMERIC')
     {
-        $alpha = array( 'k0'=>' ', 'k00'=>',', 'k000'=>'.', 'k0000'=>'?', 'k00000'=>'0',
+        $alpha = [
+            'k0'=>' ', 'k00'=>',', 'k000'=>'.', 'k0000'=>'?', 'k00000'=>'0',
             'k1'=>'!', 'k11'=>':', 'k111'=>';', 'k1111'=>'#', 'k11111'=>'1',
             'k2'=>'A', 'k22'=>'B', 'k222'=>'C', 'k2222'=>'2',
             'k3'=>'D', 'k33'=>'E', 'k333'=>'F', 'k3333'=>'3',
@@ -1455,8 +1456,10 @@ class AGI
             'k6'=>'M', 'k66'=>'N', 'k666'=>'O', 'k6666'=>'6',
             'k7'=>'P', 'k77'=>'Q', 'k777'=>'R', 'k7777'=>'S', 'k77777'=>'7',
             'k8'=>'T', 'k88'=>'U', 'k888'=>'V', 'k8888'=>'8',
-            'k9'=>'W', 'k99'=>'X', 'k999'=>'Y', 'k9999'=>'Z', 'k99999'=>'9');
-        $symbol = array('k0'=>'=',
+            'k9'=>'W', 'k99'=>'X', 'k999'=>'Y', 'k9999'=>'Z', 'k99999'=>'9'
+        ];
+        $symbol = [
+            'k0'=>'=',
             'k1'=>'<', 'k11'=>'(', 'k111'=>'[', 'k1111'=>'{', 'k11111'=>'1',
             'k2'=>'@', 'k22'=>'$', 'k222'=>'&', 'k2222'=>'%', 'k22222'=>'2',
             'k3'=>'>', 'k33'=>')', 'k333'=>']', 'k3333'=>'}', 'k33333'=>'3',
@@ -1465,7 +1468,8 @@ class AGI
             'k6'=>'"', 'k66'=>'6',
             'k7'=>'^', 'k77'=>'7',
             'k8'=>"\\",'k88'=>'|', 'k888'=>'8',
-            'k9'=>'_', 'k99'=>'~', 'k999'=>'9');
+            'k9'=>'_', 'k99'=>'~', 'k999'=>'9'
+        ];
         $text = '';
         do
         {
@@ -1583,7 +1587,7 @@ class AGI
      */
     function evaluate($command)
     {
-        $broken = array('code'=>500, 'result'=>-1, 'data'=>'');
+        $broken = ['code'=>500, 'result'=>-1, 'data'=>''];
 
         // write command
         if(!@fwrite($this->out, trim($command) . "\n")) return $broken;

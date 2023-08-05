@@ -109,7 +109,7 @@
     * @param string $config is the name of the config file to parse or a parent agi from which to read the config
     * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['asmanager']
     */
-    function __construct($config=null, $optconfig=array())
+    function __construct($config=null, $optconfig= [])
     {
       // load config
       if(!is_null($config) && file_exists($config))
@@ -136,7 +136,7 @@
     * @param array $parameters
     * @return array of parameters
     */
-    function send_request($action, $parameters=array())
+    function send_request($action, $parameters= [])
     {
       $req = "Action: $action\r\n";
       $actionid = null;
@@ -186,7 +186,7 @@
 
       $msgarr = explode("\r\n", $msg);
 
-      $parameters = array();
+      $parameters = [];
 
       $r = explode(': ', $msgarr[0]);
       $type = strtolower($r[0]);
@@ -264,7 +264,7 @@
     */
     function wait_response($allow_timeout = false, $actionid = null)
     {
-      $res = array();
+      $res = [];
       if ($actionid) {
         do {
           $res = $this->read_one_msg($allow_timeout);
@@ -275,7 +275,7 @@
       }
 
       if (isset($res['EventList']) && $res['EventList']=='start') {
-        $evlist = array();
+        $evlist = [];
         do {
           $res = $this->wait_response(false, $actionid);
           if (isset($res['EventList']) && $res['EventList']=='Complete')
@@ -343,7 +343,7 @@
       }
 
       // login
-      $res = $this->send_request('login', array('Username'=>$username, 'Secret'=>$secret));
+      $res = $this->send_request('login', ['Username'=>$username, 'Secret'=>$secret]);
       if($res['Response'] != 'Success')
       {
         $this->_logged_in = false;
@@ -382,7 +382,7 @@
     */
     function AbsoluteTimeout($channel, $timeout)
     {
-      return $this->send_request('AbsoluteTimeout', array('Channel'=>$channel, 'Timeout'=>$timeout));
+      return $this->send_request('AbsoluteTimeout', ['Channel'=>$channel, 'Timeout'=>$timeout]);
     }
 
    /**
@@ -394,7 +394,7 @@
     */
     function ChangeMonitor($channel, $file)
     {
-      return $this->send_request('ChangeMontior', array('Channel'=>$channel, 'File'=>$file));
+      return $this->send_request('ChangeMontior', ['Channel'=>$channel, 'File'=>$file]);
     }
 
    /**
@@ -408,7 +408,7 @@
     */
     function Command($command, $actionid=null)
     {
-      $parameters = array('Command'=>$command);
+      $parameters = ['Command'=>$command];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('Command', $parameters);
     }
@@ -421,7 +421,7 @@
     */
     function Events($eventmask)
     {
-      return $this->send_request('Events', array('EventMask'=>$eventmask));
+      return $this->send_request('Events', ['EventMask'=>$eventmask]);
     }
 
     /**
@@ -441,7 +441,7 @@
     **/
     function DBGet($family, $key, $actionid = null)
     {
-      $parameters = array('Family'=>$family, 'Key'=>$key);
+      $parameters = ['Family'=>$family, 'Key'=>$key];
       if($actionid == null)
         $actionid = $this->ActionID();
       $parameters['ActionID'] = $actionid;
@@ -464,7 +464,7 @@
     */
     function ExtensionState($exten, $context, $actionid=null)
     {
-      $parameters = array('Exten'=>$exten, 'Context'=>$context);
+      $parameters = ['Exten'=>$exten, 'Context'=>$context];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('ExtensionState', $parameters);
     }
@@ -480,7 +480,7 @@
     */
     function GetVar($channel, $variable, $actionid=null)
     {
-      $parameters = array('Channel'=>$channel, 'Variable'=>$variable);
+      $parameters = ['Channel'=>$channel, 'Variable'=>$variable];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('GetVar', $parameters);
     }
@@ -493,7 +493,7 @@
     */
     function Hangup($channel)
     {
-      return $this->send_request('Hangup', array('Channel'=>$channel));
+      return $this->send_request('Hangup', ['Channel'=>$channel]);
     }
 
    /**
@@ -515,7 +515,7 @@
     function ListCommands($actionid=null)
     {
       if($actionid)
-        return $this->send_request('ListCommands', array('ActionID'=>$actionid));
+        return $this->send_request('ListCommands', ['ActionID'=>$actionid]);
       else
         return $this->send_request('ListCommands');
     }
@@ -545,7 +545,7 @@
     */
     function MailboxCount($mailbox, $actionid=null)
     {
-      $parameters = array('Mailbox'=>$mailbox);
+      $parameters = ['Mailbox'=>$mailbox];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('MailboxCount', $parameters);
     }
@@ -564,7 +564,7 @@
     */
     function MailboxStatus($mailbox, $actionid=null)
     {
-      $parameters = array('Mailbox'=>$mailbox);
+      $parameters = ['Mailbox'=>$mailbox];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('MailboxStatus', $parameters);
     }
@@ -580,7 +580,7 @@
     */
     function Monitor($channel, $file=null, $format=null, $mix=null)
     {
-      $parameters = array('Channel'=>$channel);
+      $parameters = ['Channel'=>$channel];
       if($file) $parameters['File'] = $file;
       if($format) $parameters['Format'] = $format;
       if(!is_null($file)) $parameters['Mix'] = ($mix) ? 'true' : 'false';
@@ -609,7 +609,7 @@
                        $application=null, $data=null,
                        $timeout=null, $callerid=null, $variable=null, $account=null, $async=null, $actionid=null)
     {
-      $parameters = array('Channel'=>$channel);
+      $parameters = ['Channel'=>$channel];
 
       if($exten) $parameters['Exten'] = $exten;
       if($context) $parameters['Context'] = $context;
@@ -637,7 +637,7 @@
     function ParkedCalls($actionid=null)
     {
       if($actionid)
-        return $this->send_request('ParkedCalls', array('ActionID'=>$actionid));
+        return $this->send_request('ParkedCalls', ['ActionID'=>$actionid]);
       else
         return $this->send_request('ParkedCalls');
     }
@@ -663,7 +663,7 @@
     */
     function QueueAdd($queue, $interface, $penalty=0, $memberName = false)
     {
-      $parameters = array('Queue'=>$queue, 'Interface'=>$interface);
+      $parameters = ['Queue'=>$queue, 'Interface'=>$interface];
       if($penalty) $parameters['Penalty'] = $penalty;
       if($memberName) $parameters["MemberName"] = $memberName;
       return $this->send_request('QueueAdd', $parameters);
@@ -678,7 +678,7 @@
     */
     function QueueRemove($queue, $interface)
     {
-      return $this->send_request('QueueRemove', array('Queue'=>$queue, 'Interface'=>$interface));
+      return $this->send_request('QueueRemove', ['Queue'=>$queue, 'Interface'=>$interface]);
     }
 
     function QueueReload()
@@ -705,7 +705,7 @@
     function QueueStatus($actionid=null)
     {
       if($actionid)
-        return $this->send_request('QueueStatus', array('ActionID'=>$actionid));
+        return $this->send_request('QueueStatus', ['ActionID'=>$actionid]);
       else
         return $this->send_request('QueueStatus');
     }
@@ -722,14 +722,18 @@
     */
     function Redirect($channel, $extrachannel, $exten, $context, $priority)
     {
-      return $this->send_request('Redirect', array('Channel'=>$channel, 'ExtraChannel'=>$extrachannel, 'Exten'=>$exten,
-                                                   'Context'=>$context, 'Priority'=>$priority));
+      return $this->send_request('Redirect', [
+          'Channel'=>$channel, 'ExtraChannel'=>$extrachannel, 'Exten'=>$exten,
+                                                   'Context'=>$context, 'Priority'=>$priority
+      ]);
     }
 
     function Atxfer($channel, $exten, $context, $priority)
     {
-        return $this->send_request('Atxfer', array('Channel'=>$channel, 'Exten'=>$exten,
-            'Context'=>$context, 'Priority'=>$priority));
+        return $this->send_request('Atxfer', [
+            'Channel'=>$channel, 'Exten'=>$exten,
+            'Context'=>$context, 'Priority'=>$priority
+        ]);
     }
 
    /**
@@ -742,7 +746,7 @@
     */
     function SetCDRUserField($userfield, $channel, $append=null)
     {
-      $parameters = array('UserField'=>$userfield, 'Channel'=>$channel);
+      $parameters = ['UserField'=>$userfield, 'Channel'=>$channel];
       if($append) $parameters['Append'] = $append;
       return $this->send_request('SetCDRUserField', $parameters);
     }
@@ -757,7 +761,7 @@
     */
     function SetVar($channel, $variable, $value)
     {
-      return $this->send_request('SetVar', array('Channel'=>$channel, 'Variable'=>$variable, 'Value'=>$value));
+      return $this->send_request('SetVar', ['Channel'=>$channel, 'Variable'=>$variable, 'Value'=>$value]);
     }
 
    /**
@@ -769,7 +773,7 @@
     */
     function Status($channel, $actionid=null)
     {
-      $parameters = array('Channel'=>$channel);
+      $parameters = ['Channel'=>$channel];
       if($actionid) $parameters['ActionID'] = $actionid;
       return $this->send_request('Status', $parameters);
     }
@@ -782,7 +786,7 @@
     */
     function StopMonitor($channel)
     {
-      return $this->send_request('StopMonitor', array('Channel'=>$channel));
+      return $this->send_request('StopMonitor', ['Channel'=>$channel]);
     }
 
    /**
@@ -794,7 +798,7 @@
     */
     function ZapDialOffhook($zapchannel, $number)
     {
-      return $this->send_request('ZapDialOffhook', array('ZapChannel'=>$zapchannel, 'Number'=>$number));
+      return $this->send_request('ZapDialOffhook', ['ZapChannel'=>$zapchannel, 'Number'=>$number]);
     }
 
    /**
@@ -805,7 +809,7 @@
     */
     function ZapDNDoff($zapchannel)
     {
-      return $this->send_request('ZapDNDoff', array('ZapChannel'=>$zapchannel));
+      return $this->send_request('ZapDNDoff', ['ZapChannel'=>$zapchannel]);
     }
 
    /**
@@ -816,7 +820,7 @@
     */
     function ZapDNDon($zapchannel)
     {
-      return $this->send_request('ZapDNDon', array('ZapChannel'=>$zapchannel));
+      return $this->send_request('ZapDNDon', ['ZapChannel'=>$zapchannel]);
     }
 
    /**
@@ -827,7 +831,7 @@
     */
     function ZapHangup($zapchannel)
     {
-      return $this->send_request('ZapHangup', array('ZapChannel'=>$zapchannel));
+      return $this->send_request('ZapHangup', ['ZapChannel'=>$zapchannel]);
     }
 
    /**
@@ -838,7 +842,7 @@
     */
     function ZapTransfer($zapchannel)
     {
-      return $this->send_request('ZapTransfer', array('ZapChannel'=>$zapchannel));
+      return $this->send_request('ZapTransfer', ['ZapChannel'=>$zapchannel]);
     }
 
    /**
@@ -850,7 +854,7 @@
     function ZapShowChannels($actionid=null)
     {
       if($actionid)
-        return $this->send_request('ZapShowChannels', array('ActionID'=>$actionid));
+        return $this->send_request('ZapShowChannels', ['ActionID'=>$actionid]);
       else
         return $this->send_request('ZapShowChannels');
     }
