@@ -265,7 +265,7 @@ class AGI
      */
     public function database_del(string $family, string $key): array
     {
-        return $this->evaluate("DATABASE DEL \"$family\" \"$key\"");
+        return $this->evaluate('DATABASE DEL "%s" "%s"', $family, $key);
     }
 
     /**
@@ -296,7 +296,7 @@ class AGI
      */
     public function database_get(string $family, string $key): array
     {
-        return $this->evaluate("DATABASE GET \"$family\" \"$key\"");
+        return $this->evaluate('DATABASE GET %s %s', $family, $key);
     }
 
     /**
@@ -309,9 +309,7 @@ class AGI
      */
     public function database_put(string $family, string $key, string $value): array
     {
-        $value = str_replace("\n", '\n', addslashes($value));
-
-        return $this->evaluate("DATABASE PUT \"$family\" \"$key\" \"$value\"");
+        return $this->evaluate('DATABASE PUT %s %s %s', $family, $key, $value);
     }
 
 
@@ -326,11 +324,7 @@ class AGI
      */
     public function set_global_var(string $pVariable, $pValue): array
     {
-        if (is_numeric($pValue)) {
-            return $this->evaluate("Set($pVariable=$pValue,g);");
-        } else {
-            return $this->evaluate("Set($pVariable=\"$pValue\",g);");
-        }
+        return $this->evaluate('Set(%s=%s,g);', $pVariable, $pValue);
     }
 
 
@@ -345,11 +339,7 @@ class AGI
      */
     public function set_var(string $pVariable, $pValue): array
     {
-        if (is_numeric($pValue)) {
-            return $this->evaluate("Set($pVariable=$pValue});");
-        } else {
-            return $this->evaluate("Set($pVariable=\"$pValue\");");
-        }
+        return $this->evaluate('Set(%s=%s);', $pVariable, $pValue);
     }
 
 
@@ -492,7 +482,7 @@ class AGI
      */
     public function noop($string = ""): array
     {
-        return $this->evaluate("NOOP \"$string\"");
+        return $this->evaluate("NOOP %s", $string);
     }
 
     /**
@@ -549,7 +539,7 @@ class AGI
      */
     public function say_alpha(string $text, string $escape_digits = ''): array
     {
-        return $this->evaluate("SAY ALPHA $text \"$escape_digits\"");
+        return $this->evaluate('SAY ALPHA %s %s', $text, $escape_digits);
     }
 
     /**
@@ -563,7 +553,7 @@ class AGI
      */
     public function say_digits(int $digits, string $escape_digits = ''): array
     {
-        return $this->evaluate("SAY DIGITS $digits \"$escape_digits\"");
+        return $this->evaluate('SAY DIGITS %d %s', $digits, $escape_digits);
     }
 
     /**
@@ -577,7 +567,7 @@ class AGI
      */
     public function say_number(int $number, string $escape_digits = ''): array
     {
-        return $this->evaluate("SAY NUMBER $number \"$escape_digits\"");
+        return $this->evaluate('SAY NUMBER %d %s', $number, $escape_digits);
     }
 
     /**
@@ -591,7 +581,7 @@ class AGI
      */
     public function say_phonetic(string $text, string $escape_digits = ''): array
     {
-        return $this->evaluate("SAY PHONETIC $text \"$escape_digits\"");
+        return $this->evaluate('SAY PHONETIC %s %s', $text, $escape_digits);
     }
 
     /**
@@ -609,7 +599,7 @@ class AGI
             $time = time();
         }
 
-        return $this->evaluate("SAY TIME $time \"$escape_digits\"");
+        return $this->evaluate('SAY TIME %s %s', $time, $escape_digits);
     }
 
     /**
@@ -639,7 +629,7 @@ class AGI
      */
     public function send_text($text): array
     {
-        return $this->evaluate("SEND TEXT \"$text\"");
+        return $this->evaluate('SEND TEXT %s', $text);
     }
 
     /**
@@ -755,9 +745,7 @@ class AGI
      */
     public function set_variable(string $variable, string $value): array
     {
-        $value = str_replace("\n", '\n', addslashes($value));
-
-        return $this->evaluate("SET VARIABLE $variable \"$value\"");
+        return $this->evaluate('SET VARIABLE %s %s', $variable, $value);
     }
 
     /**
@@ -776,7 +764,7 @@ class AGI
      */
     public function stream_file(string $filename, string $escape_digits = '', int $offset = 0): array
     {
-        return $this->evaluate("STREAM FILE $filename \"$escape_digits\" $offset");
+        return $this->evaluate('STREAM FILE %s %s %d', $filename, $escape_digits, $offset);
     }
 
     /**
@@ -810,7 +798,7 @@ class AGI
     {
         foreach (explode("\n", str_replace("\r\n", "\n", print_r($message, true))) as $msg) {
             syslog(LOG_WARNING, $msg);
-            $ret = $this->evaluate("VERBOSE \"$msg\" $level");
+            $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
         }
 
         return $ret;
@@ -1698,11 +1686,21 @@ class AGI
      *
      * @access private
      * @param string $command
+     * @param mixed $args if present, $command is a printf format specification that $args are applied to;
+     *    string values will be escaped and quoted
      * @return array<string,mixed> ('code'=>$code, 'result'=>$result, 'data'=>$data)
      */
-    public function evaluate(string $command): array
+    public function evaluate(string $command, ...$args): array
     {
         $broken = ['code' => 500, 'result' => -1, 'data' => ''];
+
+        if (func_num_args() > 1) {
+            array_walk(
+                $args,
+                fn($v) => is_numeric($v) ? $v : '"' . str_replace(['"', "\n"], ['\\"', '\\n'], $v) . '"'
+            );
+            $command = vsprintf($command, $args);
+        }
 
         // write command
         if (!fwrite($this->out, trim($command) . "\n")) {
