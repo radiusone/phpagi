@@ -1,29 +1,19 @@
 <?php
  /**
   * phpagi-asmanager.php : PHP Asterisk Manager functions
-  * @see https://github.com/welltime/phpagi
-  * @filesource http://phpagi.sourceforge.net/
   *
-  * $Id: phpagi-asmanager.php,v 1.10 2005/05/25 18:43:48 pinhole Exp $
+  * @package phpAGI
+  * @version 3.0
+  * @filesource https://github.com/welltime/phpagi
+  * @see http://phpagi.sourceforge.net/
+  * @noinspection PhpUnused
   *
   * Copyright (c) 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
+  * Copyright 2023 RadiusOne Inc.
   * All Rights Reserved.
   *
   * This software is released under the terms of the GNU Lesser General Public License v2.1
   *  A copy of which is available from http://www.gnu.org/copyleft/lesser.html
-  *
-  * We would be happy to list your phpagi based application on the phpagi
-  * website.  Drop me an Email if you'd like us to list your program.
-  *
-  * @package phpAGI
-  * @version 2.0
-  */
-
-
- /**
-  * Written for PHP 4.3.4, should work with older PHP 4.x versions.
-  * Please submit bug reports, patches, etc to https://github.com/welltime/phpagi
-  *
   */
 
   if(!class_exists('AGI'))
@@ -114,8 +104,8 @@
       // load config
       if(!is_null($config) && file_exists($config))
         $this->config = parse_ini_file($config, true);
-      elseif(file_exists(DEFAULT_PHPAGI_CONFIG))
-        $this->config = parse_ini_file(DEFAULT_PHPAGI_CONFIG, true);
+      elseif(file_exists(AGI::DEFAULT_PHPAGI_CONFIG))
+        $this->config = parse_ini_file(AGI::DEFAULT_PHPAGI_CONFIG, true);
 
       // If optconfig is specified, stuff vals and vars into 'asmanager' config array.
       foreach($optconfig as $var=>$val)
