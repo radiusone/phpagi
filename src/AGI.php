@@ -365,7 +365,7 @@ class AGI
     public function exec(string $application, $options): array
     {
         if (is_array($options)) {
-            $options = join('|', $options);
+            $options = join($this->option_delim, $options);
         }
 
         return $this->evaluate("EXEC $application $options");
@@ -907,7 +907,11 @@ class AGI
      */
     public function exec_dial(string $type, string $identifier, int $timeout = null, string $options = null, string $url = null): array
     {
-        return $this->exec('Dial', trim("$type/$identifier" . $this->option_delim . $timeout . $this->option_delim . $options . $this->option_delim . $url, $this->option_delim));
+        $dial_opts = implode(
+            $this->option_delim,
+            array_filter(["$type/$identifier", $timeout, $options, $url])
+        );
+        return $this->exec('Dial', $dial_opts);
     }
 
     /**
@@ -916,14 +920,13 @@ class AGI
      * This function takes three arguments: context,extension, and priority, but the leading arguments
      * are optional, not the trailing arguments.  Thuse goto($z) sets the priority to $z.
      *
-     * @param string $a
-     * @param string|null $b ;
-     * @param string|null $c ;
-     * @return array, see evaluate for return information.
+     * @param string|int ...$args the goto arguments
+     * @return array see evaluate for return information.
      */
-    public function exec_goto(string $a, string $b = null, string $c = null): array
+    public function exec_goto(...$args): array
     {
-        return $this->exec('Goto', trim($a . $this->option_delim . $b . $this->option_delim . $c, $this->option_delim));
+        $opts = implode($this->option_delim, $args);
+        return $this->exec('Goto', $opts);
     }
 
 
