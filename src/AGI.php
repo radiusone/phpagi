@@ -1726,8 +1726,8 @@ class AGI
         $ret['code'] = substr($str, 0, 3);
         $str = trim(substr($str, 3));
 
-        if ($str[0] == '-') // we have a multiline response!
-        {
+        if ($str[0] == '-') {
+            // we have a multiline response!
             $count = 0;
             $str = substr($str, 1) . "\n";
             $line = fgets($this->in, 4096);
@@ -1744,17 +1744,17 @@ class AGI
 
         $ret['result'] = null;
         $ret['data'] = '';
-        if ($ret['code'] != self::AGIRES_OK) // some sort of error
-        {
+        if ($ret['code'] != self::AGIRES_OK) {
+            // some sort of error
             $ret['data'] = $str;
             $this->conlog(print_r($ret, true));
-        } else // normal AGIRES_OK response
-        {
+        } else {
+            // normal AGIRES_OK response
             $parse = explode(' ', trim($str));
             $in_token = false;
             foreach ($parse as $token) {
-                if ($in_token) // we previously hit a token starting with ')' but not ending in ')'
-                {
+                if ($in_token) {
+                    // we previously hit a token starting with ')' but not ending in ')'
                     $ret['data'] .= ' ' . trim($token, '() ');
                     if ($token[strlen($token) - 1] == ')') {
                         $in_token = false;
@@ -1795,8 +1795,8 @@ class AGI
         static $busy = false;
 
         if ($this->config['phpagi']['debug']) {
-            if (!$busy) // no conlogs inside conlog!!!
-            {
+            if (!$busy) {
+                // no conlogs inside conlog!!!
                 $busy = true;
                 $this->verbose($str, $vbl);
                 $busy = false;
