@@ -194,12 +194,12 @@ class AGI
     /**
      * Answer channel if not already in answer state.
      *
-     * @link http://www.voip-info.org/wiki-answer
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @example examples/input.php Get text input from the user and say it back
      * @example examples/ping.php Ping an IP address
+     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/answer/
      *
-     * @return array, see evaluate for return information.  ['result'] is 0 on success, -1 on failure.
+     * @return array see evaluate for return information.  ['result'] is 0 on success, -1 on failure.
      */
     public function answer(): array
     {
@@ -209,9 +209,10 @@ class AGI
     /**
      * Get the status of the specified channel. If no channel name is specified, return the status of the current channel.
      *
-     * @link http://www.voip-info.org/wiki-channel+status
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/channel_status/
+     *
      * @param string $channel
-     * @return array, see evaluate for return information. ['data'] contains description.
+     * @return array see evaluate for return information. ['data'] contains description.
      */
     public function channel_status(string $channel = ''): array
     {
@@ -261,10 +262,11 @@ class AGI
     /**
      * Deletes an entry in the Asterisk database for a given family and key.
      *
-     * @link http://www.voip-info.org/wiki-database+del
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/database_del/
+     *
      * @param string $family
      * @param string $key
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
      */
     public function database_del(string $family, string $key): array
     {
@@ -274,10 +276,11 @@ class AGI
     /**
      * Deletes a family or specific keytree within a family in the Asterisk database.
      *
-     * @link http://www.voip-info.org/wiki-database+deltree
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/database_deltree/
+     *
      * @param string $family
      * @param string $keytree
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise.
      */
     public function database_deltree(string $family, string $keytree = ''): array
     {
@@ -292,10 +295,11 @@ class AGI
     /**
      * Retrieves an entry in the Asterisk database for a given family and key.
      *
-     * @link http://www.voip-info.org/wiki-database+get
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/database_get/
+     *
      * @param string $family
      * @param string $key
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 failure. ['data'] holds the value
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 failure. ['data'] holds the value
      */
     public function database_get(string $family, string $key): array
     {
@@ -305,10 +309,12 @@ class AGI
     /**
      * Adds or updates an entry in the Asterisk database for a given family, key, and value.
      *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/database_put/
+     *
      * @param string $family
      * @param string $key
      * @param string $value
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
     public function database_put(string $family, string $key, string $value): array
     {
@@ -323,7 +329,7 @@ class AGI
      *
      * @param string $pVariable
      * @param string|int|float $pValue
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
     public function set_global_var(string $pVariable, $pValue): array
     {
@@ -338,7 +344,7 @@ class AGI
      *
      * @param string $pVariable
      * @param string|int|float $pValue
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 otherwise
      */
     public function set_var(string $pVariable, $pValue): array
     {
@@ -349,11 +355,12 @@ class AGI
     /**
      * Executes the specified Asterisk application with given options.
      *
-     * @link http://www.voip-info.org/wiki-exec
-     * @link http://www.voip-info.org/wiki-Asterisk+-+documentation+of+application+commands
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/exec/
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/ADSIProg/
+     *
      * @param string $application
      * @param mixed $options
-     * @return array, see evaluate for return information. ['result'] is whatever the application returns, or -2 on failure to find application
+     * @return array see evaluate for return information. ['result'] is whatever the application returns, or -2 on failure to find application
      */
     public function exec(string $application, $options): array
     {
@@ -391,15 +398,14 @@ class AGI
      * any previously keyed digits are returned. A side effect of this is that there is no
      * way to read a # key using this command.
      *
+     * @example examples/ping.php Ping an IP address
+     * @link hhttps://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_data/
+     *
      * @param string $filename file to play. Do not include file extension.
      * @param int|null $timeout milliseconds
      * @param int|null $max_digits
-     * @return array, see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
-     *
+     * @return array see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
-     * @example examples/ping.php Ping an IP address
-     *
-     * @link http://www.voip-info.org/wiki-get+data
      */
     public function get_data(string $filename, int $timeout = null, int $max_digits = null): array
     {
@@ -411,8 +417,9 @@ class AGI
      *
      * Does not work with global variables. Does not work with some variables that are generated by modules.
      *
-     * @link http://www.voip-info.org/wiki-get+variable
-     * @link http://www.voip-info.org/wiki-Asterisk+variables
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_variable/
+     * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/
+     *
      * @param string $variable name
      * @param bool $getvalue return the value only
      * @return array|string see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value. returns value if $getvalue is TRUE
@@ -430,11 +437,10 @@ class AGI
 
 
     /**
-     * Fetch the value of a full variable.
+     * Fetch the result of a dialplan-like expression.
      *
-     *
-     * @link http://www.voip-info.org/wiki/view/get+full+variable
-     * @link http://www.voip-info.org/wiki-Asterisk+variables
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_full_variable/
+     * @link https://docs.asterisk.org/Configuration/Dialplan/Expressions/
      * @param string $variable name
      * @param string $channel channel
      * @param bool $getvalue return the value only
@@ -464,13 +470,13 @@ class AGI
      * With power comes responsibility. Hanging up channels other than your own isn't something
      * that is done routinely. If you are not sure why you are doing so, then don't.
      *
-     * @link http://www.voip-info.org/wiki-hangup
      * @example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @example examples/input.php Get text input from the user and say it back
      * @example examples/ping.php Ping an IP address
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/hangup/
      *
      * @param string $channel
-     * @return array, see evaluate for return information. ['result'] is 1 on success, -1 on failure.
+     * @return array see evaluate for return information. ['result'] is 1 on success, -1 on failure.
      */
     public function hangup(string $channel = ''): array
     {
@@ -480,8 +486,10 @@ class AGI
     /**
      * Does nothing.
      *
-     * @link http://www.voip-info.org/wiki-noop
-     * @return array, see evaluate for return information.
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/noop/
+     *
+     * @param string $string a message
+     * @return array see evaluate for return information.
      */
     public function noop($string = ""): array
     {
@@ -492,9 +500,10 @@ class AGI
      * Receive a character of text from a connected channel. Waits up to $timeout milliseconds for
      * a character to arrive, or infinitely if $timeout is zero.
      *
-     * @link http://www.voip-info.org/wiki-receive+char
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/receive_char/
+     *
      * @param int $timeout milliseconds
-     * @return array, see evaluate for return information. ['result'] is 0 on timeout or not supported, -1 on failure. Otherwise
+     * @return array see evaluate for return information. ['result'] is 0 on timeout or not supported, -1 on failure. Otherwise
      * it is the decimal value of the DTMF tone. Use chr() to convert to ASCII.
      */
     public function receive_char(int $timeout = -1): array
@@ -506,7 +515,8 @@ class AGI
      * Record sound to a file until an acceptable DTMF digit is received or a specified amount of
      * time has passed. Optionally the file BEEP is played before recording begins.
      *
-     * @link http://www.voip-info.org/wiki-record+file
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/record_file/
+     *
      * @param string $file to record, without extension, often created in /var/lib/asterisk/sounds
      * @param string $format of the file. GSM and WAV are commonly used formats. MP3 is read-only and thus cannot be used.
      * @param string $escape_digits
@@ -515,7 +525,7 @@ class AGI
      * @param bool $beep
      * @param int|null $silence number of seconds of silence allowed before the function returns despite the
      * lack of dtmf digits or reaching timeout.
-     * @return array, see evaluate for return information. ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
+     * @return array see evaluate for return information. ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
      * DTMF tone. Use chr() to convert to ASCII.
      */
     public function record_file(string $file, string $format, string $escape_digits = '', int $timeout = -1, int $offset = null, bool $beep = false, int $silence = null): array
@@ -534,10 +544,11 @@ class AGI
     /**
      * Say a given character string, returning early if any of the given DTMF digits are received on the channel.
      *
-     * @link https://www.voip-info.org/say-alpha
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_alpha/
+     *
      * @param string $text
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function say_alpha(string $text, string $escape_digits = ''): array
@@ -548,10 +559,11 @@ class AGI
     /**
      * Say the given digit string, returning early if any of the given DTMF escape digits are received on the channel.
      *
-     * @link http://www.voip-info.org/wiki-say+digits
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_digits/
+     *
      * @param int $digits
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function say_digits(int $digits, string $escape_digits = ''): array
@@ -562,10 +574,11 @@ class AGI
     /**
      * Say the given number, returning early if any of the given DTMF escape digits are received on the channel.
      *
-     * @link http://www.voip-info.org/wiki-say+number
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_number/
+     *
      * @param int $number
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function say_number(int $number, string $escape_digits = ''): array
@@ -576,10 +589,11 @@ class AGI
     /**
      * Say the given character string, returning early if any of the given DTMF escape digits are received on the channel.
      *
-     * @link http://www.voip-info.org/wiki-say+phonetic
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_phonetic/
+     *
      * @param string $text
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function say_phonetic(string $text, string $escape_digits = ''): array
@@ -590,10 +604,11 @@ class AGI
     /**
      * Say a given time, returning early if any of the given DTMF escape digits are received on the channel.
      *
-     * @link http://www.voip-info.org/wiki-say+time
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_time/
+     *
      * @param int|null $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function say_time(int $time = null, string $escape_digits = ''): array
@@ -610,9 +625,10 @@ class AGI
      *
      * Most channels do not support the transmission of images.
      *
-     * @link http://www.voip-info.org/wiki-send+image
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/send_image/
+     *
      * @param string $image without extension, often in /var/lib/asterisk/images
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the image is sent or
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the image is sent or
      * channel does not support image transmission.
      */
     public function send_image(string $image): array
@@ -625,9 +641,10 @@ class AGI
      *
      * Most channels do not support transmission of text.
      *
-     * @link http://www.voip-info.org/wiki-send+text
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/send_text/
+     *
      * @param $text
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the text is sent or
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if the text is sent or
      * channel does not support text transmission.
      */
     public function send_text($text): array
@@ -641,9 +658,10 @@ class AGI
      *
      * If the channel is hungup prior to $time seconds, this setting has no effect.
      *
-     * @link http://www.voip-info.org/wiki-set+autohangup
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_autohangup/
+     *
      * @param int $time until automatic hangup
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_autohangup(int $time = 0): array
     {
@@ -652,15 +670,16 @@ class AGI
 
     /**
      * Changes the caller ID of the current channel.
-     *
-     * @link http://www.voip-info.org/wiki-set+callerid
-     * @param string $cid example: "John Smith"<1234567>
      * This command will let you take liberties with the <caller ID specification> but the format shown in the example above works
-     * well: the name enclosed in double quotes followed immediately by the number inside angle brackets. If there is no name then
-     * you can omit it. If the name contains no spaces you can omit the double quotes around it. The number must follow the name
-     * immediately; don't put a space between them. The angle brackets around the number are necessary; if you omit them the
-     * number will be considered to be part of the name.
-     * @return array, see evaluate for return information.
+     *  well: the name enclosed in double quotes followed immediately by the number inside angle brackets. If there is no name then
+     *  you can omit it. If the name contains no spaces you can omit the double quotes around it. The number must follow the name
+     *  immediately; don't put a space between them. The angle brackets around the number are necessary; if you omit them the
+     *  number will be considered to be part of the name.     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_callerid/
+     *
+     * @param string $cid example: "John Smith"<1234567>
+     * @return array see evaluate for return information.
      */
     public function set_callerid(string $cid): array
     {
@@ -676,9 +695,10 @@ class AGI
      * If you specify a non-existent context you receive no error indication (['result'] is still 0) but you do get a
      * warning message on the Asterisk console.
      *
-     * @link http://www.voip-info.org/wiki-set+context
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_context/
+     *
      * @param string $context
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_context(string $context): array
     {
@@ -694,9 +714,10 @@ class AGI
      * If you specify a non-existent extension you receive no error indication (['result'] is still 0) but you do
      * get a warning message on the Asterisk console.
      *
-     * @link http://www.voip-info.org/wiki-set+extension
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_extension/
+     *
      * @param string $extension
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_extension(string $extension): array
     {
@@ -706,10 +727,11 @@ class AGI
     /**
      * Enable/Disable Music on hold generator.
      *
-     * @link http://www.voip-info.org/wiki-set+music
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_music/
+     *
      * @param bool $enabled
      * @param string $class
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_music(bool $enabled = true, string $class = ''): array
     {
@@ -724,9 +746,10 @@ class AGI
      * If you specify a non-existent priority you receive no error indication (['result'] is still 0)
      * and no warning is issued on the Asterisk console.
      *
-     * @link http://www.voip-info.org/wiki-set+priority
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_music/
+     *
      * @param int $priority
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_priority(int $priority): array
     {
@@ -741,10 +764,11 @@ class AGI
      * Variables created in one channel can not be accessed by another channel. When you hang up the phone, the channel is deleted
      * and any variables in that channel are deleted as well.
      *
-     * @link http://www.voip-info.org/wiki-set+variable
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_variable/
+     *
      * @param string $variable is case sensitive
      * @param string $value
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function set_variable(string $variable, string $value): array
     {
@@ -755,15 +779,14 @@ class AGI
      * Play the given audio file, allowing playback to be interrupted by a DTMF digit. This command is similar to the GET DATA
      * command but this command returns after the first DTMF digit has been pressed while GET DATA can accumulated any number of
      * digits before returning.
+     * @example examples/ping.php Ping an IP address
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/stream_file/
      *
      * @param string $filename without extension, often in /var/lib/asterisk/sounds
      * @param string $escape_digits
      * @param int $offset
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
-     * @example examples/ping.php Ping an IP address
-     *
-     * @link http://www.voip-info.org/wiki-stream+file
      */
     public function stream_file(string $filename, string $escape_digits = '', int $offset = 0): array
     {
@@ -773,9 +796,10 @@ class AGI
     /**
      * Enable or disable TDD transmission/reception on the current channel.
      *
-     * @link http://www.voip-info.org/wiki-tdd+mode
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/tdd_mode/
+     *
      * @param string $setting can be on, off or mate
-     * @return array, see evaluate for return information. ['result'] is 1 on sucess, 0 if the channel is not TDD capable.
+     * @return array see evaluate for return information. ['result'] is 1 on sucess, 0 if the channel is not TDD capable.
      */
     public function tdd_mode(string $setting): array
     {
@@ -792,10 +816,11 @@ class AGI
      * to desired verbosity set by the user. More important messages should have a low verbose level; less important messages
      * should have a high verbose level.
      *
-     * @link http://www.voip-info.org/wiki-verbose
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/verbose/
+     *
      * @param string $message
      * @param int $level from 1 to 4
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function verbose(string $message, int $level = 1): array
     {
@@ -810,9 +835,10 @@ class AGI
     /**
      * Waits up to $timeout milliseconds for channel to receive a DTMF digit.
      *
-     * @link http://www.voip-info.org/wiki-wait+for+digit
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/wait_for_digit/
+     *
      * @param int $timeout in millisecons. Use -1 for the timeout value if you want the call to wait indefinitely.
-     * @return array, see evaluate for return information. ['result'] is 0 if wait completes with no
+     * @return array see evaluate for return information. ['result'] is 0 if wait completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function wait_for_digit(int $timeout = -1): array
@@ -836,7 +862,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-Asterisk+-+documentation+of+application+commands
      * @link http://www.dynx.net/ASTERISK/AGI/ccard/agi-ccard.agi
      * @param int $seconds allowed, 0 disables timeout
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function exec_absolutetimeout(int $seconds = 0): array
     {
@@ -846,9 +872,11 @@ class AGI
     /**
      * Executes an AGI compliant application.
      *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/AGI/
+     *
      * @param string $command
      * @param string $args
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or if application requested hangup, or 0 on non-hangup exit.
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or if application requested hangup, or 0 on non-hangup exit.
      */
     public function exec_agi(string $command, string $args): array
     {
@@ -858,8 +886,11 @@ class AGI
     /**
      * Set Language.
      *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/Set/
+     * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/Channel-Variables/
+     *
      * @param string $language code
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function exec_setlanguage(string $language = 'en'): array
     {
@@ -873,7 +904,7 @@ class AGI
      *   get_variable('ENUM');
      *
      * @param $exten
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function exec_enumlookup($exten): array
     {
@@ -888,13 +919,14 @@ class AGI
      * Dial returns ${CAUSECODE}: If the dial failed, this is the errormessage.
      * Dial returns ${DIALSTATUS}: Text code returning status of last dial attempt.
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+cmd+Dial
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/Dial/
+     * 
      * @param string $type
      * @param string $identifier
      * @param int|null $timeout
      * @param string|null $options
      * @param string|null $url
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function exec_dial(string $type, string $identifier, int $timeout = null, string $options = null, string $url = null): array
     {
@@ -910,6 +942,8 @@ class AGI
      *
      * This function takes three arguments: context,extension, and priority, but the leading arguments
      * are optional, not the trailing arguments.  Thuse goto($z) sets the priority to $z.
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/Goto/
      *
      * @param string|int ...$args the goto arguments
      * @return array see evaluate for return information.
@@ -929,11 +963,12 @@ class AGI
      * Say the given digit string, returning early if any of the given DTMF escape digits are received on the channel.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.voip-info.org/wiki-say+digits
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_digits/
+     *
      * @param string $buffer
      * @param int $digits
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function fastpass_say_digits(string &$buffer, int $digits, string $escape_digits = ''): array
@@ -960,11 +995,12 @@ class AGI
      * Say the given number, returning early if any of the given DTMF escape digits are received on the channel.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.voip-info.org/wiki-say+number
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_number/
+     *
      * @param string $buffer
      * @param int $number
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function fastpass_say_number(string &$buffer, int $number, string $escape_digits = ''): array
@@ -991,11 +1027,12 @@ class AGI
      * Say the given character string, returning early if any of the given DTMF escape digits are received on the channel.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.voip-info.org/wiki-say+phonetic
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_phonetic/
+     *
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function fastpass_say_phonetic(string &$buffer, string $text, string $escape_digits = ''): array
@@ -1022,11 +1059,12 @@ class AGI
      * Say a given time, returning early if any of the given DTMF escape digits are received on the channel.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.voip-info.org/wiki-say+time
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/say_time/
+     *
      * @param string $buffer
      * @param int|null $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
      * @param string $escape_digits
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function fastpass_say_time(string &$buffer, int $time = null, string $escape_digits = ''): array
@@ -1055,12 +1093,13 @@ class AGI
      * digits before returning.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.voip-info.org/wiki-stream+file
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/stream_file/
+     *
      * @param string $buffer
      * @param string $filename without extension, often in /var/lib/asterisk/sounds
      * @param string $escape_digits
      * @param int $offset
-     * @return array, see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * @return array see evaluate for return information. ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
     public function fastpass_stream_file(string &$buffer, string $filename, string $escape_digits = '', int $offset = 0): array
@@ -1087,12 +1126,13 @@ class AGI
      * Use festival to read text.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.cstr.ed.ac.uk/projects/festival/
+     * @link https://www.cstr.ed.ac.uk/projects/festival/
+     *
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function fastpass_text2wav(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000)
     {
@@ -1118,12 +1158,13 @@ class AGI
      * Use Cepstral Swift to read text.
      * Return early if $buffer is adequate for request.
      *
-     * @link http://www.cepstral.com/
+     * @link https://www.cepstral.com/
+     *
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, $voice = null)
     {
@@ -1153,7 +1194,7 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function fastpass_say_punctuation(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000)
     {
@@ -1203,12 +1244,13 @@ class AGI
      * any previously keyed digits are returned. A side effect of this is that there is no
      * way to read a # key using this command.
      *
-     * @link http://www.voip-info.org/wiki-get+data
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_data/
+     *
      * @param string $buffer
      * @param string $filename file to play. Do not include file extension.
      * @param int|null $timeout milliseconds
      * @param int|null $max_digits
-     * @return array, see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
+     * @return array see evaluate for return information. ['result'] holds the digits and ['data'] holds the timeout if present.
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
@@ -1306,14 +1348,13 @@ class AGI
 
     /**
      * Parse caller id.
+     * "name" <proto:user@server:port>
      *
-     * @param string|null $callerid
-     * @return array('Name'=>$name, 'Number'=>$number)
      * @example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @example examples/input.php Get text input from the user and say it back
      *
-     * "name" <proto:user@server:port>
-     *
+     * @param string|null $callerid
+     * @return array('Name'=>$name, 'Number'=>$number)
      */
     public function parse_callerid(string $callerid = null): array
     {
@@ -1355,15 +1396,15 @@ class AGI
     /**
      * Use festival to read text.
      *
+     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
+     * @example examples/input.php Get text input from the user and say it back
+     * @example examples/ping.php Ping an IP address
+     * @link https://www.cstr.ed.ac.uk/projects/festival/
+     *
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
      * @return array|bool see evaluate for return information.
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
-     * @example examples/input.php Get text input from the user and say it back
-     * @example examples/ping.php Ping an IP address
-     *
-     * @link http://www.cstr.ed.ac.uk/projects/festival/
      */
     public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000)
     {
@@ -1408,10 +1449,12 @@ class AGI
     /**
      * Use Cepstral Swift to read text.
      *
-     * @link http://www.cepstral.com/
+     * @link https://www.cepstral.com/
+     *
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
+     * @param null $voice
      * @return array|bool see evaluate for return information.
      */
     public function swift(string $text, string $escape_digits = '', int $frequency = 8000, $voice = null)
@@ -1469,6 +1512,7 @@ class AGI
      * @link http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
      * @example examples/input.php Get text input from the user and say it back
      *
+     * @param string $mode
      * @return string
      */
     public function text_input($mode = 'NUMERIC'): string
@@ -1552,7 +1596,7 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array, see evaluate for return information.
+     * @return array see evaluate for return information.
      */
     public function say_punctuation(string $text, string $escape_digits = '', int $frequency = 8000)
     {
@@ -1788,10 +1832,11 @@ class AGI
     /**
      * Log to console if debug mode.
      *
-     * @param string $str
-     * @param int $vbl verbose level
      * @example examples/ping.php Ping an IP address
      *
+     * @param string $str
+     * @param int $vbl verbose level
+     * @return void
      */
     public function conlog(string $str, int $vbl = 1)
     {
@@ -1866,6 +1911,7 @@ class AGI
      * @param string $message error message
      * @param string $file path to file
      * @param int $line line number of error
+     * @return void
      */
     private function phpagi_error_handler(int $level, string $message, string $file, int $line)
     {

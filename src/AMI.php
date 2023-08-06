@@ -82,6 +82,7 @@ class AMI
      *
      * @param string|null $config is the name of the config file to parse or a parent agi from which to read the config
      * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['asmanager']
+     * @return void
      */
     public function __construct(string $config = null, array $optconfig = [])
     {
@@ -137,7 +138,7 @@ class AMI
     }
 
     /**
-     * @throws Exception
+     * @param bool $allow_timeout
      */
     public function read_one_msg($allow_timeout = false): array
     {
@@ -234,10 +235,6 @@ class AMI
      *
      * @param bool $allow_timeout if the socket times out, return an empty array
      * @return array of parameters, empty on timeout
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
      */
     public function wait_response(bool $allow_timeout = false, $actionid = null): array
     {
@@ -272,11 +269,13 @@ class AMI
     /**
      * Connect to Asterisk
      *
+     * @example examples/sip_show_peer.php Get information about a sip peer
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Login/
+     *
      * @param string|null $server
      * @param string|null $username
      * @param string|null $secret
      * @return bool true on success
-     * @example examples/sip_show_peer.php Get information about a sip peer
      *
      */
     public function connect(string $server = null, string $username = null, string $secret = null): bool
@@ -339,6 +338,9 @@ class AMI
      * Disconnect
      *
      * @example examples/sip_show_peer.php Get information about a sip peer
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
+     *
+     * @return void
      */
     public function disconnect()
     {
@@ -357,7 +359,8 @@ class AMI
      *
      * Hangup a channel after a certain time.
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+AbsoluteTimeout
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AbsoluteTimeout/
+     *
      * @param string $channel Channel name to hangup
      * @param int $timeout Maximum duration of the call (sec)
      */
@@ -369,7 +372,8 @@ class AMI
     /**
      * Change monitoring filename of a channel
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ChangeMonitor
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ChangeMonitor/
+     *
      * @param string $channel the channel to record.
      * @param string $file the new name of the file created in the monitor spool directory.
      */
@@ -381,11 +385,11 @@ class AMI
     /**
      * Execute Command
      *
+     * @example examples/sip_show_peer.php Get information about a sip peer
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Command/
+     *
      * @param string $command
      * @param string|null $actionid message matching variable
-     * @link http://www.voip-info.org/wiki-Asterisk+CLI
-     * @example examples/sip_show_peer.php Get information about a sip peer
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Command
      */
     public function Command(string $command, string $actionid = null): array
     {
@@ -400,7 +404,8 @@ class AMI
     /**
      * Enable/Disable sending of events to this manager
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Events
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Events/
+     *
      * @param string $eventmask is either 'on', 'off', or 'system,call,log'
      */
     public function Events(string $eventmask): array
@@ -419,10 +424,11 @@ class AMI
     /**
      *
      *  DBGet
-     *  http://www.voip-info.org/wiki/index.php?page=Asterisk+Manager+API+Action+DBGet
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBGet/
      *
      * @param string $family key family
      * @param string $key key name
+     * @return string
      **/
     public function DBGet(string $family, string $key, $actionid = null)
     {
@@ -444,7 +450,8 @@ class AMI
     /**
      * Check Extension Status
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ExtensionState
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ExtensionState/
+     *
      * @param string $exten Extension to check state on
      * @param string $context Context for extension
      * @param string|null $actionid message matching variable
@@ -462,8 +469,9 @@ class AMI
     /**
      * Gets a Channel Variable
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+GetVar
-     * @link http://www.voip-info.org/wiki-Asterisk+variables
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Getvar/
+     * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/
+     *
      * @param string $channel Channel to read variable from
      * @param string $variable
      * @param string|null $actionid message matching variable
@@ -481,7 +489,8 @@ class AMI
     /**
      * Hangup Channel
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Hangup
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Hangup/
+     *
      * @param string $channel The channel name to be hungup
      */
     public function Hangup(string $channel): array
@@ -492,7 +501,7 @@ class AMI
     /**
      * List IAX Peers
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+IAXpeers
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXpeers/
      */
     public function IAXPeers(): array
     {
@@ -502,7 +511,8 @@ class AMI
     /**
      * List available manager commands
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ListCommands
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ListCommands/
+     *
      * @param string|null $actionid message matching variable
      */
     public function ListCommands(string $actionid = null): array
@@ -517,7 +527,7 @@ class AMI
     /**
      * Logoff Manager
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Logoff
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
      */
     public function Logoff(): array
     {
@@ -533,7 +543,8 @@ class AMI
      *   NewMessages: <count>
      *   OldMessages: <count>
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+MailboxCount
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxCount/
+     * 
      * @param string $mailbox Full mailbox ID <mailbox>@<vm-context>
      * @param string|null $actionid message matching variable
      */
@@ -555,7 +566,8 @@ class AMI
      *   Mailbox: <mailboxid>
      *   Waiting: <count>
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+MailboxStatus
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxStatus/
+     *
      * @param string $mailbox Full mailbox ID <mailbox>@<vm-context>
      * @param string|null $actionid message matching variable
      */
@@ -572,7 +584,8 @@ class AMI
     /**
      * Monitor a channel
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Monitor
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Monitor/
+     *
      * @param string $channel
      * @param string|null $file
      * @param string|null $format
@@ -597,7 +610,8 @@ class AMI
     /**
      * Originate Call
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Originate
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Originate/
+     *
      * @param string $channel Channel name to call
      * @param string|null $exten Extension to use (requires 'Context' and 'Priority')
      * @param string|null $context Context to use (requires 'Exten' and 'Priority')
@@ -660,7 +674,8 @@ class AMI
     /**
      * List parked calls
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ParkedCalls
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ParkedCalls/
+     *
      * @param string|null $actionid message matching variable
      */
     public function ParkedCalls(string $actionid = null): array
@@ -675,7 +690,7 @@ class AMI
     /**
      * Ping
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Ping
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Ping/
      */
     public function Ping(): array
     {
@@ -685,7 +700,8 @@ class AMI
     /**
      * Queue Add
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+QueueAdd
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueAdd/
+     *
      * @param string $queue
      * @param string $interface
      * @param int $penalty
@@ -707,7 +723,8 @@ class AMI
     /**
      * Queue Remove
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+QueueRemove
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueRemove/
+     *
      * @param string $queue
      * @param string $interface
      */
@@ -716,6 +733,9 @@ class AMI
         return $this->send_request('QueueRemove', ['Queue' => $queue, 'Interface' => $interface]);
     }
 
+    /**
+     * @lnk https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueReload/
+     */
     public function QueueReload(): array
     {
         return $this->send_request('QueueReload');
@@ -734,7 +754,8 @@ class AMI
     /**
      * Queue Status
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+QueueStatus
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueStatus/
+     *
      * @param string|null $actionid message matching variable
      */
     public function QueueStatus(string $actionid = null): array
@@ -749,7 +770,8 @@ class AMI
     /**
      * Redirect
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Redirect
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Redirect/
+     *
      * @param string $channel
      * @param string $extrachannel
      * @param string $exten
@@ -764,6 +786,9 @@ class AMI
         ]);
     }
 
+    /**
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Atxfer/
+     */
     public function Atxfer($channel, $exten, $context, $priority): array
     {
         return $this->send_request('Atxfer', [
@@ -793,7 +818,8 @@ class AMI
     /**
      * Set Channel Variable
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+SetVar
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Setvar/
+     *
      * @param string $channel Channel to set variable for
      * @param string $variable name
      * @param string $value
@@ -806,7 +832,7 @@ class AMI
     /**
      * Channel Status
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Status
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Status/
      * @param string $channel
      * @param string|null $actionid message matching variable
      */
@@ -823,7 +849,8 @@ class AMI
     /**
      * Stop monitoring a channel
      *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+StopMonitor
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/StopMonitor/
+     *
      * @param string $channel
      */
     public function StopMonitor(string $channel): array
