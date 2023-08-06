@@ -55,6 +55,9 @@ class AGI
     private const AST_STATE_DIALING_OFFHOOK = 8;
     private const AST_STATE_PRERING = 9;
 
+    /** @var int FD number for audio stream */
+    public const AUDIO_FILENO = 3;
+
     /**
      * Request variables read in on initialization.
      *
@@ -164,11 +167,11 @@ class AGI
 
         // open audio if eagi detected
         if ($this->request['agi_enhanced'] == '1.0') {
-            if (file_exists('/proc/' . getmypid() . '/fd/3')) {
-                $this->audio = fopen('/proc/' . getmypid() . '/fd/3', 'r');
-            } elseif (file_exists('/dev/fd/3')) {
+            if (file_exists('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO)) {
+                $this->audio = fopen('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO, 'r');
+            } elseif (file_exists('/dev/fd/' . self::AUDIO_FILENO)) {
                 // may need to mount fdescfs
-                $this->audio = fopen('/dev/fd/3', 'r');
+                $this->audio = fopen('/dev/fd/' . self::AUDIO_FILENO, 'r');
             } else {
                 $this->conlog('Unable to open audio stream');
             }
