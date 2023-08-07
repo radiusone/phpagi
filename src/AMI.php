@@ -4,72 +4,52 @@ namespace PhpAgi;
 
 use Exception;
 
+if (!class_exists('PhpAgi\\AGI')) {
+    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AGI.php');
+}
+
 /**
- * phpagi-asmanager.php : PHP Asterisk Manager functions
- *
- * @package PhpAgi
- * @version 3.0
- * @filesource https://github.com/welltime/phpagi
- * @see http://phpagi.sourceforge.net/
- * @noinspection PhpUnused
+ * PHP Asterisk Manager Interface (AMI) client
  *
  * Copyright (c) 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * Copyright 2023 RadiusOne Inc.
  * All Rights Reserved.
  *
  * This software is released under the terms of the GNU Lesser General Public License v2.1
- *  A copy of which is available from http://www.gnu.org/copyleft/lesser.html
- */
-
-if (!class_exists('PhpAgi\\AGI')) {
-    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AGI.php');
-}
-
-/**
- * Asterisk Manager class
+ * a copy of which is available from http://www.gnu.org/copyleft/lesser.html
  *
- * @link http://www.voip-info.org/wiki-Asterisk+config+manager.conf
- * @link http://www.voip-info.org/wiki-Asterisk+manager+API
+ * @package PhpAgi
+ * @version 3.0
+ * @filesource https://github.com/welltime/phpagi
+ * @see http://phpagi.sourceforge.net/
+ * @noinspection PhpUnused
+ * @package PhPAgi
  * @example examples/sip_show_peer.php Get information about a sip peer
- * @package phpAGI
  */
 class AMI
 {
-    /**
-     * Config variables
-     */
+    /** @var array<string,mixed> Config variables */
     public array $config;
 
-    /**
-     * Socket
-     */
+    /** @var resource Socket */
     public $socket = null;
 
-    /**
-     * Server we are connected to
-     */
+    /** @var string Server we are connected to */
     public string $server;
 
-    /**
-     * Port on the server we are connected to
-     */
+    /** @var int Port on the server we are connected to */
     public int $port;
 
-    /**
-     * Parent AGI
-     */
+    /** @var AGI Parent AGI */
     private ?AGI $pagi = null;
 
-    /**
-     * Event Handlers
-     */
+    /** @var array<string,callable> Event Handlers */
     private array $event_handlers;
 
+    /** @var string  */
     private string $_buffer = "";
 
-    /**
-     * Whether we're successfully logged in
-     */
+    /** @var bool Whether we're successfully logged in */
     private bool $_logged_in = false;
 
     public function setPagi(AGI $agi)
@@ -139,6 +119,7 @@ class AMI
 
     /**
      * @param bool $allow_timeout
+     * @throws Exception
      */
     public function read_one_msg($allow_timeout = false): array
     {
@@ -870,41 +851,10 @@ class AMI
     /**
      * Add event handler
      *
-     * Known Events include ( http://www.voip-info.org/wiki-asterisk+manager+events )
-     *   Link - Fired when two voice channels are linked together and voice data exchange commences.
-     *   Unlink - Fired when a link between two voice channels is discontinued, for example, just before call completion.
-     *   Newexten -
-     *   Hangup -
-     *   Newchannel -
-     *   Newstate -
-     *   Reload - Fired when the "RELOAD" console command is executed.
-     *   Shutdown -
-     *   ExtensionStatus -
-     *   Rename -
-     *   Newcallerid -
-     *   Alarm -
-     *   AlarmClear -
-     *   Agentcallbacklogoff -
-     *   Agentcallbacklogin -
-     *   Agentlogoff -
-     *   MeetmeJoin -
-     *   MessageWaiting -
-     *   join -
-     *   leave -
-     *   AgentCalled -
-     *   ParkedCall - Fired after ParkedCalls
-     *   Cdr -
-     *   ParkedCallsComplete -
-     *   QueueParams -
-     *   QueueMember -
-     *   QueueStatusEnd -
-     *   Status -
-     *   StatusComplete -
-     *   ZapShowChannels - Fired after ZapShowChannels
-     *   ZapShowChannelsComplete -
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Events/AGIExecEnd/
      *
      * @param string $event type or * for default handler
-     * @param string $callback function
+     * @param string $callback function to handle the event
      * @return bool sucess
      */
     public function add_event_handler(string $event, string $callback): bool
@@ -921,8 +871,7 @@ class AMI
     }
 
     /**
-     *
-     *   Remove event handler
+     * Remove event handler
      *
      * @param string $event type or * for default handler
      * @return bool sucess
