@@ -854,18 +854,16 @@ class AMI
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Events/AGIExecEnd/
      *
      * @param string $event type or * for default handler
-     * @param string $callback function to handle the event
+     * @param callable $callback function to handle the event
      * @return bool sucess
      */
-    public function add_event_handler(string $event, string $callback): bool
+    public function add_event_handler(string $event, callable $callback): bool
     {
         $event = strtolower($event);
-        if (isset($this->event_handlers[$event])) {
-            $this->log("$event handler is already defined, not over-writing.");
-
-            return false;
+        if (!isset($this->event_handlers[$event])) {
+            $this->event_handlers[$event] = [];
         }
-        $this->event_handlers[$event] = $callback;
+        $this->event_handlers[$event][] = $callback;
 
         return true;
     }
@@ -884,7 +882,7 @@ class AMI
 
             return true;
         }
-        $this->log("$event handler is not defined.");
+        $this->log("$event handlers are not defined.");
 
         return false;
     }
@@ -893,7 +891,7 @@ class AMI
      * Process event
      *
      * @param array $parameters
-     * @return mixed result of event handler or false if no handler was found
+     * @return void
      */
     private function process_event(array $parameters)
     {
@@ -901,23 +899,15 @@ class AMI
         $e = strtolower($parameters['Event']);
         $this->log("Got event.. $e");
 
-        $handler = '';
-        if (isset($this->event_handlers[$e])) {
-            $handler = $this->event_handlers[$e];
-        } elseif (isset($this->event_handlers['*'])) {
-            $handler = $this->event_handlers['*'];
-        }
+        $handlers = $this->event_handlers[$e] ?? $this->event_handlers['*'] ?? [];
 
-        if (function_exists($handler)) {
-            $this->log("Execute handler $handler");
-            $ret = $handler($e, $parameters, $this->server, $this->port);
-        } elseif (is_array($handler)) {
-            $ret = call_user_func($handler, $e, $parameters, $this->server, $this->port);
-        } else {
-            $this->log("No event handler for event '$e'");
+        foreach ($handlers as $handler) {
+            if (!is_callable($handler, false, $name)) {
+                $this->log("No event handler for event '$e'");
+                continue;
+            }
+            $this->log("Executing handler '$name'");
+            call_user_func($handler, $e, $parameters, $this->server, $this->port);
         }
-
-        return $ret;
     }
 }
-
