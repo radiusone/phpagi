@@ -742,16 +742,6 @@ class AMI
     }
 
     /**
-     * Queues
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+Queues
-     */
-    public function Queues(): array
-    {
-        return $this->send_request('Queues');
-    }
-
-    /**
      * Queue Status
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueStatus/
@@ -856,77 +846,6 @@ class AMI
     public function StopMonitor(string $channel): array
     {
         return $this->send_request('StopMonitor', ['Channel' => $channel]);
-    }
-
-    /**
-     * Dial over Zap channel while offhook
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapDialOffhook
-     * @param string $zapchannel
-     * @param string $number
-     */
-    public function ZapDialOffhook(string $zapchannel, string $number): array
-    {
-        return $this->send_request('ZapDialOffhook', ['ZapChannel' => $zapchannel, 'Number' => $number]);
-    }
-
-    /**
-     * Toggle Zap channel Do Not Disturb status OFF
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapDNDoff
-     * @param string $zapchannel
-     */
-    public function ZapDNDoff(string $zapchannel): array
-    {
-        return $this->send_request('ZapDNDoff', ['ZapChannel' => $zapchannel]);
-    }
-
-    /**
-     * Toggle Zap channel Do Not Disturb status ON
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapDNDon
-     * @param string $zapchannel
-     */
-    public function ZapDNDon(string $zapchannel): array
-    {
-        return $this->send_request('ZapDNDon', ['ZapChannel' => $zapchannel]);
-    }
-
-    /**
-     * Hangup Zap Channel
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapHangup
-     * @param string $zapchannel
-     */
-    public function ZapHangup(string $zapchannel): array
-    {
-        return $this->send_request('ZapHangup', ['ZapChannel' => $zapchannel]);
-    }
-
-    /**
-     * Transfer Zap Channel
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapTransfer
-     * @param string $zapchannel
-     */
-    public function ZapTransfer(string $zapchannel): array
-    {
-        return $this->send_request('ZapTransfer', ['ZapChannel' => $zapchannel]);
-    }
-
-    /**
-     * Zap Show Channels
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+Manager+API+Action+ZapShowChannels
-     * @param string|null $actionid message matching variable
-     */
-    public function ZapShowChannels(string $actionid = null): array
-    {
-        if ($actionid) {
-            return $this->send_request('ZapShowChannels', ['ActionID' => $actionid]);
-        } else {
-            return $this->send_request('ZapShowChannels');
-        }
     }
 
     // *********************************************************************************************************
