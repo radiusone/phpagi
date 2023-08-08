@@ -396,7 +396,7 @@ class AMI
     /**
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Atxfer/
      */
-    public function Atxfer(string $Channel, string $Exten, string $Context, string $Priority, string $ActionID = null): array
+    public function Atxfer(string $Channel, string $Exten, string $Context, string $ActionID = null): array
     {
         return $this->send_request(
             'Atxfer',
@@ -404,9 +404,187 @@ class AMI
                 'Channel' => $Channel,
                 'Exten' => $Exten,
                 'Context' => $Context,
-                'Priority' => $Priority,
                 'ActionID' => $ActionID,
             ]);
+    }
+
+    /**
+     * Blind transfer channel(s) to the given destination
+     * Redirect all channels currently bridged to the specified channel to the specified destination
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BlindTransfer/
+     *
+     * @param string $Channel
+     * @param string $Exten
+     * @param string $Context
+     * @param string|null $ActionID
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BlindTransfer(string $Channel, string $Exten, string $Context, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Bridge two channels already in the PBX
+     * Bridge together two channels already in the PBX
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Bridge/
+     *
+     * @param string $Channel1 Channel to Bridge to Channel2
+     * @param string $Channel2 Channel to Bridge to Channel1
+     * @param string $Tone Play courtesy tone to Channel: no, Channel1, Channel2, Both
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function Bridge(string $Channel1, string $Channel2, string $Tone = 'no', string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Destroy a bridge
+     * Deletes the bridge, causing channels to continue or hang up
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeDestroy/
+     *
+     * @param string $BridgeUniqueid The unique ID of the bridge to destroy
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeDestroy(string $BridgeUniqueid, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Get information about a bridge
+     * Returns detailed information about a bridge and the channels in it
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeInfo/
+     *
+     * @param string $BridgeUniqueid The unique ID of the bridge about which to retrieve information
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeInfo(string $BridgeUniqueid, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Kick a channel from a bridge
+     * The channel is removed from the bridge
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeKick/
+     *
+     * @param string $Channel The channel to kick out of a bridge
+     * @param string|null $BridgeUniqueid The unique ID of the bridge containing the channel to destroy.
+     *     This parameter can be supplied to ensure that the channel is not removed from the wrong bridge
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeKick(string $Channel, string $BridgeUniqueid = null, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Get a list of bridges in the system
+     * Returns a list of bridges, optionally filtering on a bridge type
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeList/
+     *
+     * @param string|null $BridgeType Optional type for filtering the resulting list of bridges
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeList(string $BridgeType = null, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * List available bridging technologies and their statuses
+     * Returns detailed information about the available bridging technologies
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeTechnologyList(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Suspend a bridging technology
+     * Marks a bridging technology as suspended, which prevents subsequently created bridges from using it
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologySuspend/
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeTechnologySuspend(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Unsuspend a bridging technology
+     * Clears a previously suspended bridging technology, which allows subsequently created bridges to use it
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyUnsuspend/
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function BridgeTechnologyUnsuspend(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Cancel an attended transfer
+     * Cancel an attended transfer. Note, this uses the configured cancel attended transfer feature option (atxferabort) to cancel the transfer. If not available this action will fail
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CancelAtxfer/
+     *
+     * @param string $Channel The transferer channel
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CancelAtxfer(string $Channel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Generate Challenge for MD5 Auth
+     * Generate a challenge for MD5 authentication
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Challenge/
+     *
+     * @param string $AuthType Digest algorithm to use in the challenge. Valid values are MD5
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function Challenge(string $AuthType = 'MD5', string $ActionID = null): array
+    {
+        return $this->executeByReflection();
     }
 
     /**
