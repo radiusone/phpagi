@@ -415,6 +415,7 @@ class AMI
      * Redirect all channels currently bridged to the specified channel to the specified destination
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BlindTransfer/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel
      * @param string $Exten
@@ -433,6 +434,7 @@ class AMI
      * Bridge together two channels already in the PBX
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Bridge/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel1 Channel to Bridge to Channel2
      * @param string $Channel2 Channel to Bridge to Channel1
@@ -451,6 +453,7 @@ class AMI
      * Deletes the bridge, causing channels to continue or hang up
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeDestroy/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge to destroy
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -467,6 +470,7 @@ class AMI
      * Returns detailed information about a bridge and the channels in it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeInfo/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge about which to retrieve information
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -483,6 +487,7 @@ class AMI
      * The channel is removed from the bridge
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeKick/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The channel to kick out of a bridge
      * @param string|null $BridgeUniqueid The unique ID of the bridge containing the channel to destroy.
@@ -501,6 +506,7 @@ class AMI
      * Returns a list of bridges, optionally filtering on a bridge type
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeList/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $BridgeType Optional type for filtering the resulting list of bridges
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -517,6 +523,7 @@ class AMI
      * Returns detailed information about the available bridging technologies
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
@@ -532,6 +539,7 @@ class AMI
      * Marks a bridging technology as suspended, which prevents subsequently created bridges from using it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologySuspend/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
@@ -547,6 +555,7 @@ class AMI
      * Clears a previously suspended bridging technology, which allows subsequently created bridges to use it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyUnsuspend/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
@@ -559,9 +568,11 @@ class AMI
 
     /**
      * Cancel an attended transfer
-     * Cancel an attended transfer. Note, this uses the configured cancel attended transfer feature option (atxferabort) to cancel the transfer. If not available this action will fail
+     * Cancel an attended transfer. Note, this uses the configured cancel attended transfer feature option (atxferabort)
+     * to cancel the transfer. If not available this action will fail
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CancelAtxfer/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The transferer channel
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -578,6 +589,7 @@ class AMI
      * Generate a challenge for MD5 authentication
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Challenge/
+     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $AuthType Digest algorithm to use in the challenge. Valid values are MD5
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -621,6 +633,420 @@ class AMI
             'Command',
             ['Command' => $Command, 'ActionID' => $ActionID]
         );
+    }
+
+    /**
+     * Kick a Confbridge user
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeKick/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string $Channel If this parameter is "all", all channels will be kicked from the conference.
+     *     If this parameter is "participants", all non-admin channels will be kicked from the conference
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeKick(string $Conference, string $Channel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * List participants in a conference
+     * Lists all users in a particular ConfBridge conference. ConfbridgeList will follow as separate events,
+     * followed by a final event called ConfbridgeListComplete
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeList/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference Conference number
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeList(string $Conference, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * List active conferences
+     * Lists data about all active conferences. ConfbridgeListRooms will follow as separate events,
+     * followed by a final event called ConfbridgeListRoomsComplete
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeListRooms/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeListRooms(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Lock a Confbridge conference
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeLock/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeLock(string $Conference, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Mute a Confbridge user
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeMute/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used.
+     *     If this parameter is "all", all channels will be muted. If this parameter is "participants", all non-admin channels will be muted
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeMute(string $Conference, string $Channel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Set a conference user as the single video source distributed to all other participants
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeSetSingleVideoSrc/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeSetSingleVideoSrc(string $Conference, string $Channel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Start recording a Confbridge conference
+     * Start recording a conference. If recording is already present an error will be returned.
+     * If RecordFile is not provided, the default record file specified in the conference's bridge profile will be used,
+     * if that is not present either a file will automatically be generated in the monitor directory
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStartRecord/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string|null $RecordFile
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeStartRecord(string $Conference, string $RecordFile = null, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Stop recording a Confbridge conference
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStopRecord/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeStopRecord(string $Conference, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Unlock a Confbridge conference
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnlock/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeUnlock(string $Conference, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Unmute a Confbridge user
+     *
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnmute/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Conference
+     * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used.
+     *     If this parameter is "all", all channels will be unmuted. If this parameter is "participants", all non-admin channels will be unmuted
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ConfbridgeUnmute(string $Conference, string $Channel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Control the playback of a file being played to a channel
+     * Control the operation of a media file being played back to a channel. Note that this AMI action does not initiate playback
+     * of media to channel, but rather controls the operation of a media operation that was already initiated on the channel.
+     * Note The pause and restart Control options will stop a playback operation if that operation was not initiated from
+     * the ControlPlayback application or the control stream file AGI command.
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ControlPlayback/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Channel The name of the channel that currently has a file being played back to it
+     * @param string $Control stop - Stop the playback operation
+     *     forward - Move the current position in the media forward. The amount of time that the stream moves forward is determined
+     *     by the skipms value passed to the application that initiated the playback. Note The default skipms value is 3000 ms
+     *     reverse - Move the current position in the media backward. The amount of time that the stream moves backward is determined
+     *     by the skipms value passed to the application that initiated the playback. Note The default skipms value is 3000 ms
+     *     pause - Pause/unpause the playback operation, if supported. If not supported, stop the playback
+     *     restart - Restart the playback operation, if supported. If not supported, stop the playback
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function ControlPlayback(string $Channel, string $Control, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Show PBX core settings (version etc)
+     * Query for Core PBX settings
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreSettings/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CoreSettings(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * List all channels connected to the specified channel
+     * List all channels currently connected to the specified channel. This can be any channel, including Local channels,
+     * and Local channels will be followed through to their other half
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannelMap/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CoreShowChannelMap(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * List currently active channels
+     * List currently defined channels and some information about them
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannels/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CoreShowChannels(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Show PBX core status variables
+     * Query for Core PBX status
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreStatus/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CoreStatus(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Creates an empty file in the configuration directory
+     * This action will create an empty file in the configuration directory. This action is intended to be used before an UpdateConfig action
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CreateConfig/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Filename The configuration filename to create (e.g. foo.conf)
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function CreateConfig(string $Filename, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Toggle DAHDI channel Do Not Disturb status OFF
+     * Equivalent to the CLI command "dahdi set dnd channel off".
+     * Note Feature only supported by analog channels
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDoff/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $DAHDIChannel DAHDI channel number to set DND off
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIDNDoff(string $DAHDIChannel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Toggle DAHDI channel Do Not Disturb status ON
+     * Equivalent to the CLI command "dahdi set dnd channel on".
+     * Note Feature only supported by analog channels
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDon/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $DAHDIChannel DAHDI channel number to set DND on
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIDNDon(string $DAHDIChannel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Dial over DAHDI channel while offhook
+     * Generate DTMF control frames to the bridged peer
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDialOffhook/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $DAHDIChannel DAHDI channel number to dial digits
+     * @param string $Number Digits to dial
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIDialOffhook(string $DAHDIChannel, string $Number, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Hangup DAHDI Channel
+     * Simulate an on-hook event by the user connected to the channel.
+     * Note Valid only for analog channels
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIHangup/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $DAHDIChannel DAHDI channel number to hangup
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIHangup(string $DAHDIChannel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Fully Restart DAHDI channels (terminates calls)
+     * Equivalent to the CLI command "dahdi restart"
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIRestart/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIRestart(string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+    /**
+     * Show status of DAHDI channels
+     * Similar to the CLI command "dahdi show channels"
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIShowChannels/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string|null $DAHDIChannel Specify the specific channel number to show. Show all channels if zero or not present
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDIShowChannels(string $DAHDIChannel = null, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
+    }
+
+
+    /**
+     * Transfer DAHDI Channel
+     * Simulate a flash hook event by the user connected to the channel.
+     * Note Valid only for analog channels
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDITransfer/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $DAHDIChannel DAHDI channel number to transfer
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function DAHDITransfer(string $DAHDIChannel, string $ActionID = null): array
+    {
+        return $this->executeByReflection();
     }
 
     /**
