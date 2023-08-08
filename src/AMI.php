@@ -142,8 +142,6 @@ class AMI
      * Peer: PJSIP/1234
      * PeerStatus: Reachable
      * ```
-     *
-     * @throws Exception
      */
     public function read_one_msg(): array
     {
@@ -151,7 +149,7 @@ class AMI
         do {
             $buf = fgets($this->socket);
             if (false === $buf) {
-                throw new Exception("Error reading from AMI socket");
+                die("Error reading from AMI socket");
             }
             $buffer .= $buf;
         } while (!feof($this->socket) && strpos($buf, "\r\n\r\n") === false);
