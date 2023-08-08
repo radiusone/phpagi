@@ -2,7 +2,8 @@
 
 namespace PhpAgi;
 
-use Exception;
+use ReflectionException;
+use ReflectionMethod;
 
 if (!class_exists('PhpAgi\\AGI')) {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AGI.php');
@@ -22,7 +23,7 @@ if (!class_exists('PhpAgi\\AGI')) {
  * @version 3.0
  * @filesource https://github.com/welltime/phpagi
  * @see http://phpagi.sourceforge.net/
- * @noinspection PhpUnused
+ * @noinspection PhpUnusedInspection
  * @package PhPAgi
  * @example examples/sip_show_peer.php Get information about a sip peer
  */
@@ -286,6 +287,33 @@ class AMI
             $this->Logoff();
         }
         fclose($this->socket);
+    }
+
+    /**
+     * Send a request based on the calling method
+     *
+     * This calls send_request and passes the name of the calling function and its arguments
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    private function executeByReflection(): array
+    {
+        $stack = debug_backtrace(0, 2);
+        $func = $stack[1]["function"];
+        $ref = new ReflectionMethod($this, $func);
+        $args = [];
+         foreach ($ref->getParameters() as $param) {
+            $name = $param->getName();
+            $pos = $param->getPosition();
+            $val = $stack[1]['args'][$pos] ?? $param->getDefaultValue();
+            if ($param->getType()->getName() === 'bool') {
+                $val = $val ? 'True' : 'False';
+            }
+            $args[$name] = $val;
+        }
+
+        return $this->send_request($func, ...$args);
     }
 
     // *********************************************************************************************************
