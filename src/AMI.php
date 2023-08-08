@@ -105,7 +105,7 @@ class AMI
             $req[] = "ActionID: $actionid";
         }
 
-        $req = implode("\r\n", $req) . "\r\n";
+        $req = implode("\r\n", $req) . "\r\n\r\n";
         fwrite($this->socket, $req);
 
         return $this->wait_response($actionid);
@@ -149,7 +149,7 @@ class AMI
                 die("Error reading from AMI socket");
             }
             $buffer .= $buf;
-        } while (!feof($this->socket) && strpos($buf, "\r\n\r\n") === false);
+        } while (!feof($this->socket) && strpos($buffer, "\r\n\r\n") === false);
 
         $msg = trim($buffer);
 
@@ -159,16 +159,18 @@ class AMI
         foreach ($msgarr as $str) {
             $kv = explode(':', $str, 2);
             $key = trim($kv[0]);
+            $val = trim($kv[1] ?? '');
             if (!isset($parameters[$key])) {
-                $parameters[$key] = '';
+                $parameters[$key] = $val;
+            } else {
+                $parameters[$key] .= "\n$val";
             }
-            $parameters[$key] .= trim($kv[1] ?? '') . "\n";
         }
         if (isset($parameters['Event'])) {
             $this->process_event($parameters);
         } elseif (isset($parameters['Response'])) {
             // keep 'data' element like in old code
-            $parameters['data'] = $parameters['Output'];
+            $parameters['data'] = $parameters['Output'] ?? '';
         } else {
             $this->log('Unhandled response packet from Manager: ' . print_r($parameters, true));
         }
@@ -193,7 +195,7 @@ class AMI
     {
         do {
             $res = $this->read_one_msg();
-        } while (!is_null($actionid) && ($res['ActionID'] ?? '') === $actionid);
+        } while (!is_null($actionid) && ($res['ActionID'] ?? '') !== $actionid);
 
         if (($res['EventList'] ?? '') === 'start') {
             $evlist = [];
@@ -293,7 +295,7 @@ class AMI
     private function executeByReflection(): array
     {
         $stack = debug_backtrace(0, 2);
-        $func = $stack[1]["function"];
+        $func = $stack[1]['function'];
         $ref = new ReflectionMethod($this, $func);
         $args = [];
          foreach ($ref->getParameters() as $param) {
@@ -306,7 +308,7 @@ class AMI
             $args[$name] = $val;
         }
 
-        return $this->send_request($func, ...$args);
+        return $this->send_request($func, $args);
     }
 
     // *********************************************************************************************************
