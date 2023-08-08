@@ -40,14 +40,11 @@ class AMI
     /** @var int Port on the server we are connected to */
     public int $port;
 
-    /** @var AGI Parent AGI */
+    /** @var AGI|null Parent AGI */
     private ?AGI $pagi = null;
 
     /** @var array<string,callable> Event Handlers */
     private array $event_handlers;
-
-    /** @var string  */
-    private string $_buffer = "";
 
     /** @var bool Whether we're successfully logged in */
     private bool $_logged_in = false;
@@ -92,110 +89,93 @@ class AMI
      */
     public function send_request(string $action, array $parameters = []): array
     {
-        $req = "Action: $action\r\n";
+        $req = ["Action: $action"];
         $actionid = null;
         foreach ($parameters as $var => $val) {
             if (is_array($val)) {
                 foreach ($val as $line) {
-                    $req .= "$var: $line\r\n";
+                    $req[] = "$var: $line";
                 }
             } else {
-                $req .= "$var: $val\r\n";
-                if (strtolower($var) == "actionid") {
+                $req[] = "$var: $val";
+                if (strtolower($var) === "actionid") {
                     $actionid = $val;
                 }
             }
         }
-        if (!$actionid) {
+        if (is_null($actionid)) {
             $actionid = $this->ActionID();
-            $req .= "ActionID: $actionid\r\n";
+            $req[] = "ActionID: $actionid";
         }
-        $req .= "\r\n";
 
+        $req = implode("\r\n", $req) . "\r\n";
         fwrite($this->socket, $req);
 
-        return $this->wait_response(false, $actionid);
+        return $this->wait_response($actionid);
     }
 
     /**
-     * @param bool $allow_timeout
+     * Read an AMI message
+     *
+     * Example AMI messages:
+     * ```
+     * Response: Success
+     * Message: Command output follows
+     * Output: Foo
+     * Output: Bar
+     * Output: Baz
+     * ```
+     * ```
+     * Response: Error
+     * Message: Command output follows
+     * Output: No such command 'foo bar' (type 'core show help foo' for other possible commands)
+     * ```
+     * ```
+     * Response: Success
+     * Ping: Pong
+     * Timestamp: 1691452183.824353
+     * ```
+     * ```
+     * Event: PeerStatus
+     * Privilege: system,all
+     * ChannelType: PJSIP
+     * Peer: PJSIP/1234
+     * PeerStatus: Reachable
+     * ```
+     *
      * @throws Exception
      */
-    public function read_one_msg($allow_timeout = false): array
+    public function read_one_msg(): array
     {
-        $type = null;
-
+        $buffer = '';
         do {
-            $buf = fgets($this->socket, 4096);
+            $buf = fgets($this->socket);
             if (false === $buf) {
                 throw new Exception("Error reading from AMI socket");
             }
-            $this->_buffer .= $buf;
+            $buffer .= $buf;
+        } while (!feof($this->socket) && strpos($buf, "\r\n\r\n") === false);
 
-            $pos = strpos($this->_buffer, "\r\n\r\n");
-            if (false !== $pos) {
-                // there's a full message in the buffer
-                break;
-            }
-        } while (!feof($this->socket));
-
-        $msg = substr($this->_buffer, 0, $pos);
-        $this->_buffer = substr($this->_buffer, $pos + 4);
+        $msg = trim($buffer);
 
         $msgarr = explode("\r\n", $msg);
 
         $parameters = [];
-
-        $r = explode(': ', $msgarr[0]);
-        $type = strtolower($r[0]);
-
-        if ($r[1] == 'Success' || $r[1] == 'Follows') {
-            $m = explode(': ', $msgarr[2]);
-            $msgarr_tmp = $msgarr;
-            $str = array_pop($msgarr);
-            $lastline = strpos($str, '--END COMMAND--');
-            if (false !== $lastline) {
-                $parameters['data'] = substr($str, 0, $lastline - 1); // cut '\n' too
-            } elseif ($m[1] == 'Command output follows') {
-                $n = 3;
-                $c = count($msgarr_tmp) - 1;
-                $output = explode(': ', $msgarr_tmp[3]);
-                if ($output[1]) {
-                    $data = $output[1];
-                    while ($n++ < $c) {
-                        $output = explode(': ', $msgarr_tmp[$n]);
-                        if ($output[1]) {
-                            $data .= "\n" . $output[1];
-                        }
-                    }
-                    $parameters['data'] = $data;
-                }
-            }
-        }
-
-        foreach ($msgarr as $num => $str) {
+        foreach ($msgarr as $str) {
             $kv = explode(':', $str, 2);
-            if (!isset($kv[1])) {
-                $kv[1] = "";
-            }
             $key = trim($kv[0]);
-            $val = trim($kv[1]);
-            $parameters[$key] = $val;
+            if (!isset($parameters[$key])) {
+                $parameters[$key] = '';
+            }
+            $parameters[$key] .= trim($kv[1] ?? '') . "\n";
         }
-
-        // process response
-        switch ($type) {
-            case '': // timeout occured
-                $timeout = $allow_timeout;
-                break;
-            case 'event':
-                $this->process_event($parameters);
-                break;
-            case 'response':
-                break;
-            default:
-                $this->log('Unhandled response packet from Manager: ' . print_r($parameters, true));
-                break;
+        if (isset($parameters['Event'])) {
+            $this->process_event($parameters);
+        } elseif (isset($parameters['Response'])) {
+            // keep 'data' element like in old code
+            $parameters['data'] = $parameters['Output'];
+        } else {
+            $this->log('Unhandled response packet from Manager: ' . print_r($parameters, true));
         }
 
         return $parameters;
@@ -213,39 +193,27 @@ class AMI
      * 1. it does not handle socket errors in any way
      * 2. it is terribly synchronous, esp. with eventlists,
      *    i.e. your code is blocked on waiting until full responce is received
-     *
-     * @param bool $allow_timeout if the socket times out, return an empty array
-     * @return array of parameters, empty on timeout
      */
-    public function wait_response(bool $allow_timeout = false, $actionid = null): array
+    public function wait_response($actionid = null): array
     {
-        $res = [];
-        if ($actionid) {
-            do {
-                $res = $this->read_one_msg($allow_timeout);
-            } while (!(isset($res['ActionID']) && $res['ActionID'] == $actionid));
-        } else {
-            $res = $this->read_one_msg($allow_timeout);
+        do {
+            $res = $this->read_one_msg();
+        } while (!is_null($actionid) && ($res['ActionID'] ?? '') === $actionid);
 
-            return $res;
-        }
-
-        if (isset($res['EventList']) && $res['EventList'] == 'start') {
+        if (($res['EventList'] ?? '') === 'start') {
             $evlist = [];
             do {
-                $res = $this->wait_response(false, $actionid);
-                if (isset($res['EventList']) && $res['EventList'] == 'Complete') {
+                $res = $this->wait_response($actionid);
+                if (($res['EventList'] ?? '') === 'Complete') {
                     break;
-                } else {
-                    $evlist[] = $res;
                 }
+                $evlist[] = $res;
             } while (true);
             $res['events'] = $evlist;
         }
 
         return $res;
     }
-
 
     /**
      * Connect to Asterisk
@@ -262,28 +230,16 @@ class AMI
     public function connect(string $server = null, string $username = null, string $secret = null): bool
     {
         // use config if not specified
-        if (is_null($server)) {
-            $server = $this->config['asmanager']['server'];
-        }
-        if (is_null($username)) {
-            $username = $this->config['asmanager']['username'];
-        }
-        if (is_null($secret)) {
-            $secret = $this->config['asmanager']['secret'];
-        }
+        $server = $server ?? $this->config['asmanager']['server'];
+        $username = $username ?? $this->config['asmanager']['username'];
+        $secret = $secret ?? $this->config['asmanager']['secret'];
 
         // get port from server if specified
-        if (strpos($server, ':') !== false) {
-            $c = explode(':', $server);
-            $this->server = $c[0];
-            $this->port = $c[1];
-        } else {
-            $this->server = $server;
-            $this->port = $this->config['asmanager']['port'];
-        }
+        $c = explode(':', $server);
+        $this->server = $c[0];
+        $this->port = $c[1] ?? $this->config['asmanager']['port'];
 
         // connect the socket
-        $errno = $errstr = null;
         $result = fsockopen($this->server, $this->port, $errno, $errstr);
         if ($result === false) {
             $this->log("Unable to connect to manager $this->server:$this->port ($errno): $errstr");
@@ -302,17 +258,16 @@ class AMI
         }
 
         // login
-        $res = $this->send_request('login', ['Username' => $username, 'Secret' => $secret]);
-        if ($res['Response'] != 'Success') {
-            $this->_logged_in = false;
-            $this->log("Failed to login.");
-            $this->disconnect();
+        if ($this->Login($username, $secret)) {
+            $this->_logged_in = true;
 
-            return false;
+            return true;
         }
-        $this->_logged_in = true;
 
-        return true;
+        $this->log("Failed to login.");
+        $this->disconnect();
+
+        return false;
     }
 
     /**
@@ -420,7 +375,7 @@ class AMI
         $parameters['ActionID'] = $actionid;
         $response = $this->send_request("DBGet", $parameters);
         if ($response['Response'] == "Success") {
-            $response = $this->wait_response(false, $actionid);
+            $response = $this->wait_response($actionid);
 
             return $response['Val'];
         }
@@ -506,13 +461,27 @@ class AMI
     }
 
     /**
+     * Login Manager
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Login/
+     */
+    public function Login(string $username = null, string $secret = null): bool
+    {
+        $res = $this->send_request('Login', ['Username' => $username, 'Secret' => $secret]);
+
+        return $res['Response'] === 'Success';
+    }
+
+    /**
      * Logoff Manager
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
      */
-    public function Logoff(): array
+    public function Logoff(): bool
     {
-        return $this->send_request('Logoff');
+        $res = $this->send_request('Logoff');
+
+        return $res['Response'] === 'Goodbye';
     }
 
     /**
@@ -895,7 +864,6 @@ class AMI
      */
     private function process_event(array $parameters)
     {
-        $ret = false;
         $e = strtolower($parameters['Event']);
         $this->log("Got event.. $e");
 
