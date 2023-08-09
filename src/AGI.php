@@ -1859,20 +1859,12 @@ class AGI
      * Find an execuable in the path.
      *
      * @param string $cmd command to find
-     * @param string|null $checkpath path to check
      * @return string the path to the command
      */
-    private function which(string $cmd, string $checkpath = null)
+    private function which(string $cmd): string
     {
-        if (is_null($checkpath)) {
-            $chpath = getenv('PATH');
-            if ($chpath === false) {
-                $chpath = '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:' .
-                    '/usr/X11R6/bin:/usr/local/apache/bin:/usr/local/mysql/bin';
-            }
-        } else {
-            $chpath = $checkpath;
-        }
+        $default = '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/local/apache/bin:/usr/local/mysql/bin';
+        $chpath = getenv('PATH') ?: $default;
 
         foreach (explode(':', $chpath) as $path) {
             if (is_executable("$path/$cmd")) {
@@ -1880,7 +1872,7 @@ class AGI
             }
         }
 
-        return false;
+        return '';
     }
 
     /**
