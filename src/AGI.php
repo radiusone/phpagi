@@ -221,7 +221,7 @@ class AGI
     public function channel_status(string $channel = ''): array
     {
         $ret = $this->evaluate("CHANNEL STATUS $channel");
-        switch ($ret['result']) {
+        switch ((int)$ret['result']) {
             case -1:
                 $ret['data'] = trim("There is no channel that matches $channel");
                 break;
@@ -258,7 +258,7 @@ class AGI
                 $ret['data'] = 'Channel has detected an incoming call and is waiting for ring';
                 break;
             default:
-                $ret['data'] = "Unknown ({$ret['result']})";
+                $ret['data'] = "Unknown ($ret[result])";
                 break;
         }
 
@@ -981,21 +981,22 @@ class AGI
     public function fastpass_say_digits(string &$buffer, int $digits, string $escape_digits = ''): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->say_digits($digits, $escape_digits);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1])];
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
 
     /**
@@ -1013,21 +1014,22 @@ class AGI
     public function fastpass_say_number(string &$buffer, int $number, string $escape_digits = ''): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->say_number($number, $escape_digits);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1])];
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
 
     /**
@@ -1045,10 +1047,10 @@ class AGI
     public function fastpass_say_phonetic(string &$buffer, string $text, string $escape_digits = ''): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
         if ($buffer == '' || $proceed) {
             $res = $this->say_phonetic($text, $escape_digits);
@@ -1058,8 +1060,9 @@ class AGI
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1])];
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
 
     /**
@@ -1077,12 +1080,12 @@ class AGI
     public function fastpass_say_time(string &$buffer, int $time = null, string $escape_digits = ''): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->say_time($time, $escape_digits);
             if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
@@ -1090,8 +1093,12 @@ class AGI
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1])];
+        // return the last character
+        $char = ord(substr($buffer, - 1));
+
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
 
     /**
@@ -1125,8 +1132,9 @@ class AGI
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
     }
 
     /**
@@ -1157,8 +1165,9 @@ class AGI
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
     }
 
     /**
@@ -1190,8 +1199,9 @@ class AGI
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
     }
 
     /**
@@ -1212,16 +1222,17 @@ class AGI
             // last char of buffer was not an escape digit
             $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->say_punctuation($text, $escape_digits, $frequency);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
+        $last = ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1])];
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
 
     /**
@@ -1278,7 +1289,7 @@ class AGI
                     if ($res['code'] !== self::AGIRES_OK) {
                         return $res;
                     }
-                    if ($res['result'] === ord('#')) {
+                    if ((int)$res['result'] === ord('#')) {
                         break;
                     }
                     $buffer .= chr($res['result']);
@@ -1331,7 +1342,7 @@ class AGI
                 $ret = $this->get_data('beep', $timeout, 1);
                 if ($ret['code'] !== self::AGIRES_OK || $ret['result'] === "-1") {
                     $choice = -1;
-                } elseif ($ret['result'] != '' && str_contains($keys, $ret['result'])) {
+                } elseif ($ret['result'] !== '' && str_contains($keys, $ret['result'])) {
                     $choice = $ret['result'];
                 }
             }
@@ -1419,7 +1430,7 @@ class AGI
         $text = trim($text);
         if ($text === '') {
 
-            return ['code' => self::AGIRES_OK, 'result' => 0];
+            return ['code' => self::AGIRES_OK, 'result' => "0"];
         }
 
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'text2wav_' . md5($text);
@@ -1467,7 +1478,7 @@ class AGI
         $text = trim($text);
         if ($text === '') {
 
-            return ['code' => self::AGIRES_OK, 'result' => 0];
+            return ['code' => self::AGIRES_OK, 'result' => "0"];
         }
 
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'swift_' . md5($text);
@@ -1692,7 +1703,7 @@ class AGI
      */
     private function evaluate(string $command, ...$args): array
     {
-        $broken = ['code' => self::AGIRES_ERR, 'result' => -1];
+        $broken = ['code' => self::AGIRES_ERR, 'result' => "-1"];
 
         if (func_num_args() > 1) {
             array_walk(
@@ -1759,7 +1770,7 @@ class AGI
             $this->conlog("AGI returned unknown error $code: $str");
         } else {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
-                $ret[$matches['key']] = $matches['value'];
+                $ret[$matches['key']] = "$matches[value]";
                 if (isset($matches['data'])) {
                     $ret['data'] = $matches['data'];
                 }
@@ -1768,8 +1779,8 @@ class AGI
         }
 
         // log some errors
-        if (($ret['result'] ?? 0) < 0) {
-            $this->conlog("$command returned {$ret['result']}");
+        if (($ret['result'] ?? "0") < 0) {
+            $this->conlog("$command returned $ret[result]");
         }
 
         return $ret;
