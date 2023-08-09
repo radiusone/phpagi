@@ -1,47 +1,38 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 namespace PhpAgi;
-
-/**
- * phpagi.php : PHP AGI Functions for Asterisk
- *
- * @package phpAGI
- * @version 3.0
- * @filesource https://github.com/welltime/phpagi
- * @see http://phpagi.sourceforge.net/
- * @noinspection PhpUnused
- *
- * Copyright (c) 2003 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
- * Copyright 2023 RadiusOne Inc.
- * All Rights Reserved.
- *
- * This software is released under the terms of the GNU Lesser General Public License v2.1
- * A copy of which is available from http://www.gnu.org/copyleft/lesser.html
- *
- * We would be happy to list your phpagi based application on the phpagi
- * website.  Drop me an Email if you'd like us to list your program.
- */
 
 if (!class_exists('PhpAgi\\AMI')) {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AMI.php');
 }
 
 /**
- * AGI class
+ * PHP Asterisk Manager Interface (AMI) client
+ *
+ * Copyright (c) 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
+ * Copyright 2023 RadiusOne Inc.
+ * All Rights Reserved.
+ *
+ * This software is released under the terms of the GNU Lesser General Public License v2.1
+ * a copy of which is available from http://www.gnu.org/copyleft/lesser.html
  *
  * @package PhpAgi
- * @link http://www.voip-info.org/wiki-Asterisk+agi
- * @example examples/dtmf.php Get DTMF tones from the user and say the digits
- * @example examples/input.php Get text input from the user and say it back
- * @example examples/ping.php Ping an IP address
+ * @version 3.0
+ * @see https://github.com/welltime/phpagi
+ * @see http://phpagi.sourceforge.net/
  */
 class AGI
 {
+    /** @var string the Asterisk configuration directory */
     private const AST_CONFIG_DIR = '/etc/asterisk/';
+    /** @var string the Asterisk spool directory */
     private const AST_SPOOL_DIR = '/var/spool/asterisk/';
+    /** @var string the Asterisk temp directory */
     private const AST_TMP_DIR = self::AST_SPOOL_DIR . '/tmp/';
+    /** @var string the default configuration file */
     public const DEFAULT_PHPAGI_CONFIG = self::AST_CONFIG_DIR . '/phpagi.conf';
 
+    /** @var int AGI result code */
     private const AGIRES_OK = 200;
 
     private const AST_STATE_DOWN = 0;
@@ -79,41 +70,33 @@ class AGI
      *   agi_network_script - name of the script to execute
      *
      * NOTE: program arguments are still in $_SERVER['argv'].
+     * @var array<string,string>
      */
     public array $request;
 
-    /**
-     * Config variables
-     */
+    /** @var array<string,string> Config variables */
     public array $config;
 
-    /**
-     * Input Stream
-     */
-    private $in = null;
+    /** @var false|resource Input Stream */
+    private $in;
 
-    /**
-     * Output Stream
-     */
-    private $out = null;
+    /** @var false|resource Output Stream */
+    private $out;
 
-    /**
-     * Audio Stream
-     */
-    public $audio = null;
+    /** @var false|resource Audio Stream */
+    public $audio;
 
-    /**
-     * Application option delimiter
-     */
+    /** @var string Application option delimiter */
     public string $option_delim = ",";
 
+    /** @var string|null An email address to send errors to */
     private ?string $phpagi_error_handler_email = null;
 
     /**
      * Constructor
      *
-     * @param string|null $config is the name of the config file to parse
-     * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param string|null $config the name of the config file to parse
+     * @param array $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(string $config = null, array $optconfig = [])
     {
@@ -142,11 +125,10 @@ class AGI
             $this->config['cepstral']['swift'] = $this->which('swift');
         }
 
-        ob_implicit_flush(true);
+        ob_implicit_flush();
 
-        // open stdin & stdout
-        $this->in = defined('STDIN') ? STDIN : fopen('php://stdin', 'r');
-        $this->out = defined('STDOUT') ? STDOUT : fopen('php://stdout', 'w');
+        $this->in = fopen('php://stdin', 'r');
+        $this->out = fopen('php://stdout', 'w');
 
         // initialize error handler
         if ($this->config['phpagi']['error_handler']) {
@@ -155,29 +137,34 @@ class AGI
             error_reporting(E_ALL);
         }
 
+        if ($this->in === false || $this->out === false) {
+            die('Could not get STDIN/STDOUT handles');
+        }
+
         // make sure temp folder exists
         $this->make_folder($this->config['phpagi']['tempdir']);
 
         // read the request
         $str = fgets($this->in);
-        while ($str != "\n") {
-            $this->request[substr($str, 0, strpos($str, ':'))] = trim(substr($str, strpos($str, ':') + 1));
+        while ($str !== "\n") {
+            [$key, $val] = explode(':', $str, 2);
+            $this->request[trim($key)] = trim($val);
             $str = fgets($this->in);
         }
 
         // open audio if eagi detected
-        if ($this->request['agi_enhanced'] == '1.0') {
+        if ($this->request['agi_enhanced'] === '1.0') {
             if (file_exists('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO)) {
                 $this->audio = fopen('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO, 'r');
             } elseif (file_exists('/dev/fd/' . self::AUDIO_FILENO)) {
                 // may need to mount fdescfs
                 $this->audio = fopen('/dev/fd/' . self::AUDIO_FILENO, 'r');
-            } else {
-                $this->conlog('Unable to open audio stream');
             }
 
-            if ($this->audio) {
+            if (isset($this->audio) && $this->audio !== false) {
                 stream_set_blocking($this->audio, 0);
+            } else {
+                $this->conlog('Unable to open audio stream');
             }
         }
 
