@@ -32,8 +32,12 @@ class AGI
     /** @var string the default configuration file */
     public const DEFAULT_PHPAGI_CONFIG = self::AST_CONFIG_DIR . '/phpagi.conf';
 
-    /** @var int AGI result code */
+    /** @var int AGI success result code */
     private const AGIRES_OK = 200;
+    /** @var int AGI unknown command result code */
+    private const AGIRES_BADCMD = 510;
+    /** @var int AGI invalid syntax result code */
+    private const AGIRES_INVALID = 520;
 
     private const AST_STATE_DOWN = 0;
     private const AST_STATE_RESERVED = 1;
@@ -233,9 +237,11 @@ class AGI
                 $ret['data'] = 'Line is busy';
                 break;
             case self::AST_STATE_DIALING_OFFHOOK:
+                // this is not documented, may be old
                 $ret['data'] = 'Digits (or equivalent) have been dialed while offhook';
                 break;
             case self::AST_STATE_PRERING:
+                // this is not documented, may be old
                 $ret['data'] = 'Channel has detected an incoming call and is waiting for ring';
                 break;
             default:
@@ -257,7 +263,7 @@ class AGI
      */
     public function database_del(string $family, string $key): array
     {
-        return $this->evaluate('DATABASE DEL "%s" "%s"', $family, $key);
+        return $this->evaluate('DATABASE DEL %s %s', $family, $key);
     }
 
     /**
@@ -467,7 +473,7 @@ class AGI
      */
     public function hangup(string $channel = ''): array
     {
-        return $this->evaluate("HANGUP $channel");
+        return $this->evaluate('HANGUP %s', $channel);
     }
 
     /**
@@ -478,7 +484,7 @@ class AGI
      * @param string $string a message
      * @return array see evaluate for return information.
      */
-    public function noop($string = ""): array
+    public function noop(string $string = ''): array
     {
         return $this->evaluate("NOOP %s", $string);
     }
@@ -1716,27 +1722,49 @@ class AGI
 
 
     /**
-     * Evaluate an AGI command.
+     * Send an AGI command and parse the response
+     * Typical responses:
+     * ```
+     * 200 result=1
+     * ```
+     * ```
+     * 200 result=4 (supplementary data)
+     * ```
+     * ```
+     * 200 result=4 (supplementary data) foo=bar
+     * ```
+     * ```
+     * 510 Invalid or unknown command
+     * ```
+     * ```
+     * 520-Invalid command syntax.  Proper usage follows:
+     * foo
+     * bar
+     * baz
+     * 520 End of proper usage.
+     *```
      *
-     * @param string $command
+     * @param string $command the AGI command string to send
      * @param mixed $args if present, $command is a printf format specification that $args are applied to;
      *    string values will be escaped and quoted
      * @return array<string,mixed> ('code'=>$code, 'result'=>$result, 'data'=>$data)
      */
     private function evaluate(string $command, ...$args): array
     {
-        $broken = ['code' => 500, 'result' => -1, 'data' => ''];
+        $broken = ['code' => 500, 'result' => -1];
 
         if (func_num_args() > 1) {
             array_walk(
                 $args,
                 fn($v) => is_numeric($v) ? $v : '"' . str_replace(['"', "\n"], ['\\"', '\\n'], $v) . '"'
             );
-            $command = vsprintf($command, $args);
+
+            $command = trim(vsprintf($command, $args));
         }
+        $broken['data'] = $command;
 
         // write command
-        if (!fwrite($this->out, trim($command) . "\n")) {
+        if (!fwrite($this->out, $command . "\n")) {
             return $broken;
         }
         fflush($this->out);
@@ -1749,67 +1777,57 @@ class AGI
         $count = 0;
         do {
             $str = trim(fgets($this->in, 4096));
-        } while ($str == '' && $count++ < 5);
+        } while ($str === '' && $count++ < 5);
 
-        if ($count >= 5) {
+        if ($count >= 5 && $str === '') {
             //          $this->conlog("evaluate error on read for $command");
             return $broken;
         }
 
         // parse result
-        $ret['code'] = substr($str, 0, 3);
-        $str = trim(substr($str, 3));
+        preg_match('/(?P<code>\d+)(?P<sep>[\s-]*)(?P<data>.*)/', $str, $matches);
+        $code = (int)$matches['code'];
+        $sep = trim($matches['sep'] ?? '');
+        $str = trim($matches['data'] ?? '');
 
-        if ($str[0] == '-') {
+        if ($sep === '-') {
             // we have a multiline response!
             $count = 0;
-            $str = substr($str, 1) . "\n";
-            $line = fgets($this->in, 4096);
-            while (substr($line, 0, 3) != $ret['code'] && $count < 5) {
-                $str .= $line;
-                $line = fgets($this->in, 4096);
-                $count = (trim($line) == '') ? $count + 1 : 0;
+            $line = fgets($this->in);
+            while (substr($line, 0, 3) !== "$code" && $count < 5) {
+                $str .= "\n" . trim($line);
+                $line = fgets($this->in);
+                $count = (trim($line) === '') ? $count + 1 : 0;
             }
-            if ($count >= 5) {
+            $str = trim($str);
+            if ($count >= 5 && $str === '') {
                 //            $this->conlog("evaluate error on multiline read for $command");
                 return $broken;
             }
         }
 
         $ret['result'] = null;
-        $ret['data'] = '';
-        if ($ret['code'] != self::AGIRES_OK) {
-            // some sort of error
-            $ret['data'] = $str;
-            $this->conlog(print_r($ret, true));
+        $ret['data'] = $str;
+        $ret['code'] = $code;
+
+        if ($code === self::AGIRES_BADCMD) {
+            $this->conlog("AGI returned unknown command error: $str");
+        } elseif ($code === self::AGIRES_INVALID) {
+            $this->conlog("AGI returned invalid command syntax error: $str");
+        } elseif ($code !== self::AGIRES_OK) {
+            $this->conlog("AGI returned unknown error $code: $str");
         } else {
-            // normal AGIRES_OK response
-            $parse = explode(' ', trim($str));
-            $in_token = false;
-            foreach ($parse as $token) {
-                if ($in_token) {
-                    // we previously hit a token starting with ')' but not ending in ')'
-                    $ret['data'] .= ' ' . trim($token, '() ');
-                    if ($token[strlen($token) - 1] == ')') {
-                        $in_token = false;
-                    }
-                } elseif ($token[0] == '(') {
-                    if ($token[strlen($token) - 1] != ')') {
-                        $in_token = true;
-                    }
-                    $ret['data'] .= ' ' . trim($token, '() ');
-                } elseif (strpos($token, '=')) {
-                    $token = explode('=', $token);
-                    $ret[$token[0]] = $token[1];
-                } elseif ($token != '') {
-                    $ret['data'] .= ' ' . $token;
+            while(preg_match('/^(?P<key>\w+)=(?P<value>[^\s]+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
+                $ret[$matches['key']] = $matches['value'];
+                if (isset($matches['data'])) {
+                    $ret['data'] = $matches['data'];
                 }
+                $str = trim(str_replace($matches[0], '', $str));
             }
-            $ret['data'] = trim($ret['data']);
         }
 
         // log some errors
-        if ($ret['result'] < 0) {
+        if (($ret['result'] ?? 0) < 0) {
             $this->conlog("$command returned {$ret['result']}");
         }
 
@@ -1829,13 +1847,11 @@ class AGI
     {
         static $busy = false;
 
-        if ($this->config['phpagi']['debug']) {
-            if (!$busy) {
-                // no conlogs inside conlog!!!
-                $busy = true;
-                $this->verbose($str, $vbl);
-                $busy = false;
-            }
+        if ($this->config['phpagi']['debug'] && $busy === false) {
+            // no conlogs inside conlog!!!
+            $busy = true;
+            $this->verbose($str, $vbl);
+            $busy = false;
         }
     }
 
