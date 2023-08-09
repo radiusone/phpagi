@@ -28,7 +28,7 @@ if (!class_exists('PhpAgi\\AGI')) {
 class AMI
 {
     /** @var array<string,mixed> Config variables */
-    public array $config;
+    private array $config;
 
     /** @var resource Socket */
     public $socket = null;
@@ -72,6 +72,21 @@ class AMI
             'write_log' => false,
         ];
         $this->config['asmanager'] = array_merge($defaults, $optconfig);
+    }
+
+    /**
+     * Retrieves the full config array or a section thereof
+     *
+     * @param string $section the config section to retrieve
+     * @return array|mixed[]
+     */
+    public function getConfig(string $section = ''): array
+    {
+        if ($section) {
+            return $this->config[$section] ?? [];
+        }
+
+        return $this->config;
     }
 
     /**

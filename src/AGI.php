@@ -95,6 +95,9 @@ class AGI
 
     /** @var string|null An email address to send errors to */
     private ?string $phpagi_error_handler_email = null;
+    
+    /** @var AMI an AMI instance */
+    private AMI $asm;
 
     /**
      * Constructor
@@ -1596,124 +1599,61 @@ class AGI
      */
     public function say_punctuation(string $text, string $escape_digits = '', int $frequency = 8000)
     {
-        $ret = "";
-        for ($i = 0; $i < strlen($text); $i++) {
-            switch ($text[$i]) {
-                case ' ':
-                    $ret .= 'SPACE ';
-                case ',':
-                    $ret .= 'COMMA ';
-                    break;
-                case '.':
-                    $ret .= 'PERIOD ';
-                    break;
-                case '?':
-                    $ret .= 'QUESTION MARK ';
-                    break;
-                case '!':
-                    $ret .= 'EXPLANATION POINT ';
-                    break;
-                case ':':
-                    $ret .= 'COLON ';
-                    break;
-                case ';':
-                    $ret .= 'SEMICOLON ';
-                    break;
-                case '#':
-                    $ret .= 'POUND ';
-                    break;
-                case '=':
-                    $ret .= 'EQUALS ';
-                    break;
-                case '<':
-                    $ret .= 'LESS THAN ';
-                    break;
-                case '(':
-                    $ret .= 'LEFT PARENTHESIS ';
-                    break;
-                case '[':
-                    $ret .= 'LEFT BRACKET ';
-                    break;
-                case '{':
-                    $ret .= 'LEFT BRACE ';
-                    break;
-                case '@':
-                    $ret .= 'AT ';
-                    break;
-                case '$':
-                    $ret .= 'DOLLAR SIGN ';
-                    break;
-                case '&':
-                    $ret .= 'AMPERSAND ';
-                    break;
-                case '%':
-                    $ret .= 'PERCENT ';
-                    break;
-                case '>':
-                    $ret .= 'GREATER THAN ';
-                    break;
-                case ')':
-                    $ret .= 'RIGHT PARENTHESIS ';
-                    break;
-                case ']':
-                    $ret .= 'RIGHT BRACKET ';
-                    break;
-                case '}':
-                    $ret .= 'RIGHT BRACE ';
-                    break;
-                case '+':
-                    $ret .= 'PLUS ';
-                    break;
-                case '-':
-                    $ret .= 'MINUS ';
-                    break;
-                case '*':
-                    $ret .= 'ASTERISK ';
-                    break;
-                case '/':
-                    $ret .= 'SLASH ';
-                    break;
-                case "'":
-                    $ret .= 'SINGLE QUOTE ';
-                    break;
-                case '`':
-                    $ret .= 'BACK TICK ';
-                    break;
-                case '"':
-                    $ret .= 'QUOTE ';
-                    break;
-                case '^':
-                    $ret .= 'CAROT ';
-                    break;
-                case "\\":
-                    $ret .= 'BACK SLASH ';
-                    break;
-                case '|':
-                    $ret .= 'BAR ';
-                    break;
-                case '_':
-                    $ret .= 'UNDERSCORE ';
-                    break;
-                case '~':
-                    $ret .= 'TILDE ';
-                    break;
-                default:
-                    $ret .= $text[$i] . ' ';
-                    break;
-            }
-        }
+        $punc = [
+            ' ' => 'SPACE',
+            ',' => 'COMMA',
+            '.' => 'PERIOD',
+            '?' => 'QUESTION MARK',
+            '!' => 'EXPLANATION POINT',
+            ':' => 'COLON',
+            ';' => 'SEMICOLON',
+            '#' => 'POUND',
+            '=' => 'EQUALS',
+            '<' => 'LESS THAN',
+            '(' => 'LEFT PARENTHESIS',
+            '[' => 'LEFT BRACKET',
+            '{' => 'LEFT BRACE',
+            '@' => 'AT',
+            '$' => 'DOLLAR SIGN',
+            '&' => 'AMPERSAND',
+            '%' => 'PERCENT',
+            '>' => 'GREATER THAN',
+            ')' => 'RIGHT PARENTHESIS',
+            ']' => 'RIGHT BRACKET',
+            '}' => 'RIGHT BRACE',
+            '+' => 'PLUS',
+            '-' => 'MINUS',
+            '*' => 'ASTERISK',
+            '/' => 'SLASH',
+            "'" => 'SINGLE QUOTE',
+            '`' => 'BACK TICK',
+            '"' => 'QUOTE',
+            '^' => 'CAROT',
+            '\\' => 'BACK SLASH',
+            '|' => 'BAR',
+            '_' => 'UNDERSCORE',
+            '~' => 'TILDE',
+        ];
+        $text = preg_replace('/(.)/', ' $1 ', $text);
+        $text = str_replace(
+            array_keys($punc), 
+            array_values($punc), 
+            $text
+        );
 
-        return $this->text2wav($ret, $escape_digits, $frequency);
+        return $this->text2wav($text, $escape_digits, $frequency);
     }
 
     /**
      * Create a new AGI_AsteriskManager.
      */
-    public function &new_AsteriskManager(): AMI
+    public function AMI(): AMI
     {
-        $this->asm = new AMI(null, $this->config['asmanager']);
-        $this->asm->setPagi($this);
-        $this->config['asmanager'] =& $this->asm->config['asmanager'];
+        if (!isset($this->asm)) {
+            $this->asm = new AMI(null, $this->config['asmanager']);
+            $this->asm->setPagi($this);
+            $this->config['asmanager'] = $this->asm->getConfig('asmanager');
+        }
 
         return $this->asm;
     }
@@ -1889,7 +1829,7 @@ class AGI
      */
     public function phpagi_error_handler(int $level, string $message, string $file, int $line)
     {
-        if (ini_get('error_reporting') == 0) {
+        if (ini_get('error_reporting') === "0") {
             return;
         } // this happens with an @
 
