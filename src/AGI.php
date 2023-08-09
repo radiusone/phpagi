@@ -1110,7 +1110,7 @@ class AGI
     {
         $proceed = false;
         $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
             // last char of buffer was not an escape digit
             $proceed = true;
         }
@@ -1142,7 +1142,7 @@ class AGI
     {
         $proceed = false;
         $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
             // last char of buffer was not an escape digit
             $proceed = true;
         }
@@ -1175,7 +1175,7 @@ class AGI
     {
         $proceed = false;
         $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
             // last char of buffer was not an escape digit
             $proceed = true;
         }
@@ -1204,10 +1204,10 @@ class AGI
     public function fastpass_say_punctuation(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
         if ($buffer == '' || $proceed) {
             $res = $this->say_punctuation($text, $escape_digits, $frequency);
@@ -1264,18 +1264,18 @@ class AGI
         if (is_null($max_digits) || strlen($buffer) < $max_digits) {
             if ($buffer == '') {
                 $res = $this->get_data($filename, $timeout, $max_digits);
-                if ($res['code'] == self::AGIRES_OK) {
+                if ($res['code'] === self::AGIRES_OK) {
                     $buffer .= $res['result'];
                 }
 
                 return $res;
             } else {
-                while (is_null($max_digits) || strlen($buffer) < $max_digits) {
+                while (strlen($buffer) < $max_digits ?? PHP_INT_MAX) {
                     $res = $this->wait_for_digit();
-                    if ($res['code'] != self::AGIRES_OK) {
+                    if ($res['code'] !== self::AGIRES_OK) {
                         return $res;
                     }
-                    if ($res['result'] == ord('#')) {
+                    if ($res['result'] === ord('#')) {
                         break;
                     }
                     $buffer .= chr($res['result']);
@@ -1307,18 +1307,18 @@ class AGI
         $choice = null;
         while (is_null($choice)) {
             foreach ($choices as $prompt) {
-                if ($prompt[0] == '*') {
+                if (str_starts_with($prompt, '*')) {
                     $ret = $this->text2wav(substr($prompt, 1), $keys);
                 } else {
                     $ret = $this->stream_file($prompt, $keys);
                 }
 
-                if ($ret['code'] != self::AGIRES_OK || $ret['result'] == -1) {
+                if ($ret['code'] !== self::AGIRES_OK || $ret['result'] === "-1") {
                     $choice = -1;
                     break;
                 }
 
-                if ($ret['result'] != 0) {
+                if ($ret['result'] !== "0") {
                     $choice = chr($ret['result']);
                     break;
                 }
@@ -1326,9 +1326,9 @@ class AGI
 
             if (is_null($choice)) {
                 $ret = $this->get_data('beep', $timeout, 1);
-                if ($ret['code'] != self::AGIRES_OK || $ret['result'] == -1) {
+                if ($ret['code'] !== self::AGIRES_OK || $ret['result'] === "-1") {
                     $choice = -1;
-                } elseif ($ret['result'] != '' && strpos(' ' . $keys, $ret['result'])) {
+                } elseif ($ret['result'] != '' && str_contains($keys, $ret['result'])) {
                     $choice = $ret['result'];
                 }
             }
@@ -1370,8 +1370,8 @@ class AGI
         $ret = ['name' => '', 'protocol' => '', 'port' => ''];
         $callerid = trim($callerid);
 
-        if ($callerid[0] == '"' || $callerid[0] == "'") {
-            $d = $callerid[0];
+        if (str_starts_with($callerid, '"') || str_starts_with($callerid, "'")) {
+            $d = substr($callerid, 0, 1);
             $callerid = explode($d, substr($callerid, 1));
             $ret['name'] = array_shift($callerid);
             $callerid = join($d, $callerid);
@@ -1379,7 +1379,7 @@ class AGI
 
         $callerid = explode('@', trim($callerid, '<> '));
         $username = explode(':', array_shift($callerid));
-        if (count($username) == 1) {
+        if (count($username) === 1) {
             $ret['username'] = $username[0];
         } else {
             $ret['protocol'] = array_shift($username);
@@ -1388,7 +1388,7 @@ class AGI
 
         $callerid = join('@', $callerid);
         $host = explode(':', $callerid);
-        if (count($host) == 1) {
+        if (count($host) === 1) {
             $ret['host'] = $host[0];
         } else {
             $ret['host'] = array_shift($host);
@@ -1579,7 +1579,7 @@ class AGI
                 }
             }
             $this->say_punctuation($text);
-        } while (substr($result['result'], -2) === '**');
+        } while (str_ends_with($result['result'], '**'));
 
         return $text;
     }
@@ -1732,7 +1732,7 @@ class AGI
             // we have a multiline response!
             $count = 0;
             $line = fgets($this->in);
-            while (substr($line, 0, 3) !== "$code" && $count < 5) {
+            while (!str_starts_with($line, "$code") && $count < 5) {
                 $str .= "\n" . trim($line);
                 $line = fgets($this->in);
                 $count = (trim($line) === '') ? $count + 1 : 0;
