@@ -1,65 +1,47 @@
-PHPAGI README
+PhpAgi Readme
 -------------
 
-Welcome to PHPAGI. 
+Welcome to PhpAgi. 
 
-phpagi is a set of PHP classes for use in developing applications with
-the Asterisk Gateway Interface, and is licensed under the GNU Lesser
-General Public License (see COPYING for terms).
+PhpAgi is a set of PHP classes for use in developing applications with
+the Asterisk Gateway Interface and Asterisk Manager Interface, and is
+licensed under the GNU Lesser General Public License (see COPYING for terms).
 
-This release (version 2) of the phpagi classes is a significant overhaul
-from the old version 1 library.  API functions have been renamed and 
-restructured.
+This release (version 3) of the PhpAgi classes is a significant overhaul
+from the old versions.  API functions may have been renamed or had their
+signatures and behaviour changed from the previous version.
 
-Version 1 of phpagi is no longer supported, but will continue to be
-available for historical purposes.  We strongly encourage you to migrate
-to this new version.
-
-If you have developed software based around phpagi, we'd like to hear from 
-you!  Drop us a note, and indicate whether you'd like us to list your 
-application on our website.
-
-## Installation
+Installation
+-----
 
 The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 
-Either run
-
 ```bash
-$ composer require welltime/phpagi ^2.20
+composer config repositories.radiusone-phpagi github https://github.com/radiusone/phpagi
+composer require radiusone/phpagi dev-master
 ```
 
-or add
-
-```
-"welltime/phpagi": "^2.20"
-```
-
-to the ```require``` section of your `composer.json` file.
-
-FILES
+Files
 -----
-* phpagi.php           - The main phpagi class.
-* phpagi-asmanager.php - The Asterisk Manager class.
-* phpagi-fastagi.php   - FastAGI class.
+* src/AGI.php          - The AGI class.
+* src/AMI.php          - The Asterisk Manager class.
+* src/fastagi.php      - An example of a basic FastAGI server.
 
 * docs/                - README files for the classes.
 * api-docs/            - API Documentation (html)
 
-DOCS
+Docs
 ----
-* README.phpagi           - The main phpagi README
-* README.phpagi-asmanager - The phpagi asterisk manager README
-* README.phpagi-fastagi   - phpagi fastagi README
-* CHANGELOG               - Change Log.
+* README               - The main README
+* README.ami           - The AMI README
+* README.fastagi       - FastAGI README
 
-* phpagi.conf             - An example configuration file for phpagi.
-* fastagi.xinetd          - xinetd.conf sample configuration for fastagi
+* phpagi.example.conf  - An example configuration file
+* fastagi.xinetd       - xinetd.conf sample configuration for the FastAGI server
 
 SUPPORT
 -------
-
 Support for phpagi is available from the project website. 
 
- * https://github.com/welltime/phpagi
+ * https://github.com/radiusone/phpagi
 
