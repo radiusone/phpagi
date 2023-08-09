@@ -146,7 +146,10 @@ class AGI
         }
 
         // make sure temp folder exists
-        $this->make_folder($this->config['phpagi']['tempdir']);
+        $tempdir = $this->config['phpagi']['tempdir'];
+        if (!mkdir($tempdir, 0775, true)) {
+            $this->conlog('Unable to create temp dir $tempdir, carrying on');
+        }
 
         // read the request
         $str = fgets($this->in);
@@ -1873,30 +1876,6 @@ class AGI
         }
 
         return '';
-    }
-
-    /**
-     * Make a folder recursively.
-     *
-     * @param string $folder
-     * @param int $perms
-     * @return bool
-     */
-    private function make_folder(string $folder, int $perms = 0755): bool
-    {
-        $f = explode(DIRECTORY_SEPARATOR, $folder);
-        $base = '';
-        for ($i = 0; $i < count($f); $i++) {
-            $base .= $f[$i];
-            if ($f[$i] != '' && !file_exists($base)) {
-                if (!mkdir($base, $perms)) {
-                    return (false);
-                }
-            }
-            $base .= DIRECTORY_SEPARATOR;
-        }
-
-        return (true);
     }
 
     /**
