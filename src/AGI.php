@@ -1505,7 +1505,7 @@ class AGI
      * Based on ideas found at http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
      *
      * Example:
-     *                  UC   H     LC   i        ,     SP   h     o        w    SP   a    r        e     SP   y        o        u     ?
+     *               UC   H     LC   i      ,     SP   h     o      w    SP   a    r      e     SP   y      o      u     ?
      *   $string = '*8'.'44*'.'*5'.'444*'.'00*'.'0*'.'44*'.'666*'.'9*'.'0*'.'2*'.'777*'.'33*'.'0*'.'999*'.'666*'.'88*'.'0000*';
      *
      * @link http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
@@ -1514,7 +1514,7 @@ class AGI
      * @param string $mode
      * @return string
      */
-    public function text_input($mode = 'NUMERIC'): string
+    public function text_input(string $mode = 'NUMERIC'): string
     {
         $alpha = [
             'k0' => ' ', 'k00' => ',', 'k000' => '.', 'k0000' => '?', 'k00000' => '0',
@@ -1537,7 +1537,7 @@ class AGI
             'k5' => "'", 'k55' => '`', 'k555' => '5',
             'k6' => '"', 'k66' => '6',
             'k7' => '^', 'k77' => '7',
-            'k8' => "\\", 'k88' => '|', 'k888' => '8',
+            'k8' => '\\', 'k88' => '|', 'k888' => '8',
             'k9' => '_', 'k99' => '~', 'k999' => '9',
         ];
         $text = '';
@@ -1546,9 +1546,9 @@ class AGI
             $result = $this->get_data('beep');
             foreach (explode('*', $result['result']) as $code) {
                 if ($command) {
-                    switch ($code[0]) {
+                    switch (substr($code, 0, 1)) {
                         case '2':
-                            $text = substr($text, 0, strlen($text) - 1);
+                            $text = substr($text, 0, -1);
                             break; // backspace
                         case '5':
                             $mode = 'LOWERCASE';
@@ -1563,28 +1563,26 @@ class AGI
                             $mode = 'UPPERCASE';
                             break;
                         case '9':
-                            $text = explode(' ', $text);
-                            unset($text[count($text) - 1]);
-                            $text = join(' ', $text);
+                            $text = substr($text, 0, strrpos($text, ' '));
                             break; // backspace a word
                     }
                     $code = substr($code, 1);
                     $command = false;
                 }
-                if ($code == '') {
+                if ($code === '') {
                     $command = true;
-                } elseif ($mode == 'NUMERIC') {
+                } elseif ($mode === 'NUMERIC') {
                     $text .= $code;
-                } elseif ($mode == 'UPPERCASE' && isset($alpha['k' . $code])) {
-                    $text .= $alpha['k' . $code];
-                } elseif ($mode == 'LOWERCASE' && isset($alpha['k' . $code])) {
-                    $text .= strtolower($alpha['k' . $code]);
-                } elseif ($mode == 'SYMBOL' && isset($symbol['k' . $code])) {
-                    $text .= $symbol['k' . $code];
+                } elseif ($mode === 'UPPERCASE') {
+                    $text .= $alpha["k$code"] ?? '';
+                } elseif ($mode === 'LOWERCASE') {
+                    $text .= strtolower($alpha["k$code"] ?? '');
+                } elseif ($mode == 'SYMBOL') {
+                    $text .= $symbol["k$code"] ?? '';
                 }
             }
             $this->say_punctuation($text);
-        } while (substr($result['result'], -2) == '**');
+        } while (substr($result['result'], -2) === '**');
 
         return $text;
     }
