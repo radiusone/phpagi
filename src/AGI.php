@@ -2,6 +2,8 @@
 
 namespace PhpAgi;
 
+use GlobIterator;
+
 if (!class_exists('PhpAgi\\AMI')) {
     require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AMI.php');
 }
@@ -34,6 +36,8 @@ class AGI
 
     /** @var int AGI success result code */
     private const AGIRES_OK = 200;
+    /** @var int AGI general error result code */
+    private const AGIRES_ERR = 500;
     /** @var int AGI unknown command result code */
     private const AGIRES_BADCMD = 510;
     /** @var int AGI invalid syntax result code */
@@ -823,6 +827,7 @@ class AGI
      */
     public function verbose(string $message, int $level = 1): array
     {
+        $ret = [];
         foreach (explode("\n", str_replace("\r\n", "\n", print_r($message, true))) as $msg) {
             syslog(LOG_WARNING, $msg);
             $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
@@ -1104,21 +1109,21 @@ class AGI
     public function fastpass_stream_file(string &$buffer, string $filename, string $escape_digits = '', int $offset = 0): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->stream_file($filename, $escape_digits, $offset);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1]), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
     }
 
     /**
@@ -1133,24 +1138,24 @@ class AGI
      * @param int $frequency
      * @return array see evaluate for return information.
      */
-    public function fastpass_text2wav(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000)
+    public function fastpass_text2wav(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->text2wav($text, $escape_digits, $frequency);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1]), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
     }
 
     /**
@@ -1163,26 +1168,27 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
+     * @param string|null $voice
      * @return array see evaluate for return information.
      */
-    public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, $voice = null)
+    public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, string $voice = null): array
     {
         $proceed = false;
-        if ($escape_digits != '' && $buffer != '') {
-            if (!strpos(chr(255) . $escape_digits, $buffer[strlen($buffer) - 1])) {
-                $proceed = true;
-            }
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && strpos($escape_digits, $last) === false) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
         }
-        if ($buffer == '' || $proceed) {
+        if ($buffer === '' || $proceed) {
             $res = $this->swift($text, $escape_digits, $frequency, $voice);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
             return $res;
         }
 
-        return ['code' => self::AGIRES_OK, 'result' => ord($buffer[strlen($buffer) - 1]), 'endpos' => 0];
+        return ['code' => self::AGIRES_OK, 'result' => ord($last), 'endpos' => 0];
     }
 
     /**
@@ -1195,7 +1201,7 @@ class AGI
      * @param int $frequency
      * @return array see evaluate for return information.
      */
-    public function fastpass_say_punctuation(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000)
+    public function fastpass_say_punctuation(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000): array
     {
         $proceed = false;
         if ($escape_digits != '' && $buffer != '') {
@@ -1403,29 +1409,28 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array|bool see evaluate for return information.
+     * @return array see evaluate for return information.
      */
-    public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000)
+    public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000): array
     {
         $text = trim($text);
-        if ($text == '') {
-            return true;
+        if ($text === '') {
+
+            return ['code' => self::AGIRES_OK, 'result' => 0];
         }
 
-        $hash = md5($text);
-        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR;
-        $fname .= 'text2wav_' . $hash;
+        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'text2wav_' . md5($text);
 
         // create wave file
         if (!file_exists("$fname.wav")) {
             // write text file
-            if (!file_exists("$fname.txt")) {
-                $fp = fopen("$fname.txt", 'w');
-                fputs($fp, $text);
-                fclose($fp);
-            }
+            file_put_contents("$fname.txt", $text);
+            $command = escapeshellcmd($this->config['festival']['text2wave']);
+            $args = '-F ' . escapeshellarg($frequency);
+            $args .= ' -o ' . escapeshellarg("$fname.wav");
+            $args .= ' ' . escapeshellarg("$fname.txt");
 
-            shell_exec("{$this->config['festival']['text2wave']} -F $frequency -o $fname.wav $fname.txt");
+            shell_exec("$command $args");
         } else {
             touch("$fname.txt");
             touch("$fname.wav");
@@ -1436,11 +1441,7 @@ class AGI
 
         // clean up old files
         $delete = time() - 2592000; // 1 month
-        foreach (glob($this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'text2wav_*') as $file) {
-            if (filemtime($file) < $delete) {
-                unlink($file);
-            }
-        }
+        $this->clearTemp('text2wav_*', $delete);
 
         return $ret;
     }
@@ -1454,35 +1455,35 @@ class AGI
      * @param string $escape_digits
      * @param int $frequency
      * @param null $voice
-     * @return array|bool see evaluate for return information.
+     * @return array see evaluate for return information.
      */
-    public function swift(string $text, string $escape_digits = '', int $frequency = 8000, $voice = null)
+    public function swift(string $text, string $escape_digits = '', int $frequency = 8000, $voice = null): array
     {
-        if (!is_null($voice)) {
-            $voice = "-n $voice";
-        } elseif (isset($this->config['cepstral']['voice'])) {
-            $voice = "-n {$this->config['cepstral']['voice']}";
-        }
+        $voice = $voice ?? $this->config['cepstral']['voice'] ?? '';
 
         $text = trim($text);
-        if ($text == '') {
-            return true;
+        if ($text === '') {
+
+            return ['code' => self::AGIRES_OK, 'result' => 0];
         }
 
-        $hash = md5($text);
-        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR;
-        $fname .= 'swift_' . $hash;
+        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'swift_' . md5($text);
 
         // create wave file
         if (!file_exists("$fname.wav")) {
             // write text file
-            if (!file_exists("$fname.txt")) {
-                $fp = fopen("$fname.txt", 'w');
-                fputs($fp, $text);
-                fclose($fp);
+            file_put_contents("$fname.txt", $text);
+            $command = escapeshellcmd($this->config['cepstral']['swift']);
+            $args = '-p ' . escapeshellarg("audio/channels=1,audio/sampling-rate=$frequency $voice");
+            $args .= ' -o ' . escapeshellarg("$fname.wav");
+            $args .= ' -f ' . escapeshellarg("$fname.txt");
+            if ($voice) {
+                $args .= ' -n ' . escapeshellarg($voice);
             }
-
-            shell_exec("{$this->config['cepstral']['swift']} -p audio/channels=1,audio/sampling-rate=$frequency $voice -o $fname.wav -f $fname.txt");
+            shell_exec("$command $args");
+        } else {
+            touch("$fname.txt");
+            touch("$fname.wav");
         }
 
         // stream it
@@ -1490,11 +1491,7 @@ class AGI
 
         // clean up old files
         $delete = time() - 2592000; // 1 month
-        foreach (glob($this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'swift_*') as $file) {
-            if (filemtime($file) < $delete) {
-                unlink($file);
-            }
-        }
+        $this->clearTemp('swift_*', $delete);
 
         return $ret;
     }
@@ -1574,11 +1571,11 @@ class AGI
                 } elseif ($mode === 'NUMERIC') {
                     $text .= $code;
                 } elseif ($mode === 'UPPERCASE') {
-                    $text .= $alpha["k$code"] ?? '';
+                    $text .= $alpha['k' . $code] ?? '';
                 } elseif ($mode === 'LOWERCASE') {
-                    $text .= strtolower($alpha["k$code"] ?? '');
+                    $text .= strtolower($alpha['k' . $code] ?? '');
                 } elseif ($mode == 'SYMBOL') {
-                    $text .= $symbol["k$code"] ?? '';
+                    $text .= $symbol['k' . $code] ?? '';
                 }
             }
             $this->say_punctuation($text);
@@ -1595,7 +1592,7 @@ class AGI
      * @param int $frequency
      * @return array see evaluate for return information.
      */
-    public function say_punctuation(string $text, string $escape_digits = '', int $frequency = 8000)
+    public function say_punctuation(string $text, string $escape_digits = '', int $frequency = 8000): array
     {
         $punc = [
             ' ' => 'SPACE',
@@ -1692,7 +1689,7 @@ class AGI
      */
     private function evaluate(string $command, ...$args): array
     {
-        $broken = ['code' => 500, 'result' => -1];
+        $broken = ['code' => self::AGIRES_ERR, 'result' => -1];
 
         if (func_num_args() > 1) {
             array_walk(
@@ -1758,7 +1755,7 @@ class AGI
         } elseif ($code !== self::AGIRES_OK) {
             $this->conlog("AGI returned unknown error $code: $str");
         } else {
-            while(preg_match('/^(?P<key>\w+)=(?P<value>[^\s]+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
+            while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
                 $ret[$matches['key']] = $matches['value'];
                 if (isset($matches['data'])) {
                     $ret['data'] = $matches['data'];
@@ -1899,6 +1896,24 @@ class AGI
                 mail($this->phpagi_error_handler_email, $subject, $message);
             }
             $mailcount++;
+        }
+    }
+
+    /**
+     * Clear the application's temp directory files
+     *
+     * @param string $glob a file glob to filter by
+     * @param int $delete if provided, files modified before this unix timestamp will be deleted
+     * @return void
+     */
+    private function clearTemp(string $glob = '*', int $delete = 0): void
+    {
+        $dir = new GlobIterator($this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . $glob);
+
+        foreach ($dir as $file) {
+            if ($delete === 0 || $file->getMTime() < $delete) {
+                unlink($file);
+            }
         }
     }
 }
