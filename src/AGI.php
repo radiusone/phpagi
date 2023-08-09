@@ -1913,7 +1913,7 @@ class AGI
      * @param int $line line number of error
      * @return void
      */
-    private function phpagi_error_handler(int $level, string $message, string $file, int $line)
+    public function phpagi_error_handler(int $level, string $message, string $file, int $line)
     {
         if (ini_get('error_reporting') == 0) {
             return;
