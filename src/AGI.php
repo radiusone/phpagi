@@ -57,6 +57,9 @@ class AGI
     /** @var int FD number for audio stream */
     public const AUDIO_FILENO = 3;
 
+    /** @var int how many emails have been sent */
+    private static int $mailcount = 0;
+
     /**
      * Request variables read in on initialization.
      *
@@ -1841,6 +1844,7 @@ class AGI
                 case E_USER_NOTICE:
                     $level = "Notice";
                     break;
+                case E_ERROR:
                 case E_USER_ERROR:
                     $level = "Error";
                     break;
@@ -1866,36 +1870,26 @@ class AGI
             $message .= "\n\nBacktrace:\n" . print_r(debug_backtrace(), true);
 
             // include code fragment
-            if (file_exists($file) && is_readable($file)) {
+            if (file_exists($file) && is_readable($file) && filesize($file) < 1024 * 1024) {
                 $message .= "\n\n$file:\n";
-                $code = file($file);
-                for ($i = max(0, $line - 10); $i < min($line + 10, count($code)); $i++) {
-                    $message .= ($i + 1) . "\t$code[$i]";
+                $code = file($file, FILE_IGNORE_NEW_LINES);
+                $code = array_slice($code, max(0, $line - 5), 10, true);
+                foreach ($code as $k => $v) {
+                    $message .= sprintf("%-5d %s\n", $k + 1, $v);
                 }
             }
 
             // make sure message is fully readable (convert unprintable chars to hex representation)
-            $ret = '';
-            for ($i = 0; $i < strlen($message); $i++) {
-                $c = ord($message[$i]);
-                if ($c == 10 || $c == 13 || $c == 9) {
-                    $ret .= $message[$i];
-                } elseif ($c < 16) {
-                    $ret .= '\x0' . dechex($c);
-                } elseif ($c < 32 || $c > 127) {
-                    $ret .= '\x' . dechex($c);
-                } else {
-                    $ret .= $message[$i];
-                }
-            }
-            $message = $ret;
+            $message = preg_replace_callback(
+                '/[^ -~\\t\\r\\n]/', // matches anything that isn't printable or whitespace
+                fn($c) => '\\x0' . dechex(ord($c[0])),
+                $message
+            );
 
-            // send the mail if less than 5 errors
-            static $mailcount = 0;
-            if ($mailcount < 5) {
+            // send the mail if fewer than 5 errors
+            if (self::$mailcount++ <= 5) {
                 mail($this->phpagi_error_handler_email, $subject, $message);
             }
-            $mailcount++;
         }
     }
 
