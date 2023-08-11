@@ -6,24 +6,19 @@ use ReflectionException;
 use ReflectionMethod;
 
 if (!class_exists('PhpAgi\\AGI')) {
-    require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'AGI.php');
+    require_once('../vendor/autoload.php');
 }
 
 /**
  * PHP Asterisk Manager Interface (AMI) client
  *
- * Copyright (c) 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
- * Copyright 2023 RadiusOne Inc.
- * All Rights Reserved.
- *
- * This software is released under the terms of the GNU Lesser General Public License v2.1
- * a copy of which is available from http://www.gnu.org/copyleft/lesser.html
- *
  * @package PhpAgi
  * @version 3.0
- * @filesource https://github.com/welltime/phpagi
+ * @see https://github.com/welltime/phpagi
  * @see http://phpagi.sourceforge.net/
- * @example examples/sip_show_peer.php Get information about a sip peer
+ * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
+ * @copyright 2023 RadiusOne Inc.
+ * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
  */
 class AMI
 {

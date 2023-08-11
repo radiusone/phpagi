@@ -9,16 +9,13 @@ if (!class_exists('PhpAgi\\AGI')) {
 /**
  * PHP FastAGI bootstrap
  *
- *  This software is released under the terms of the GNU Lesser General Public License v2.1
- *  a copy of which is available from http://www.gnu.org/copyleft/lesser.html
- *
  * @package PhpAgi
  * @version 3.0
- * @filesource https://github.com/welltime/phpagi
- * @filesource http://phpagi.sourceforge.net/
+ * @see https://github.com/welltime/phpagi
+ * @see http://phpagi.sourceforge.net/
  * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * @copyright 2023 RadiusOne Inc.
- * @license LGPLv2.1
+ * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
  */
 
 $fastagi = new AGI();
