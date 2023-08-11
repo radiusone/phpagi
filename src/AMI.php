@@ -383,12 +383,12 @@ class AMI
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Agent Agent ID of the agent to log off
-     * @param bool $Soft Set to true to not hangup existing calls
+     * @param bool|null $Soft Set to true to not hangup existing calls
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      * @throws ReflectionException
      */
-    public function AgentLogoff(string $Agent, bool $Soft = false, string $ActionID = null): array
+    public function AgentLogoff(string $Agent, bool $Soft = null, string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
@@ -1196,7 +1196,7 @@ class AMI
      * @param string $Priority Priority being added to this extension. Must be either hint or a numerical value
      * @param string $Application The application to use for this extension at the requested priority
      * @param string|null $ApplicationData Arguments to the application
-     * @param bool $Replace If true, then if an extension already exists at the requested context, extension, and priority it will be overwritten.
+     * @param bool|null $Replace If true, then if an extension already exists at the requested context, extension, and priority it will be overwritten.
      *     Otherwise, the existing extension will remain and the action will fail
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
@@ -1208,7 +1208,7 @@ class AMI
         string $Priority,
         string $Application,
         string $ApplicationData = null,
-        bool   $Replace = false,
+        bool   $Replace = null,
         string $ActionID = null
     ): array
     {
@@ -1564,8 +1564,8 @@ class AMI
     public function Monitor(
         string $Channel,
         string $File = null,
-        string $Format = 'wav',
-        bool   $Mix = false,
+        string $Format = null,
+        bool   $Mix = null,
         string $ActionID = null
     ): array
     {
@@ -1586,12 +1586,12 @@ class AMI
      * @param string|null $Priority Priority to use (requires 'Exten' and 'Context')
      * @param string|null $Application Application to execute
      * @param string|null $Data Data to use (requires 'Application')
-     * @param string|int $Timeout How long to wait for call to be answered (in ms)
+     * @param string|int|null $Timeout How long to wait for call to be answered (in ms)
      * @param string|null $CallerID Caller ID to be set on the outgoing channel
      * @param string|null $Variable Channel variable to set, multiple Variable: headers are allowed
      * @param string|null $Account Account code
-     * @param bool $Async Set to true for fast origination
-     * @param bool $EarlyMedia Set to true to force call bridge on early media
+     * @param bool|null $Async Set to true for fast origination
+     * @param bool|null $EarlyMedia Set to true to force call bridge on early media
      * @param string|null $Codecs Comma-separated list of codecs to use for this call
      * @param string|null $ChannelId Channel UniqueId to be set on the channel
      * @param string|null $OtherChannelId Channel UniqueId to be set on the second local channel
@@ -1606,12 +1606,12 @@ class AMI
         string $Priority = null,
         string $Application = null,
         string $Data = null,
-               $Timeout = 0,
+               $Timeout = null,
         string $CallerID = null,
         string $Variable = null,
         string $Account = null,
-        bool   $Async = false,
-        bool   $EarlyMedia = false,
+        bool   $Async = null,
+        bool   $EarlyMedia = null,
         string $Codecs = null,
         string $ChannelId = null,
         string $OtherChannelId = null,
@@ -1664,11 +1664,11 @@ class AMI
      *
      * @param string $Queue Queue's name
      * @param string $Interface The name of the interface (tech/name) to add to the queue
-     * @param string|int $Penalty A penalty (number) to apply to this member. Asterisk will distribute calls
+     * @param string|int|null $Penalty A penalty (number) to apply to this member. Asterisk will distribute calls
      *    to members with higher penalties only after attempting to distribute calls to those with lower penalty.
      * @param string|null $MemberName Text alias for the interface.
      * @param string|null $StateInterface
-     * @param bool $Paused To pause or not the member initially
+     * @param bool|null $Paused To pause or not the member initially
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      * @throws ReflectionException
@@ -1676,10 +1676,10 @@ class AMI
     public function QueueAdd(
         string $Queue,
         string $Interface,
-               $Penalty = 0,
+               $Penalty = null,
         string $MemberName = null,
         string $StateInterface = null,
-        bool   $Paused = false,
+        bool   $Paused = null,
         string $ActionID = null
     ): array
     {
@@ -1694,18 +1694,18 @@ class AMI
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Queue The name of the queue to take action on. If no queue name is specified, then all queues are affected
-     * @param bool $Members Whether to reload the queue's members
-     * @param bool $Rules Whether to reload queuerules.conf
-     * @param bool $Parameters Whether to reload the other queue options
+     * @param bool|null $Members Whether to reload the queue's members
+     * @param bool|null $Rules Whether to reload queuerules.conf
+     * @param bool|null $Parameters Whether to reload the other queue options
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      * @throws ReflectionException
      */
     public function QueueReload(
         string $Queue = null,
-        bool $Members = false,
-        bool $Rules = false,
-        bool $Parameters = false,
+        bool $Members = null,
+        bool $Rules = null,
+        bool $Parameters = null,
         string $ActionID = null
     ): array
     {
@@ -1814,7 +1814,7 @@ class AMI
      *
      * @param string|null $Channel The name of the channel to query for status
      * @param string|null $Variables Comma ',' separated list of variable to include
-     * @param bool $AllVariables If set to "true", the Status event will include all channel variables for the requested channel(s)
+     * @param bool|null $AllVariables If set to "true", the Status event will include all channel variables for the requested channel(s)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      * @throws ReflectionException
@@ -1822,7 +1822,7 @@ class AMI
     public function Status(
         string $Channel = null,
         string $Variables = null,
-        bool   $AllVariables = false,
+        bool   $AllVariables = null,
         string $ActionID = null
     ): array
     {
