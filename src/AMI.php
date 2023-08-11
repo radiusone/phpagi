@@ -58,8 +58,9 @@ class AMI
     public function __construct(string $config = null, array $optconfig = [])
     {
         // load config
-        if (file_exists($config ?? AGI::DEFAULT_PHPAGI_CONFIG)) {
-            $this->config = parse_ini_file($config ?? AGI::DEFAULT_PHPAGI_CONFIG, true);
+        $config ??= AGI::DEFAULT_PHPAGI_CONFIG;
+        if (file_exists($config)) {
+            $this->config = parse_ini_file($config, true);
         }
 
         // If optconfig is specified, stuff vals and vars into 'asmanager' config array,
@@ -78,7 +79,7 @@ class AMI
      * Retrieves the full config array or a section thereof
      *
      * @param string $section the config section to retrieve
-     * @return array|mixed[]
+     * @return array<array>|array<string,mixed>
      */
     public function getConfig(string $section = ''): array
     {
@@ -242,9 +243,9 @@ class AMI
     public function connect(string $server = null, string $username = null, string $secret = null): bool
     {
         // use config if not specified
-        $server = $server ?? $this->config['asmanager']['server'];
-        $username = $username ?? $this->config['asmanager']['username'];
-        $secret = $secret ?? $this->config['asmanager']['secret'];
+        $server ??= $this->config['asmanager']['server'];
+        $username ??= $this->config['asmanager']['username'];
+        $secret ??= $this->config['asmanager']['secret'];
 
         // get port from server if specified
         $c = explode(':', $server);
@@ -1112,10 +1113,8 @@ class AMI
      **/
     public function DBGet(string $Family, string $Key, string $ActionID = null): string
     {
-        if (is_null($ActionID)) {
-            // need this ahead of time
-            $ActionID = $this->ActionID();
-        }
+        // need this ahead of time
+        $ActionID ??= $this->ActionID();
         $response = $this->send_request(
             "DBGet",
             ['Family' => $Family, 'Key' => $Key, 'ActionID' => $ActionID]
@@ -1287,6 +1286,7 @@ class AMI
     }
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Gets a channel variable or function value
      * Get the value of a channel variable or function return.
      * Note If a channel name is not provided then the variable is considered global
@@ -1307,6 +1307,7 @@ class AMI
     }
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Hangup Channel
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Hangup/
@@ -1723,6 +1724,7 @@ class AMI
     }
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Redirect (transfer) a call
      * Redirect (transfer) a call
      *
@@ -1757,6 +1759,7 @@ class AMI
     }
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Sets a channel variable or function value
      * This command can be used to set the value of channel variables or dialplan functions.
      * Note If a channel name is not provided then the variable is considered global
@@ -1840,9 +1843,7 @@ class AMI
     public function add_event_handler(string $event, callable $callback): bool
     {
         $event = strtolower($event);
-        if (!isset($this->event_handlers[$event])) {
-            $this->event_handlers[$event] = [];
-        }
+        $this->event_handlers[$event] ??= [];
         $this->event_handlers[$event][] = $callback;
 
         return true;

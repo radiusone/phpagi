@@ -95,7 +95,7 @@ class AGI
     private $out;
 
     /** @var false|resource Audio Stream */
-    public $audio;
+    public $audio = false;
 
     /** @var string Application option delimiter */
     public string $option_delim = ",";
@@ -115,8 +115,9 @@ class AGI
     public function __construct(string $config = null, array $optconfig = [])
     {
         // load config
-        if (file_exists($config ?? self::DEFAULT_PHPAGI_CONFIG)) {
-            $this->config = parse_ini_file($config ?? self::DEFAULT_PHPAGI_CONFIG, true);
+        $config ??= self::DEFAULT_PHPAGI_CONFIG;
+        if (file_exists($config)) {
+            $this->config = parse_ini_file($config, true);
         }
 
         // If optconfig is specified, stuff vals and vars into 'phpagi' config array,
@@ -130,29 +131,25 @@ class AGI
         $this->config['phpagi'] = array_merge($defaults, $optconfig);
 
         // festival TTS config
-        if (!isset($this->config['festival']['text2wave'])) {
-            $this->config['festival']['text2wave'] = $this->which('text2wave');
-        }
+        $this->config['festival']['text2wave'] ??= $this->which('text2wave');
 
         // swift TTS config
-        if (!isset($this->config['cepstral']['swift'])) {
-            $this->config['cepstral']['swift'] = $this->which('swift');
-        }
+        $this->config['cepstral']['swift'] ??= $this->which('swift');
 
         ob_implicit_flush();
 
         $this->in = fopen('php://stdin', 'r');
         $this->out = fopen('php://stdout', 'w');
 
+        if ($this->in === false || $this->out === false) {
+            die('Could not get STDIN/STDOUT handles');
+        }
+
         // initialize error handler
         if ($this->config['phpagi']['error_handler']) {
             set_error_handler([$this, 'phpagi_error_handler']);
             $this->phpagi_error_handler_email = $this->config['phpagi']['admin'];
             error_reporting(E_ALL);
-        }
-
-        if ($this->in === false || $this->out === false) {
-            die('Could not get STDIN/STDOUT handles');
         }
 
         // make sure temp folder exists
@@ -178,10 +175,10 @@ class AGI
                 $this->audio = fopen('/dev/fd/' . self::AUDIO_FILENO, 'r');
             }
 
-            if (isset($this->audio) && $this->audio !== false) {
+            if (is_resource($this->audio)) {
                 stream_set_blocking($this->audio, 0);
             } else {
-                $this->conlog('Unable to open audio stream');
+                $this->conlog('Unable to open audio stream, continuing');
             }
         }
 
@@ -189,6 +186,13 @@ class AGI
         $this->conlog(print_r($this->request, true));
         $this->conlog('PHPAGI internal configuration:');
         $this->conlog(print_r($this->config, true));
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->audio)) {
+            fclose($this->audio);
+        }
     }
 
     // *********************************************************************************************************
@@ -359,20 +363,19 @@ class AGI
 
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Executes the specified Asterisk application with given options.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/exec/
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/ADSIProg/
      *
      * @param string $application
-     * @param mixed $options
+     * @param array $options
      * @return array see evaluate for return information. ['result'] is whatever the application returns, or -2 on failure to find application
      */
-    public function exec(string $application, $options): array
+    public function exec(string $application, array $options = []): array
     {
-        if (is_array($options)) {
-            $options = join($this->option_delim, $options);
-        }
+        $options = implode($this->option_delim, $options);
 
         return $this->evaluate("EXEC $application $options");
     }
@@ -873,7 +876,7 @@ class AGI
      */
     public function exec_absolutetimeout(int $seconds = 0): array
     {
-        return $this->exec('AbsoluteTimeout', $seconds);
+        return $this->exec('AbsoluteTimeout', [$seconds]);
     }
 
     /**
@@ -887,7 +890,7 @@ class AGI
      */
     public function exec_agi(string $command, string $args): array
     {
-        return $this->exec("AGI $command", $args);
+        return $this->exec("AGI $command", [$args]);
     }
 
     /**
@@ -901,7 +904,8 @@ class AGI
      */
     public function exec_setlanguage(string $language = 'en'): array
     {
-        return $this->exec('Set', 'CHANNEL(language)=' . $language);
+        $args = ['CHANNEL(language)=' . $language];
+        return $this->exec('Set', $args);
     }
 
     /**
@@ -937,11 +941,9 @@ class AGI
      */
     public function exec_dial(string $type, string $identifier, int $timeout = null, string $options = null, string $url = null): array
     {
-        $dial_opts = implode(
-            $this->option_delim,
-            array_filter(["$type/$identifier", $timeout, $options, $url])
-        );
-        return $this->exec('Dial', $dial_opts);
+        $args = array_filter(["$type/$identifier", $timeout, $options, $url]);
+
+        return $this->exec('Dial', $args);
     }
 
     /**
@@ -957,8 +959,7 @@ class AGI
      */
     public function exec_goto(...$args): array
     {
-        $opts = implode($this->option_delim, $args);
-        return $this->exec('Goto', $opts);
+        return $this->exec('Goto', $args);
     }
 
 
@@ -1094,9 +1095,6 @@ class AGI
             return $res;
         }
         $last = ord($last);
-
-        // return the last character
-        $char = ord(substr($buffer, - 1));
 
         return ['code' => self::AGIRES_OK, 'result' => "$last"];
     }
@@ -1377,9 +1375,7 @@ class AGI
      */
     public function parse_callerid(string $callerid = null): array
     {
-        if (is_null($callerid)) {
-            $callerid = $this->request['agi_callerid'];
-        }
+        $callerid ??= $this->request['agi_callerid'];
 
         $ret = ['name' => '', 'protocol' => '', 'port' => ''];
         $callerid = trim($callerid);
@@ -1473,7 +1469,7 @@ class AGI
      */
     public function swift(string $text, string $escape_digits = '', int $frequency = 8000, $voice = null): array
     {
-        $voice = $voice ?? $this->config['cepstral']['voice'] ?? '';
+        $voice ??= $this->config['cepstral']['voice'] ?? '';
 
         $text = trim($text);
         if ($text === '') {
@@ -1674,6 +1670,7 @@ class AGI
 
 
     /**
+     * NEW SIGNATURE IN 3.0
      * Send an AGI command and parse the response
      * Typical responses:
      * ```
@@ -1728,39 +1725,46 @@ class AGI
         // command is SEND TEXT.
         $count = 0;
         do {
-            $str = trim(fgets($this->in, 4096));
+            $str = trim(fgets($this->in));
         } while ($str === '' && $count++ < 5);
 
         if ($count >= 5 && $str === '') {
-            //          $this->conlog("evaluate error on read for $command");
+            $this->conlog("evaluate error on read for $command");
+
             return $broken;
         }
 
         // parse result
-        preg_match('/(?P<code>\d+)(?P<sep>[\s-]*)(?P<data>.*)/', $str, $matches);
+        preg_match('/^(?P<code>\d+)(?:(?P<sep>[ -])(?P<data>.+))?/', $str, $matches);
         $code = (int)$matches['code'];
         $sep = trim($matches['sep'] ?? '');
         $str = trim($matches['data'] ?? '');
 
         if ($sep === '-') {
             // we have a multiline response!
-            $count = 0;
-            $line = fgets($this->in);
-            while (!str_starts_with($line, "$code") && $count < 5) {
-                $str .= "\n" . trim($line);
-                $line = fgets($this->in);
-                $count = (trim($line) === '') ? $count + 1 : 0;
+            $empty_count = 0;
+            $line = trim(fgets($this->in));
+            while (!str_starts_with($line, "$code") && $empty_count < 5) {
+                $str .= "\n" . $line;
+                $line = trim(fgets($this->in));
+                $empty_count = $line ? $empty_count + 1 : 0;
             }
             $str = trim($str);
-            if ($count >= 5 && $str === '') {
-                //            $this->conlog("evaluate error on multiline read for $command");
-                return $broken;
+            if ($empty_count >= 5) {
+                $this->conlog("evaluate error on multiline read for $command");
+                if ($str === '') {
+
+                    return $broken;
+                }
+                $this->conlog("continuing with partial content $str");
             }
         }
 
-        $ret['result'] = null;
-        $ret['data'] = $str;
-        $ret['code'] = $code;
+        $ret = [
+            'result' => null,
+            'data' => $str,
+            'code' => $code,
+        ];
 
         if ($code === self::AGIRES_BADCMD) {
             $this->conlog("AGI returned unknown command error: $str");
@@ -1770,7 +1774,7 @@ class AGI
             $this->conlog("AGI returned unknown error $code: $str");
         } else {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
-                $ret[$matches['key']] = "$matches[value]";
+                $ret[$matches['key']] = $matches['value'];
                 if (isset($matches['data'])) {
                     $ret['data'] = $matches['data'];
                 }
