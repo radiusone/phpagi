@@ -22,7 +22,8 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
     <dd>
         The value of the <code>code</code> element of the return array
         will now always be an integer; the values of all other elements
-        will always be strings.
+        will always be strings. This is a private method, but its return
+        is used for all AGI command methods.
     </dd>
     <dd>
         Not a breaking change, but previously this method only accepted
