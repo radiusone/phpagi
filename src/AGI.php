@@ -1671,6 +1671,7 @@ class AGI
 
     /**
      * NEW SIGNATURE IN 3.0
+     *
      * Send an AGI command and parse the response
      * Typical responses:
      * ```

@@ -305,14 +305,13 @@ class AMI
      *
      * This calls send_request and passes the name of the calling function and its arguments
      *
+     * @param string $functionName the name of the class method being run
      * @return array
      * @throws ReflectionException
      */
-    private function executeByReflection(): array
+    private function executeByReflection(string $functionName): array
     {
-        $stack = debug_backtrace(0, 2);
-        $func = $stack[1]['function'];
-        $ref = new ReflectionMethod($this, $func);
+        $ref = new ReflectionMethod($this, $functionName);
         $args = [];
          foreach ($ref->getParameters() as $param) {
             $name = $param->getName();
@@ -324,7 +323,7 @@ class AMI
             $args[$name] = $val;
         }
 
-        return $this->send_request($func, $args);
+        return $this->send_request($functionName, $args);
     }
 
     // *********************************************************************************************************
@@ -346,7 +345,7 @@ class AMI
      */
     public function AGI(string $Channel, string $Command, string $CommandID = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -393,7 +392,7 @@ class AMI
      */
     public function AgentLogoff(string $Agent, bool $Soft = false, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -408,7 +407,7 @@ class AMI
      */
     public function Agents(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -442,7 +441,7 @@ class AMI
      */
     public function BlindTransfer(string $Channel, string $Exten, string $Context, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -461,7 +460,7 @@ class AMI
      */
     public function Bridge(string $Channel1, string $Channel2, string $Tone = 'no', string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -478,7 +477,7 @@ class AMI
      */
     public function BridgeDestroy(string $BridgeUniqueid, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -495,7 +494,7 @@ class AMI
      */
     public function BridgeInfo(string $BridgeUniqueid, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -514,7 +513,7 @@ class AMI
      */
     public function BridgeKick(string $Channel, string $BridgeUniqueid = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -531,7 +530,7 @@ class AMI
      */
     public function BridgeList(string $BridgeType = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -547,7 +546,7 @@ class AMI
      */
     public function BridgeTechnologyList(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -563,7 +562,7 @@ class AMI
      */
     public function BridgeTechnologySuspend(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -579,7 +578,7 @@ class AMI
      */
     public function BridgeTechnologyUnsuspend(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -597,7 +596,7 @@ class AMI
      */
     public function CancelAtxfer(string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -614,7 +613,7 @@ class AMI
      */
     public function Challenge(string $AuthType = 'MD5', string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -667,7 +666,7 @@ class AMI
      */
     public function ConfbridgeKick(string $Conference, string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -685,7 +684,7 @@ class AMI
      */
     public function ConfbridgeList(string $Conference, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -702,7 +701,7 @@ class AMI
      */
     public function ConfbridgeListRooms(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -719,7 +718,7 @@ class AMI
      */
     public function ConfbridgeLock(string $Conference, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -738,7 +737,7 @@ class AMI
      */
     public function ConfbridgeMute(string $Conference, string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -756,7 +755,7 @@ class AMI
      */
     public function ConfbridgeSetSingleVideoSrc(string $Conference, string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -776,7 +775,7 @@ class AMI
      */
     public function ConfbridgeStartRecord(string $Conference, string $RecordFile = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -793,7 +792,7 @@ class AMI
      */
     public function ConfbridgeStopRecord(string $Conference, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -810,7 +809,7 @@ class AMI
      */
     public function ConfbridgeUnlock(string $Conference, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -829,7 +828,7 @@ class AMI
      */
     public function ConfbridgeUnmute(string $Conference, string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -856,7 +855,7 @@ class AMI
      */
     public function ControlPlayback(string $Channel, string $Control, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -872,7 +871,7 @@ class AMI
      */
     public function CoreSettings(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -889,7 +888,7 @@ class AMI
      */
     public function CoreShowChannelMap(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -905,7 +904,7 @@ class AMI
      */
     public function CoreShowChannels(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -921,7 +920,7 @@ class AMI
      */
     public function CoreStatus(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -938,7 +937,7 @@ class AMI
      */
     public function CreateConfig(string $Filename, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -956,7 +955,7 @@ class AMI
      */
     public function DAHDIDNDoff(string $DAHDIChannel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -974,7 +973,7 @@ class AMI
      */
     public function DAHDIDNDon(string $DAHDIChannel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -992,7 +991,7 @@ class AMI
      */
     public function DAHDIDialOffhook(string $DAHDIChannel, string $Number, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1010,7 +1009,7 @@ class AMI
      */
     public function DAHDIHangup(string $DAHDIChannel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1026,7 +1025,7 @@ class AMI
      */
     public function DAHDIRestart(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1043,7 +1042,7 @@ class AMI
      */
     public function DAHDIShowChannels(string $DAHDIChannel = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
 
@@ -1062,7 +1061,7 @@ class AMI
      */
     public function DAHDITransfer(string $DAHDIChannel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1080,7 +1079,7 @@ class AMI
      */
     public function DBDel(string $Family, string $Key, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1098,7 +1097,7 @@ class AMI
      */
     public function DBDelTree(string $Family, string $Key, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1143,7 +1142,7 @@ class AMI
      */
     public function DBGetTree(string $Family = null, string $Key = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1162,7 +1161,7 @@ class AMI
      */
     public function DBPut(string $Family, string $Key, string $Val, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1178,7 +1177,7 @@ class AMI
      */
     public function DeviceStateList(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1209,7 +1208,7 @@ class AMI
         string $ActionID = null
     ): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1233,7 +1232,7 @@ class AMI
         string $ActionID = null
     ): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1282,7 +1281,7 @@ class AMI
      */
     public function ExtensionStateList(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1303,11 +1302,10 @@ class AMI
      */
     public function Getvar(string $Variable, string $Channel = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
-     * NEW SIGNATURE IN 3.0
      * Hangup Channel
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Hangup/
@@ -1338,7 +1336,7 @@ class AMI
      */
     public function IAXnetstats(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1354,7 +1352,7 @@ class AMI
      */
     public function IAXpeerlist(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1385,7 +1383,7 @@ class AMI
      */
     public function IAXregistry(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1402,7 +1400,7 @@ class AMI
      */
     public function ListCategories(string $Filename, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1435,7 +1433,7 @@ class AMI
      */
     public function LocalOptimizeAway(string $Channel, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1452,7 +1450,7 @@ class AMI
      */
     public function LoggerRotate(string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
     
     /**
@@ -1755,7 +1753,7 @@ class AMI
         string $ActionID = null
     ): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
@@ -1776,7 +1774,7 @@ class AMI
      */
     public function Setvar(string $Variable, string $Value, string $Channel = null, string $ActionID = null): array
     {
-        return $this->executeByReflection();
+        return $this->executeByReflection(__FUNCTION__);
     }
 
     /**
