@@ -1912,7 +1912,7 @@ class AGI
      * @param int $delete if provided, files modified before this unix timestamp will be deleted
      * @return void
      */
-    private function clearTemp(string $glob = '*', int $delete = 0): void
+    protected function clearTemp(string $glob = '*', int $delete = 0): void
     {
         $dir = new GlobIterator($this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . $glob);
 
