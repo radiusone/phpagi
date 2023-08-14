@@ -1759,7 +1759,7 @@ class AGI
 
         $ret = [
             'result' => null,
-            'data' => $str,
+            'data' => null,
             'code' => $code,
         ];
 
