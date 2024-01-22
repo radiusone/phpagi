@@ -466,7 +466,6 @@ class AGI
         }
 
         return ($res['data']);
-
     }
 
     /**
@@ -1700,9 +1699,9 @@ class AGI
         $broken = ['code' => self::AGIRES_ERR, 'result' => "-1"];
 
         if (func_num_args() > 1) {
-            array_walk(
+            $args = array_map(
+                fn($v) => is_numeric($v) ? $v : '"' . str_replace(['"', "\n"], ['\\"', '\\n'], $v) . '"',
                 $args,
-                fn($v) => is_numeric($v) ? $v : '"' . str_replace(['"', "\n"], ['\\"', '\\n'], $v) . '"'
             );
 
             $command = trim(vsprintf($command, $args));
