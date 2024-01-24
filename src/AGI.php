@@ -3,6 +3,7 @@
 namespace PhpAgi;
 
 use GlobIterator;
+use JetBrains\PhpStorm\ArrayShape;
 
 if (!class_exists('PhpAgi\\AMI')) {
     require_once('../vendor/autoload.php');
@@ -53,6 +54,34 @@ class AGI
     /** @var int FD number for audio stream */
     public const AUDIO_FILENO = 3;
 
+    /**
+     * @var array used for IDE integration
+     *
+     * taken from Asterisk 18.20, may change for other versions
+     */
+    private const REQUEST_SHAPE = [
+        "agi_request" => "string",
+        "agi_channel" => "string",
+        "agi_language" => "string",
+        "agi_type" => "string",
+        "agi_uniqueid" => "string",
+        "agi_version" => "string",
+        "agi_callerid" => "string",
+        "agi_calleridname" => "string",
+        "agi_callingpres" => "string",
+        "agi_callingani2" => "string",
+        "agi_callington" => "string",
+        "agi_callingtns" => "string",
+        "agi_dnid" => "string",
+        "agi_rdnis" => "string",
+        "agi_context" => "string",
+        "agi_extension" => "string",
+        "agi_priority" => "string",
+        "agi_enhanced" => "string",
+        "agi_accountcode" => "string",
+        "agi_threadid" => "string",
+    ];
+
     /** @var int how many emails have been sent */
     private static int $mailcount = 0;
 
@@ -79,6 +108,7 @@ class AGI
      * NOTE: program arguments are still in $_SERVER['argv'].
      * @var array<string,string>
      */
+    #[ArrayShape(self::REQUEST_SHAPE)]
     public array $request;
 
     /** @var array<string,string> Config variables */
