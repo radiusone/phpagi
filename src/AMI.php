@@ -1651,6 +1651,28 @@ class AMI
     }
 
     /**
+     * Hangup an incoming PJSIP channel with a SIP response code
+     * Hangs up an incoming PJSIP channel and returns the specified SIP response code in the final response to the caller.
+     *
+     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/PJSIPHangup/
+     * @noinspection PhpUnusedParameterInspection
+     *
+     * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
+     *     Example exact channel: SIP/provider-0000012a Example regular expression: /^SIP/provider-.*$/
+     * @param string|int|null $Cause May be one of...
+     *     Response code - A numeric response code in the range 400 ->699
+     *     Response code name - A response code name from 'third-party/pjproject/source/pjsip/include/pjsip/sip_msg.h'
+     *         such as 'USE_IDENTITY_HEADER' or 'PJSIP_SC_USE_IDENTITY_HEADER'
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     * @throws ReflectionException
+     */
+    public function PJSIPHangup(string $Channel, $Cause = null, string $ActionID = null): array
+    {
+        return $this->executeByReflection(__FUNCTION__);
+    }
+
+    /**
      * Add interface to queue
      *
      *
