@@ -72,8 +72,7 @@ Installation
 The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 
 ```bash
-composer config repositories.radiusone-phpagi github https://github.com/radiusone/phpagi
-composer require radiusone/phpagi dev-master
+composer require radiusone/phpagi "^3.0"
 ```
 
 Files
