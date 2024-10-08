@@ -180,8 +180,10 @@ class AGI
 
         // make sure temp folder exists
         $tempdir = $this->config['phpagi']['tempdir'];
-        if (!mkdir($tempdir, 0775, true)) {
-            $this->conlog('Unable to create temp dir $tempdir, carrying on');
+        if (!is_dir($tempdir)) {
+            if (!mkdir($tempdir, 0775, true)) {
+                $this->conlog('Unable to create temp dir $tempdir, carrying on');
+            }
         }
 
         // read the request
