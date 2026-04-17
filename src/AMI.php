@@ -2,7 +2,6 @@
 
 namespace PhpAgi;
 
-use Exception;
 use ReflectionException;
 use ReflectionMethod;
 
