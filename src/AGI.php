@@ -259,7 +259,10 @@ class AGI
      */
     public function channel_status(string $channel = ''): array
     {
-        $ret = $this->evaluate("CHANNEL STATUS $channel");
+        $ret = $channel
+            ? $this->evaluate('CHANNEL STATUS %s', $channel)
+            : $this->evaluate('CHANNEL STATUS');
+
         switch ((int)$ret['result']) {
             case -1:
                 $ret['data'] = trim("There is no channel that matches $channel");
@@ -514,7 +517,9 @@ class AGI
      */
     public function hangup(string $channel = ''): array
     {
-        return $this->evaluate('HANGUP %s', $channel);
+        return $channel
+            ? $this->evaluate('HANGUP %s', $channel)
+            : $this->evaluate('HANGUP');
     }
 
     /**
