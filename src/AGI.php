@@ -138,7 +138,7 @@ class AGI
      * @param string|null $config the name of the config file to parse
      * @param array $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
-    public function __construct(string $config = null, array $optconfig = [])
+    public function __construct(?string $config = null, array $optconfig = [])
     {
         // load config
         $config ??= self::DEFAULT_PHPAGI_CONFIG;
@@ -454,7 +454,7 @@ class AGI
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] holds the digits and ['data'] holds the timeout if present.
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
-    public function get_data(string $filename, int $timeout = null, int $max_digits = null): array
+    public function get_data(string $filename, ?int $timeout = null, ?int $max_digits = null): array
     {
         return $this->evaluate(rtrim("GET DATA $filename $timeout $max_digits"));
     }
@@ -567,7 +567,7 @@ class AGI
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
      * DTMF tone. Use chr() to convert to ASCII.
      */
-    public function record_file(string $file, string $format, string $escape_digits = '', int $timeout = -1, int $offset = null, bool $beep = false, int $silence = null): array
+    public function record_file(string $file, string $format, string $escape_digits = '', int $timeout = -1, ?int $offset = null, bool $beep = false, ?int $silence = null): array
     {
         $cmd = trim("RECORD FILE $file $format \"$escape_digits\" $timeout $offset");
         if ($beep) {
@@ -650,7 +650,7 @@ class AGI
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    public function say_time(int $time = null, string $escape_digits = ''): array
+    public function say_time(?int $time = null, string $escape_digits = ''): array
     {
         if (is_null($time)) {
             $time = time();
@@ -969,7 +969,7 @@ class AGI
      * @param string|null $url
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
-    public function exec_dial(string $type, string $identifier, int $timeout = null, string $options = null, string $url = null): array
+    public function exec_dial(string $type, string $identifier, ?int $timeout = null, ?string $options = null, ?string $url = null): array
     {
         $args = array_filter(["$type/$identifier", $timeout, $options, $url]);
 
@@ -1108,7 +1108,7 @@ class AGI
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
      */
-    public function fastpass_say_time(string &$buffer, int $time = null, string $escape_digits = ''): array
+    public function fastpass_say_time(string &$buffer, ?int $time = null, string $escape_digits = ''): array
     {
         $proceed = false;
         $last = substr($buffer, -1) ?: '';
@@ -1211,7 +1211,7 @@ class AGI
      * @param string|null $voice
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
-    public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, string $voice = null): array
+    public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, ?string $voice = null): array
     {
         $proceed = false;
         $last = substr($buffer, -1) ?: '';
@@ -1301,7 +1301,7 @@ class AGI
      *
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
-    public function fastpass_get_data(string &$buffer, string $filename, int $timeout = null, int $max_digits = null): array
+    public function fastpass_get_data(string &$buffer, string $filename, ?int $timeout = null, ?int $max_digits = null): array
     {
         if (is_null($max_digits) || strlen($buffer) < $max_digits) {
             if ($buffer == '') {
@@ -1403,7 +1403,7 @@ class AGI
      * @param string|null $callerid
      * @return array('Name'=>$name, 'Number'=>$number)
      */
-    public function parse_callerid(string $callerid = null): array
+    public function parse_callerid(?string $callerid = null): array
     {
         $callerid ??= $this->request['agi_callerid'];
 
@@ -1494,10 +1494,10 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @param null $voice
+     * @param string|null $voice
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
-    public function swift(string $text, string $escape_digits = '', int $frequency = 8000, $voice = null): array
+    public function swift(string $text, string $escape_digits = '', int $frequency = 8000, ?string $voice = null): array
     {
         $voice ??= $this->config['cepstral']['voice'] ?? '';
 
