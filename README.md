@@ -46,7 +46,7 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
     <dt>AMI::Setvar(string $Variable, string $Value, string $Channel = null, string $ActionID = null)</dt>
     <dd>
         The <code>$Variable</code> and <code>$Channel</code> parameters have
-        swapped places, as the channel is now optional. If ommitted, a global
+        swapped places, as the channel is now optional. If omitted, a global
         variable will instead be returned or set.
     </dd>
     <dt>AMI::Originate(string $Channel, string $Exten = null, string $Context = null, string $Priority = null, string $Application = null, string $Data = null, $Timeout = 0, string $Variable = null, string $Account = null, bool $Async = false, string $ActionID = null, bool $EarlyMedia = false, string $Codecs = null, string $ChannelId = null, string $OtherChannelId = null, string $CallerID = null)</dt>
@@ -54,7 +54,7 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
     <dt>AMI::QueueStatus(string $Queue = null, string $Member = null, string $ActionID = null)</dt>
     <dt>AMI::Status(string $Channel = null, string $Variables = null, bool $AllVariables = false, string $ActionID = null)</dt>
     <dd>
-        One ore more additional parameters were added to match updates to the AMI
+        One or more additional parameters were added to match updates to the AMI
         commands. For consistency with other methods, the new parameters were inserted,
         keeping <code>$ActionID</code> as the last parameter.
     </dd>
@@ -79,10 +79,8 @@ Files
 -----
 * src/AGI.php          - The AGI class.
 * src/AMI.php          - The Asterisk Manager class.
-* src/fastagi.php      - An example of a basic FastAGI server.
 
 * docs/                - README files for the classes.
-* api-docs/            - API Documentation (html)
 
 Docs
 ----
