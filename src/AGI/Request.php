@@ -1,0 +1,57 @@
+<?php
+
+namespace PhpAgi\AGI;
+
+class Request
+{
+    /**
+     * @param string|null $agi_request name of agi script
+     * @param string|null $agi_channel current channel
+     * @param string|null $agi_language current language
+     * @param string|null $agi_type channel type (SIP, ZAP, IAX, ...)
+     * @param string|null $agi_uniqueid unique id based on unix time
+     * @param string|null $agi_version
+     * @param string|null $agi_callerid callerID string
+     * @param string|null $agi_calleridname
+     * @param string|null $agi_callingpres
+     * @param string|null $agi_callingani2
+     * @param string|null $agi_callington
+     * @param string|null $agi_callingtns
+     * @param string|null $agi_dnid dialed number id
+     * @param string|null $agi_rdnis referring DNIS number
+     * @param string|null $agi_context current context
+     * @param string|null $agi_extension extension dialed
+     * @param string|null $agi_priority current priority
+     * @param string|null $agi_enhanced value is 1.0 if started as an EAGI script
+     * @param string|null $agi_accountcode set by SetAccount in the dialplan
+     * @param string|null $agi_threadid
+     * @param string|null $agi_network value is yes if this is a fastagi
+     * @param string|null $agi_network_script name of the script to execute
+     */
+    public function __construct(
+        public ?string $agi_request = null,
+        public ?string $agi_channel = null,
+        public ?string $agi_language = null,
+        public ?string $agi_type = null,
+        public ?string $agi_uniqueid = null,
+        public ?string $agi_version = null,
+        public ?string $agi_callerid = null,
+        public ?string $agi_calleridname = null,
+        public ?string $agi_callingpres = null,
+        public ?string $agi_callingani2 = null,
+        public ?string $agi_callington = null,
+        public ?string $agi_callingtns = null,
+        public ?string $agi_dnid = null,
+        public ?string $agi_rdnis = null,
+        public ?string $agi_context = null,
+        public ?string $agi_extension = null,
+        public ?string $agi_priority = null,
+        public ?string $agi_enhanced = null,
+        public ?string $agi_accountcode = null,
+        public ?string $agi_threadid = null,
+        public ?string $agi_network = null,
+        public ?string $agi_network_script = null,
+    )
+    {
+    }
+}

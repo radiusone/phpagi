@@ -3,7 +3,7 @@
 namespace PhpAgi;
 
 use GlobIterator;
-use JetBrains\PhpStorm\ArrayShape;
+use PhpAgi\AGI\Request;
 
 if (!class_exists('PhpAgi\\AMI')) {
     require_once('../vendor/autoload.php');
@@ -54,62 +54,10 @@ class AGI
     /** @var int FD number for audio stream */
     public const AUDIO_FILENO = 3;
 
-    /**
-     * @var array used for IDE integration
-     *
-     * taken from Asterisk 18.20, may change for other versions
-     */
-    private const REQUEST_SHAPE = [
-        "agi_request" => "string",
-        "agi_channel" => "string",
-        "agi_language" => "string",
-        "agi_type" => "string",
-        "agi_uniqueid" => "string",
-        "agi_version" => "string",
-        "agi_callerid" => "string",
-        "agi_calleridname" => "string",
-        "agi_callingpres" => "string",
-        "agi_callingani2" => "string",
-        "agi_callington" => "string",
-        "agi_callingtns" => "string",
-        "agi_dnid" => "string",
-        "agi_rdnis" => "string",
-        "agi_context" => "string",
-        "agi_extension" => "string",
-        "agi_priority" => "string",
-        "agi_enhanced" => "string",
-        "agi_accountcode" => "string",
-        "agi_threadid" => "string",
-    ];
-
     /** @var int how many emails have been sent */
     private static int $mailcount = 0;
 
-    /**
-     * Request variables read in on initialization.
-     *
-     * Often contains any/all of the following:
-     *   agi_request - name of agi script
-     *   agi_channel - current channel
-     *   agi_language - current language
-     *   agi_type - channel type (SIP, ZAP, IAX, ...)
-     *   agi_uniqueid - unique id based on unix time
-     *   agi_callerid - callerID string
-     *   agi_dnid - dialed number id
-     *   agi_rdnis - referring DNIS number
-     *   agi_context - current context
-     *   agi_extension - extension dialed
-     *   agi_priority - current priority
-     *   agi_enhanced - value is 1.0 if started as an EAGI script
-     *   agi_accountcode - set by SetAccount in the dialplan
-     *   agi_network - value is yes if this is a fastagi
-     *   agi_network_script - name of the script to execute
-     *
-     * NOTE: program arguments are still in $_SERVER['argv'].
-     * @var array<string,string>
-     */
-    #[ArrayShape(self::REQUEST_SHAPE)]
-    public array $request;
+    public Request $request;
 
     /** @var array<string,string> Config variables */
     public array $config;
@@ -194,15 +142,19 @@ class AGI
         }
 
         // read the request
+        $this->request = new Request();
         $str = fgets($this->in);
         while ($str !== "\n") {
             [$key, $val] = explode(':', $str, 2);
-            $this->request[trim($key)] = trim($val);
+            $key = trim($key);
+            if (property_exists($this->request, $key)) {
+                $this->request->$key = trim($val);
+            }
             $str = fgets($this->in);
         }
 
         // open audio if eagi detected
-        if ($this->request['agi_enhanced'] === '1.0') {
+        if ($this->request->agi_enhanced === '1.0') {
             if (file_exists('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO)) {
                 $this->audio = fopen('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO, 'r');
             } elseif (file_exists('/dev/fd/' . self::AUDIO_FILENO)) {
@@ -1321,7 +1273,7 @@ class AGI
      */
     public function parse_callerid(?string $callerid = null): array
     {
-        $callerid ??= $this->request['agi_callerid'];
+        $callerid ??= $this->request->agi_callerid;
 
         $ret = ['name' => '', 'protocol' => '', 'port' => ''];
         $callerid = trim($callerid);
