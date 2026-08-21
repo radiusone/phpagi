@@ -375,7 +375,7 @@ class AMI
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function AbsoluteTimeout(string $Channel, $Timeout, ?string $ActionID = null): array
+    public function AbsoluteTimeout(string $Channel, int|string $Timeout, string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
@@ -1280,11 +1280,11 @@ class AMI
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
      *     Example exact channel: SIP/provider-0000012a Example regular expression: /^SIP/provider-.*$/
-     * @param string|int|null $Cause Numeric hangup cause
+     * @param int|string|null $Cause Numeric hangup cause
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function Hangup(string $Channel, $Cause = null, ?string $ActionID = null): array
+    public function Hangup(string $Channel, int|string|null $Cause = null, ?string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
@@ -1526,7 +1526,7 @@ class AMI
      * @param string|null $Priority Priority to use (requires 'Exten' and 'Context')
      * @param string|null $Application Application to execute
      * @param string|null $Data Data to use (requires 'Application')
-     * @param string|int|null $Timeout How long to wait for call to be answered (in ms)
+     * @param int|string|null $Timeout How long to wait for call to be answered (in ms)
      * @param string|null $CallerID Caller ID to be set on the outgoing channel
      * @param string|null $Variable Channel variable to set, multiple Variable: headers are allowed
      * @param string|null $Account Account code
@@ -1539,22 +1539,22 @@ class AMI
      * @return array
      */
     public function Originate(
-        string $Channel,
-        ?string $Exten = null,
-        ?string $Context = null,
-        ?string $Priority = null,
-        ?string $Application = null,
-        ?string $Data = null,
-                $Timeout = null,
-        ?string $CallerID = null,
-        ?string $Variable = null,
-        ?string $Account = null,
-        ?bool   $Async = null,
-        ?bool   $EarlyMedia = null,
-        ?string $Codecs = null,
-        ?string $ChannelId = null,
-        ?string $OtherChannelId = null,
-        ?string $ActionID = null
+        ?string         $Channel,
+        ?string         $Exten = null,
+        ?string         $Context = null,
+        ?string         $Priority = null,
+        ?string         $Application = null,
+        ?string         $Data = null,
+        int|string|null $Timeout = null,
+        ?string         $CallerID = null,
+        ?string         $Variable = null,
+        ?string         $Account = null,
+        ?bool           $Async = null,
+        ?bool           $EarlyMedia = null,
+        ?string         $Codecs = null,
+        ?string         $ChannelId = null,
+        ?string         $OtherChannelId = null,
+        ?string         $ActionID = null
     ): array
     {
         return $this->executeByReflection(__FUNCTION__);
@@ -1601,14 +1601,14 @@ class AMI
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
      *     Example exact channel: SIP/provider-0000012a Example regular expression: /^SIP/provider-.*$/
-     * @param string|int|null $Cause May be one of...
+     * @param int|string|null $Cause May be one of...
      *     Response code - A numeric response code in the range 400 ->699
      *     Response code name - A response code name from 'third-party/pjproject/source/pjsip/include/pjsip/sip_msg.h'
      *         such as 'USE_IDENTITY_HEADER' or 'PJSIP_SC_USE_IDENTITY_HEADER'
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function PJSIPHangup(string $Channel, $Cause = null, ?string $ActionID = null): array
+    public function PJSIPHangup(string $Channel, int|string|null $Cause = null, string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
@@ -1622,7 +1622,7 @@ class AMI
      *
      * @param string $Queue Queue's name
      * @param string $Interface The name of the interface (tech/name) to add to the queue
-     * @param string|int|null $Penalty A penalty (number) to apply to this member. Asterisk will distribute calls
+     * @param int|string|null $Penalty A penalty (number) to apply to this member. Asterisk will distribute calls
      *    to members with higher penalties only after attempting to distribute calls to those with lower penalty.
      * @param string|null $MemberName Text alias for the interface.
      * @param string|null $StateInterface
@@ -1631,13 +1631,13 @@ class AMI
      * @return array
      */
     public function QueueAdd(
-        string  $Queue,
-        string  $Interface,
-                $Penalty = null,
-        ?string $MemberName = null,
-        ?string $StateInterface = null,
-        ?bool   $Paused = null,
-        ?string $ActionID = null
+        string          $Queue,
+        string          $Interface,
+        int|string|null $Penalty = null,
+        ?string         $MemberName = null,
+        ?string         $StateInterface = null,
+        ?bool           $Paused = null,
+        ?string         $ActionID = null
     ): array
     {
         return $this->executeByReflection(__FUNCTION__);

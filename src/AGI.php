@@ -370,10 +370,10 @@ class AGI
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
      *
      * @param string $pVariable
-     * @param string|int|float $pValue
+     * @param float|int|string $pValue
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is 1 on sucess, 0 otherwise
      */
-    public function set_global_var(string $pVariable, $pValue): array
+    public function set_global_var(string $pVariable, float|int|string $pValue): array
     {
         $pVariable = preg_replace('/\W/', '', $pVariable);
         $pValue = str_replace(['"', "\r\n", "\r", "\n"], ['\\"', '\\n'], $pValue);
@@ -389,10 +389,10 @@ class AGI
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
      * @deprecated since 3.0.6; use AGI::set_variable() instead
      * @param string $pVariable
-     * @param string|int|float $pValue
+     * @param float|int|string $pValue
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is 1 on sucess, 0 otherwise
      */
-    public function set_var(string $pVariable, $pValue): array
+    public function set_var(string $pVariable, float|int|string $pValue): array
     {
         return $this->set_variable($pVariable, "$pValue");
     }
@@ -406,7 +406,7 @@ class AGI
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/exec/
      *
      * @param string $application
-     * @param array $options
+     * @param list<string|int|float> $options
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is whatever the application returns, or -2 on failure to find application
      */
     public function exec(string $application, array $options = []): array
@@ -448,7 +448,7 @@ class AGI
      *
      * @param string $filename file to play. Do not include file extension.
      * @param int $timeout milliseconds
-     * @param int $max_digits
+     * @param positive-int $max_digits
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] holds the digits and ['data'] holds the timeout if present.
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
@@ -469,7 +469,7 @@ class AGI
      * @param bool $getvalue return the value only
      * @return ($getvalue is true ? string : array{code:int, result:numeric-string|null, data:string|null}) see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value. returns value if $getvalue is TRUE
      */
-    public function get_variable(string $variable, bool $getvalue = false)
+    public function get_variable(string $variable, bool $getvalue = false): array|string
     {
         $res = $this->evaluate('GET VARIABLE %s', $variable);
 
@@ -486,7 +486,7 @@ class AGI
      * @param bool $getvalue return the value only
      * @return ($getvalue is true ? string : array{code:int, result:numeric-string|null, data:string|null}) see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value.  returns value if $getvalue is TRUE
      */
-    public function get_fullvariable(string $variable, $channel = false, bool $getvalue = false)
+    public function get_fullvariable(string $variable, string $channel = '', bool $getvalue = false): array|string
     {
         $res = strlen($channel ?: '')
             ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channel)
@@ -1257,9 +1257,9 @@ class AGI
      *   array('1'=>'*Press 1 for this', // festival reads if prompt starts with *
      *           '2'=>'some-gsm-without-extension',
      *           '*'=>'*Press star for help');
-     * @return mixed key pressed on sucess, -1 on failure
+     * @return string|int key pressed on sucess, -1 on failure
      */
-    public function menu(array $choices, $timeout = 2000)
+    public function menu(array $choices, $timeout = 2000): string|int
     {
         $keys = join('', array_keys($choices));
         $choice = null;
@@ -1300,9 +1300,9 @@ class AGI
      *
      * @param string $context
      * @param string $extension
-     * @param string $priority
+     * @param int|numeric-string $priority
      */
-    public function setContext(string $context, string $extension = 's', $priority = 1)
+    public function setContext(string $context, string $extension = 's', int|string $priority = 1): void
     {
         $this->set_context($context);
         $this->set_extension($extension);
@@ -1317,7 +1317,7 @@ class AGI
      * @example examples/input.php Get text input from the user and say it back
      *
      * @param string|null $callerid
-     * @return array('Name'=>$name, 'Number'=>$number)
+     * @return array{name:string, protocol:string, port:string, username?:string}
      */
     public function parse_callerid(?string $callerid = null): array
     {
@@ -1359,7 +1359,7 @@ class AGI
      * @param string $fname fully qualified filename, without extension
      * @param string $text the text to say
      * @param string $escape_digits
-     * @return array the result of stream_file
+     * @return array{code:int, result:numeric-string|null} the result of stream_file
      */
     private function tts(string $command, string $fname, string $text, string $escape_digits): array
     {
@@ -1397,7 +1397,7 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array{code:int, result:numeric-string|null}
      */
     public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000): array
     {
@@ -1419,7 +1419,7 @@ class AGI
      * @param string $escape_digits
      * @param int $frequency
      * @param string|null $voice
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array{code:int, result:numeric-string|null}
      */
     public function swift(string $text, string $escape_digits = '', int $frequency = 8000, ?string $voice = null): array
     {
@@ -1530,7 +1530,7 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array{code:int, result:numeric-string|null}
      */
     public function say_punctuation(string $text, string $escape_digits = '', int $frequency = 8000): array
     {
@@ -1726,7 +1726,7 @@ class AGI
      * @param int $vbl verbose level
      * @return void
      */
-    public function conlog(string $str, int $vbl = 1)
+    public function conlog(string $str, int $vbl = 1): void
     {
         static $busy = false;
 
@@ -1767,7 +1767,7 @@ class AGI
      * @param int $line line number of error
      * @return void
      */
-    public function phpagi_error_handler(int $level, string $message, string $file, int $line)
+    public function phpagi_error_handler(int $level, string $message, string $file, int $line): void
     {
         if (ini_get('error_reporting') === "0") {
             return;
