@@ -1612,28 +1612,7 @@ class AGI
 
     /**
      * NEW SIGNATURE IN 3.0
-     *
      * Send an AGI command and parse the response
-     * Typical responses:
-     * ```
-     * 200 result=1
-     * ```
-     * ```
-     * 200 result=4 (supplementary data)
-     * ```
-     * ```
-     * 200 result=4 (supplementary data) foo=bar
-     * ```
-     * ```
-     * 510 Invalid or unknown command
-     * ```
-     * ```
-     * 520-Invalid command syntax.  Proper usage follows:
-     * foo
-     * bar
-     * baz
-     * 520 End of proper usage.
-     *```
      *
      * @param string $command the AGI command string to send
      * @param mixed $args if present, $command is a printf format specification that $args are applied to;
@@ -1676,6 +1655,22 @@ class AGI
             return $broken;
         }
 
+        /**
+         * Typical response formats:
+         * 200 result=1
+         *
+         * 200 result=4 (supplementary data)
+         *
+         * 200 result=4 (supplementary data) foo=bar
+         *
+         * 510 Invalid or unknown command
+         *
+         * 520-Invalid command syntax.  Proper usage follows:
+         * foo
+         * bar
+         * baz
+         * 520 End of proper usage.
+         */
         // parse result
         preg_match('/^(?P<code>\d+)(?:(?P<sep>[ -])(?P<data>.+))?/', $str, $matches);
         $code = (int)$matches['code'];
