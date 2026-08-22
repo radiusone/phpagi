@@ -5,10 +5,6 @@ namespace PhpAgi;
 use ReflectionException;
 use ReflectionMethod;
 
-if (!class_exists('PhpAgi\\AGI')) {
-    require_once('../vendor/autoload.php');
-}
-
 /**
  * PHP Asterisk Manager Interface (AMI) client
  *

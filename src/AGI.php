@@ -8,10 +8,6 @@ use PhpAgi\Enums\AgiResult;
 use PhpAgi\Enums\ChannelState;
 use ValueError;
 
-if (!class_exists('PhpAgi\\AMI')) {
-    require_once('../vendor/autoload.php');
-}
-
 /**
  * PHP Asterisk Manager Interface (AMI) client
  *
