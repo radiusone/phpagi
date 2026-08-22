@@ -10,23 +10,24 @@ class Request
      * @param string|null $agi_language current language
      * @param string|null $agi_type channel type (SIP, ZAP, IAX, ...)
      * @param string|null $agi_uniqueid unique id based on unix time
-     * @param string|null $agi_version
-     * @param string|null $agi_callerid callerID string
-     * @param string|null $agi_calleridname
+     * @param string|null $agi_version the Asterisk version
+     * @param string|null $agi_callerid caller ID number
+     * @param string|null $agi_calleridname caller ID name
      * @param string|null $agi_callingpres
      * @param string|null $agi_callingani2
      * @param string|null $agi_callington
      * @param string|null $agi_callingtns
      * @param string|null $agi_dnid dialed number id
      * @param string|null $agi_rdnis referring DNIS number
-     * @param string|null $agi_context current context
-     * @param string|null $agi_extension extension dialed
-     * @param string|null $agi_priority current priority
-     * @param string|null $agi_enhanced value is 1.0 if started as an EAGI script
+     * @param string|null $agi_context current dialplan context
+     * @param string|null $agi_extension current dialplan extension
+     * @param string|null $agi_priority current dialplan priority
+     * @param string|null $agi_enhanced value is 1.0 if started as an EAGI script, 0.0 otherwise
      * @param string|null $agi_accountcode set by SetAccount in the dialplan
      * @param string|null $agi_threadid
      * @param string|null $agi_network value is yes if this is a fastagi
      * @param string|null $agi_network_script name of the script to execute
+     * @param string[] $agi_args arguments passed to the AGI script
      */
     public function __construct(
         public ?string $agi_request = null,
@@ -51,6 +52,7 @@ class Request
         public ?string $agi_threadid = null,
         public ?string $agi_network = null,
         public ?string $agi_network_script = null,
+        public array $agi_args = [],
     )
     {
     }

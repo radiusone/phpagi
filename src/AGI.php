@@ -130,7 +130,9 @@ class AGI
         while ($str !== "\n") {
             [$key, $val] = explode(':', $str, 2);
             $key = trim($key);
-            if (property_exists($this->request, $key)) {
+            if (preg_match('/^agi_arg_(\d+)$/', $key, $match)) {
+                $this->request->agi_args[$match[1]] = trim($val);
+            } elseif (property_exists($this->request, $key)) {
                 $this->request->$key = trim($val);
             }
             $str = fgets($this->in);
