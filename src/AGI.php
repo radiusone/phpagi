@@ -237,9 +237,6 @@ class AGI
     /**
      * Answer channel if not already in answer state.
      *
-     * @example examples/input.php Get text input from the user and say it back
-     * @example examples/ping.php Ping an IP address
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/answer/
      *
      * @return array{code:int, result:numeric-string|null, data:string|null}  ['result'] is 0 on success, -1 on failure.
@@ -259,7 +256,7 @@ class AGI
      */
     public function channel_status(string $channel = ''): array
     {
-        $ret = $channel
+        $ret = strlen($channel)
             ? $this->evaluate('CHANNEL STATUS %s', $channel)
             : $this->evaluate('CHANNEL STATUS');
 
@@ -332,12 +329,9 @@ class AGI
      */
     public function database_deltree(string $family, string $keytree = ''): array
     {
-        $cmd = "DATABASE DELTREE \"$family\"";
-        if ($keytree != '') {
-            $cmd .= " \"$keytree\"";
-        }
-
-        return $this->evaluate($cmd);
+        return strlen($keytree)
+            ? $this->evaluate('DATABASE DELTREE %s %s', $family, $keytree)
+            : $this->evaluate('DATABASE DELTREE %s', $family);
     }
 
     /**
@@ -405,7 +399,6 @@ class AGI
      * Executes the specified Asterisk application with given options.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/exec/
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/Dialplan_Applications/ADSIProg/
      *
      * @param string $application
      * @param array $options
@@ -415,7 +408,7 @@ class AGI
     {
         $options = implode($this->option_delim, $options);
 
-        return $this->evaluate("EXEC $application $options");
+        return $this->evaluate('EXEC %s %s', $application, $options);
     }
 
     /**
@@ -449,14 +442,14 @@ class AGI
      * @link hhttps://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_data/
      *
      * @param string $filename file to play. Do not include file extension.
-     * @param int|null $timeout milliseconds
-     * @param int|null $max_digits
+     * @param int $timeout milliseconds
+     * @param int $max_digits
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] holds the digits and ['data'] holds the timeout if present.
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
-    public function get_data(string $filename, ?int $timeout = null, ?int $max_digits = null): array
+    public function get_data(string $filename, int $timeout = 0, int $max_digits = 1024): array
     {
-        return $this->evaluate(rtrim("GET DATA $filename $timeout $max_digits"));
+        return $this->evaluate('GET DATA %s %d %d', $filename, $timeout, $max_digits);
     }
 
     /**
@@ -473,7 +466,7 @@ class AGI
      */
     public function get_variable(string $variable, bool $getvalue = false)
     {
-        $res = $this->evaluate("GET VARIABLE $variable");
+        $res = $this->evaluate('GET VARIABLE %s', $variable);
 
         return $getvalue ? strval($res['data']) : $res;
     }
@@ -490,13 +483,9 @@ class AGI
      */
     public function get_fullvariable(string $variable, $channel = false, bool $getvalue = false)
     {
-        if (!$channel) {
-            $req = $variable;
-        } else {
-            $req = $variable . ' ' . $channel;
-        }
-
-        $res = $this->evaluate('GET FULL VARIABLE ' . $req);
+        $res = strlen($channel ?: '')
+            ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channel)
+            : $this->evaluate('GET FULL VARIABLE %s', $variable);
 
         return $getvalue ? strval($res['data']) : $res;
     }
@@ -517,7 +506,7 @@ class AGI
      */
     public function hangup(string $channel = ''): array
     {
-        return $channel
+        return strlen($channel)
             ? $this->evaluate('HANGUP %s', $channel)
             : $this->evaluate('HANGUP');
     }
@@ -560,24 +549,30 @@ class AGI
      * @param string $format of the file. GSM and WAV are commonly used formats. MP3 is read-only and thus cannot be used.
      * @param string $escape_digits
      * @param int $timeout is the maximum record time in milliseconds, or -1 for no timeout.
-     * @param int|null $offset to seek to without exceeding the end of the file.
+     * @param int $offset to seek to without exceeding the end of the file.
      * @param bool $beep
-     * @param int|null $silence number of seconds of silence allowed before the function returns despite the
+     * @param int $silence number of seconds of silence allowed before the function returns despite the
      * lack of dtmf digits or reaching timeout.
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on error, 0 on hangup, otherwise a decimal value of the
      * DTMF tone. Use chr() to convert to ASCII.
      */
-    public function record_file(string $file, string $format, string $escape_digits = '', int $timeout = -1, ?int $offset = null, bool $beep = false, ?int $silence = null): array
+    public function record_file(string $file, string $format, string $escape_digits = '', int $timeout = -1, int $offset = 0, bool $beep = false, int $silence = 0): array
     {
-        $cmd = trim("RECORD FILE $file $format \"$escape_digits\" $timeout $offset");
+        $cmd = 'RECORD FILE %s %s %s %d';
+        $args = [$file, $format, $escape_digits, $timeout];
+        if ($offset) {
+            $cmd .= ' %d';
+            $args[] = $offset;
+        }
         if ($beep) {
             $cmd .= ' BEEP';
         }
-        if (!is_null($silence)) {
-            $cmd .= " s=$silence";
+        if ($silence) {
+            $cmd .= ' %s';
+            $args[] = "s=$silence";
         }
 
-        return $this->evaluate($cmd);
+        return $this->evaluate($cmd, ...$args);
     }
 
     /**
@@ -652,11 +647,9 @@ class AGI
      */
     public function say_time(?int $time = null, string $escape_digits = ''): array
     {
-        if (is_null($time)) {
-            $time = time();
-        }
+        $time ??= time();
 
-        return $this->evaluate('SAY TIME %s %s', $time, $escape_digits);
+        return $this->evaluate('SAY TIME %d %s', $time, $escape_digits);
     }
 
     /**
@@ -672,7 +665,7 @@ class AGI
      */
     public function send_image(string $image): array
     {
-        return $this->evaluate("SEND IMAGE $image");
+        return $this->evaluate('SEND IMAGE %s', $image);
     }
 
     /**
@@ -704,7 +697,7 @@ class AGI
      */
     public function set_autohangup(int $time = 0): array
     {
-        return $this->evaluate("SET AUTOHANGUP $time");
+        return $this->evaluate('SET AUTOHANGUP %d', $time);
     }
 
     /**
@@ -722,7 +715,7 @@ class AGI
      */
     public function set_callerid(string $cid): array
     {
-        return $this->evaluate("SET CALLERID $cid");
+        return $this->evaluate('SET CALLERID %s', $cid);
     }
 
     /**
@@ -741,7 +734,7 @@ class AGI
      */
     public function set_context(string $context): array
     {
-        return $this->evaluate("SET CONTEXT $context");
+        return $this->evaluate('SET CONTEXT %s', $context);
     }
 
     /**
@@ -760,7 +753,7 @@ class AGI
      */
     public function set_extension(string $extension): array
     {
-        return $this->evaluate("SET EXTENSION $extension");
+        return $this->evaluate('SET EXTENSION %s', $extension);
     }
 
     /**
@@ -774,9 +767,11 @@ class AGI
      */
     public function set_music(bool $enabled = true, string $class = ''): array
     {
-        $enabled = ($enabled) ? 'ON' : 'OFF';
+        $enabled = $enabled ? 'ON' : 'OFF';
 
-        return $this->evaluate("SET MUSIC $enabled $class");
+        return strlen($class)
+            ? $this->evaluate('SET MUSIC %s %s', $enabled, $class)
+            : $this->evaluate('SET MUSIC %s', $enabled);
     }
 
     /**
@@ -792,7 +787,7 @@ class AGI
      */
     public function set_priority(int $priority): array
     {
-        return $this->evaluate("SET PRIORITY $priority");
+        return $this->evaluate('SET PRIORITY %d', $priority);
     }
 
     /**
@@ -842,7 +837,7 @@ class AGI
      */
     public function tdd_mode(string $setting): array
     {
-        return $this->evaluate("TDD MODE $setting");
+        return $this->evaluate('TDD MODE %s', $setting);
     }
 
     /**
@@ -858,13 +853,18 @@ class AGI
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/verbose/
      *
      * @param string $message
-     * @param int $level from 1 to 4
+     * @param int<1,4> $level from 1 to 4
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
     public function verbose(string $message, int $level = 1): array
     {
         $ret = [];
-        foreach (explode("\n", str_replace("\r\n", "\n", print_r($message, true))) as $msg) {
+        $lines = explode(
+            "\n",
+            str_replace("\r\n", "\n", $message)
+        );
+        $level = max(min($level, 4), 0);
+        foreach ($lines as $msg) {
             syslog(LOG_WARNING, $msg);
             $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
         }
@@ -883,7 +883,7 @@ class AGI
      */
     public function wait_for_digit(int $timeout = -1): array
     {
-        return $this->evaluate("WAIT FOR DIGIT $timeout");
+        return $this->evaluate('WAIT FOR DIGIT %d', $timeout);
     }
 
 
