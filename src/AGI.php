@@ -1350,19 +1350,13 @@ class AGI
     }
 
     /**
-     * Use festival to read text.
-     *
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
-     * @example examples/input.php Get text input from the user and say it back
-     * @example examples/ping.php Ping an IP address
-     * @link https://www.cstr.ed.ac.uk/projects/festival/
-     *
-     * @param string $text
+     * @param string $command the command to run
+     * @param string $fname fully qualified filename, without extension
+     * @param string $text the text to say
      * @param string $escape_digits
-     * @param int $frequency
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array the result of stream_file
      */
-    public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000): array
+    private function tts(string $command, string $fname, string $text, string $escape_digits): array
     {
         $text = trim($text);
         if ($text === '') {
@@ -1370,18 +1364,11 @@ class AGI
             return ['code' => self::AGIRES_OK, 'result' => "0"];
         }
 
-        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'text2wav_' . md5($text);
-
         // create wave file
         if (!file_exists("$fname.wav")) {
             // write text file
             file_put_contents("$fname.txt", $text);
-            $command = escapeshellcmd($this->config['festival']['text2wave']);
-            $args = '-F ' . escapeshellarg($frequency);
-            $args .= ' -o ' . escapeshellarg("$fname.wav");
-            $args .= ' ' . escapeshellarg("$fname.txt");
-
-            shell_exec("$command $args");
+            shell_exec("$command");
         } else {
             touch("$fname.txt");
             touch("$fname.wav");
@@ -1392,9 +1379,30 @@ class AGI
 
         // clean up old files
         $delete = time() - 2592000; // 1 month
-        $this->clearTemp('text2wav_*', $delete);
+        $this->clearTemp('tts_*', $delete);
 
         return $ret;
+    }
+
+    /**
+     * Use festival to read text.
+     *
+     * @link https://www.cstr.ed.ac.uk/projects/festival/
+     *
+     * @param string $text
+     * @param string $escape_digits
+     * @param int $frequency
+     * @return array{code:int, result:numeric-string|null, data:string|null}
+     */
+    public function text2wav(string $text, string $escape_digits = '', int $frequency = 8000): array
+    {
+        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
+        $command = escapeshellcmd($this->config['festival']['text2wave']);
+        $args = '-F ' . escapeshellarg($frequency);
+        $args .= ' -o ' . escapeshellarg("$fname.wav");
+        $args .= ' ' . escapeshellarg("$fname.txt");
+
+        return $this->tts("$command $args", $fname, $text, $escape_digits);
     }
 
     /**
@@ -1411,40 +1419,17 @@ class AGI
     public function swift(string $text, string $escape_digits = '', int $frequency = 8000, ?string $voice = null): array
     {
         $voice ??= $this->config['cepstral']['voice'] ?? '';
+        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
 
-        $text = trim($text);
-        if ($text === '') {
-
-            return ['code' => self::AGIRES_OK, 'result' => "0"];
+        $command = escapeshellcmd($this->config['cepstral']['swift']);
+        $args = '-p ' . escapeshellarg("audio/channels=1,audio/sampling-rate=$frequency $voice");
+        $args .= ' -o ' . escapeshellarg("$fname.wav");
+        $args .= ' -f ' . escapeshellarg("$fname.txt");
+        if ($voice) {
+            $args .= ' -n ' . escapeshellarg($voice);
         }
 
-        $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'swift_' . md5($text);
-
-        // create wave file
-        if (!file_exists("$fname.wav")) {
-            // write text file
-            file_put_contents("$fname.txt", $text);
-            $command = escapeshellcmd($this->config['cepstral']['swift']);
-            $args = '-p ' . escapeshellarg("audio/channels=1,audio/sampling-rate=$frequency $voice");
-            $args .= ' -o ' . escapeshellarg("$fname.wav");
-            $args .= ' -f ' . escapeshellarg("$fname.txt");
-            if ($voice) {
-                $args .= ' -n ' . escapeshellarg($voice);
-            }
-            shell_exec("$command $args");
-        } else {
-            touch("$fname.txt");
-            touch("$fname.wav");
-        }
-
-        // stream it
-        $ret = $this->stream_file($fname, $escape_digits);
-
-        // clean up old files
-        $delete = time() - 2592000; // 1 month
-        $this->clearTemp('swift_*', $delete);
-
-        return $ret;
+        return $this->tts("$command $args", $fname, $text, $escape_digits);
     }
 
     /**
@@ -1457,7 +1442,6 @@ class AGI
      *   $string = '*8'.'44*'.'*5'.'444*'.'00*'.'0*'.'44*'.'666*'.'9*'.'0*'.'2*'.'777*'.'33*'.'0*'.'999*'.'666*'.'88*'.'0000*';
      *
      * @link http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
-     * @example examples/input.php Get text input from the user and say it back
      *
      * @param string $mode
      * @return string
