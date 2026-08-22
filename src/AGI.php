@@ -4,6 +4,7 @@ namespace PhpAgi;
 
 use GlobIterator;
 use PhpAgi\AGI\Request;
+use PhpAgi\Enums\AgiResult;
 use PhpAgi\Enums\ChannelState;
 use ValueError;
 
@@ -32,15 +33,6 @@ class AGI
     private const AST_TMP_DIR = self::AST_SPOOL_DIR . '/tmp/';
     /** @var string the default configuration file */
     public const DEFAULT_PHPAGI_CONFIG = self::AST_CONFIG_DIR . '/phpagi.conf';
-
-    /** @var int AGI success result code */
-    private const AGIRES_OK = 200;
-    /** @var int AGI general error result code */
-    private const AGIRES_ERR = 500;
-    /** @var int AGI unknown command result code */
-    private const AGIRES_BADCMD = 510;
-    /** @var int AGI invalid syntax result code */
-    private const AGIRES_INVALID = 520;
 
     /** @var int FD number for audio stream */
     public const AUDIO_FILENO = 3;
@@ -922,7 +914,7 @@ class AGI
     private function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): array
     {
         if (!method_exists($this, $method)) {
-            return ['code' => self::AGIRES_BADCMD, 'result' => -1];
+            return ['code' => AgiResult::BadCommand->value, 'result' => -1];
         }
 
         // $buffer is always first argument but we have it already
@@ -935,7 +927,7 @@ class AGI
         }
         if ($buffer === '' || $proceed) {
             $res = $this->$method(...$args);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
+            if ($res['code'] === AgiResult::Ok->value && $res['result'] > 0) {
                 $buffer .= chr($res['result']);
             }
 
@@ -943,7 +935,7 @@ class AGI
         }
         $last = (string)ord($last);
 
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return ['code' => AgiResult::Ok->value, 'result' => "$last"];
     }
 
     /**
@@ -1131,7 +1123,7 @@ class AGI
         if (is_null($max_digits) || strlen($buffer) < $max_digits) {
             if ($buffer == '') {
                 $res = $this->get_data($filename, $timeout, $max_digits);
-                if ($res['code'] === self::AGIRES_OK) {
+                if ($res['code'] === AgiResult::Ok->value) {
                     $buffer .= $res['result'];
                 }
 
@@ -1139,7 +1131,7 @@ class AGI
             } else {
                 while (strlen($buffer) < $max_digits ?? PHP_INT_MAX) {
                     $res = $this->wait_for_digit();
-                    if ($res['code'] !== self::AGIRES_OK) {
+                    if ($res['code'] !== AgiResult::Ok->value) {
                         return $res;
                     }
                     if ((int)$res['result'] === ord('#')) {
@@ -1150,7 +1142,7 @@ class AGI
             }
         }
 
-        return ['code' => self::AGIRES_OK, 'result' => $buffer];
+        return ['code' => AgiResult::Ok->value, 'result' => $buffer];
     }
 
     // *********************************************************************************************************
@@ -1180,7 +1172,7 @@ class AGI
                     $ret = $this->stream_file($prompt, $keys);
                 }
 
-                if ($ret['code'] !== self::AGIRES_OK || $ret['result'] === "-1") {
+                if ($ret['code'] !== AgiResult::Ok->value || $ret['result'] === "-1") {
                     $choice = -1;
                     break;
                 }
@@ -1193,7 +1185,7 @@ class AGI
 
             if (is_null($choice)) {
                 $ret = $this->get_data('beep', $timeout, 1);
-                if ($ret['code'] !== self::AGIRES_OK || $ret['result'] === "-1") {
+                if ($ret['code'] !== AgiResult::Ok->value || $ret['result'] === "-1") {
                     $choice = -1;
                 } elseif ($ret['result'] !== '' && str_contains($keys, $ret['result'])) {
                     $choice = $ret['result'];
@@ -1275,7 +1267,7 @@ class AGI
         $text = trim($text);
         if ($text === '') {
 
-            return ['code' => self::AGIRES_OK, 'result' => "0"];
+            return ['code' => AgiResult::Ok->value, 'result' => "0"];
         }
 
         // create wave file
@@ -1519,7 +1511,7 @@ class AGI
      */
     private function evaluate(string $command, ...$args): array
     {
-        $broken = ['code' => self::AGIRES_ERR, 'result' => "-1"];
+        $broken = ['code' => AgiResult::Error->value, 'result' => "-1"];
 
         if (func_num_args() > 1) {
             $args = array_map(
@@ -1601,11 +1593,11 @@ class AGI
             'code' => $code,
         ];
 
-        if ($code === self::AGIRES_BADCMD) {
+        if ($code === AgiResult::BadCommand->value) {
             $this->conlog("AGI returned unknown command error: $str");
-        } elseif ($code === self::AGIRES_INVALID) {
+        } elseif ($code === AgiResult::Invalid->value) {
             $this->conlog("AGI returned invalid command syntax error: $str");
-        } elseif ($code !== self::AGIRES_OK) {
+        } elseif ($code !== AgiResult::Ok->value) {
             $this->conlog("AGI returned unknown error $code: $str");
         } else {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
