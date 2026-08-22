@@ -4,6 +4,8 @@ namespace PhpAgi;
 
 use GlobIterator;
 use PhpAgi\AGI\Request;
+use PhpAgi\Enums\ChannelState;
+use ValueError;
 
 if (!class_exists('PhpAgi\\AMI')) {
     require_once('../vendor/autoload.php');
@@ -39,17 +41,6 @@ class AGI
     private const AGIRES_BADCMD = 510;
     /** @var int AGI invalid syntax result code */
     private const AGIRES_INVALID = 520;
-
-    private const AST_STATE_DOWN = 0;
-    private const AST_STATE_RESERVED = 1;
-    private const AST_STATE_OFFHOOK = 2;
-    private const AST_STATE_DIALING = 3;
-    private const AST_STATE_RING = 4;
-    private const AST_STATE_RINGING = 5;
-    private const AST_STATE_UP = 6;
-    private const AST_STATE_BUSY = 7;
-    private const AST_STATE_DIALING_OFFHOOK = 8;
-    private const AST_STATE_PRERING = 9;
 
     /** @var int FD number for audio stream */
     public const AUDIO_FILENO = 3;
@@ -212,45 +203,11 @@ class AGI
             ? $this->evaluate('CHANNEL STATUS %s', $channel)
             : $this->evaluate('CHANNEL STATUS');
 
-        switch ((int)$ret['result']) {
-            case -1:
-                $ret['data'] = trim("There is no channel that matches $channel");
-                break;
-            case self::AST_STATE_DOWN:
-                $ret['data'] = 'Channel is down and available';
-                break;
-            case self::AST_STATE_RESERVED:
-                $ret['data'] = 'Channel is down, but reserved';
-                break;
-            case self::AST_STATE_OFFHOOK:
-                $ret['data'] = 'Channel is off hook';
-                break;
-            case self::AST_STATE_DIALING:
-                $ret['data'] = 'Digits (or equivalent) have been dialed';
-                break;
-            case self::AST_STATE_RING:
-                $ret['data'] = 'Line is ringing';
-                break;
-            case self::AST_STATE_RINGING:
-                $ret['data'] = 'Remote end is ringing';
-                break;
-            case self::AST_STATE_UP:
-                $ret['data'] = 'Line is up';
-                break;
-            case self::AST_STATE_BUSY:
-                $ret['data'] = 'Line is busy';
-                break;
-            case self::AST_STATE_DIALING_OFFHOOK:
-                // this is not documented, may be old
-                $ret['data'] = 'Digits (or equivalent) have been dialed while offhook';
-                break;
-            case self::AST_STATE_PRERING:
-                // this is not documented, may be old
-                $ret['data'] = 'Channel has detected an incoming call and is waiting for ring';
-                break;
-            default:
-                $ret['data'] = "Unknown ($ret[result])";
-                break;
+        $res = (int)$ret['result'];
+        try {
+            $ret['data'] = ChannelState::from($res)->label();
+        } catch (ValueError) {
+            $ret['data'] = "Unknown ($res)";
         }
 
         return $ret;
