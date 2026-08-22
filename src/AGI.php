@@ -998,6 +998,41 @@ class AGI
     // *********************************************************************************************************
 
     /**
+     * @param string $method
+     * @param string $buffer
+     * @param string $escape_digits
+     * @param mixed ...$args arguments to be passed to the method
+     * @return array{code:int, result:numeric-string} ['result'] is -1 on hangup or error, 0 if playback completes with no
+     * * digit received, otherwise ASCII code of the DTMF key
+     */
+    private function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): array
+    {
+        if (!method_exists($this, $method)) {
+            return ['code' => self::AGIRES_BADCMD, 'result' => -1];
+        }
+
+        // $buffer is always first argument but we have it already
+        unset($args[0]);
+        $proceed = false;
+        $last = substr($buffer, -1) ?: '';
+        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
+            // last char of buffer was not an escape digit
+            $proceed = true;
+        }
+        if ($buffer === '' || $proceed) {
+            $res = $this->$method(...$args);
+            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
+                $buffer .= chr($res['result']);
+            }
+
+            return $res;
+        }
+        $last = (string)ord($last);
+
+        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+    }
+
+    /**
      * Say the given digit string, returning early if any of the given DTMF escape digits are received on the channel.
      * Return early if $buffer is adequate for request.
      *
@@ -1006,28 +1041,11 @@ class AGI
      * @param string $buffer
      * @param int $digits
      * @param string $escape_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_say_digits(string &$buffer, int $digits, string $escape_digits = ''): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->say_digits($digits, $escape_digits);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
-
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return $this->fastpass_proxy("say_digits", $buffer, $escape_digits, func_get_args());
     }
 
     /**
@@ -1039,28 +1057,11 @@ class AGI
      * @param string $buffer
      * @param int $number
      * @param string $escape_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_say_number(string &$buffer, int $number, string $escape_digits = ''): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->say_number($number, $escape_digits);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
-
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return $this->fastpass_proxy("say_number", $buffer, $escape_digits, func_get_args());
     }
 
     /**
@@ -1072,28 +1073,11 @@ class AGI
      * @param string $buffer
      * @param string $text
      * @param string $escape_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_say_phonetic(string &$buffer, string $text, string $escape_digits = ''): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer == '' || $proceed) {
-            $res = $this->say_phonetic($text, $escape_digits);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
-
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return $this->fastpass_proxy("say_phonetic", $buffer, $escape_digits, func_get_args());
     }
 
     /**
@@ -1105,28 +1089,11 @@ class AGI
      * @param string $buffer
      * @param int|null $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
      * @param string $escape_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_say_time(string &$buffer, ?int $time = null, string $escape_digits = ''): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->say_time($time, $escape_digits);
-            if ($res['code'] == self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
-
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return $this->fastpass_proxy("say_time", $buffer, $escape_digits, func_get_args());
     }
 
     /**
@@ -1141,28 +1108,14 @@ class AGI
      * @param string $filename without extension, often in /var/lib/asterisk/sounds
      * @param string $escape_digits
      * @param int $offset
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise a decimal value of the DTMF tone.  Use chr() to convert to ASCII.
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_stream_file(string &$buffer, string $filename, string $escape_digits = '', int $offset = 0): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->stream_file($filename, $escape_digits, $offset);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
+        $result = $this->fastpass_proxy("stream_file", $buffer, $escape_digits, func_get_args());
+        $result['endpos'] = 0;
 
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
+        return $result;
     }
 
     /**
@@ -1175,27 +1128,14 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_text2wav(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->text2wav($text, $escape_digits, $frequency);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
+        $result = $this->fastpass_proxy("text2wav", $buffer, $escape_digits, func_get_args());
+        $result['endpos'] = 0;
 
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
+        return $result;
     }
 
     /**
@@ -1209,27 +1149,14 @@ class AGI
      * @param string $escape_digits
      * @param int $frequency
      * @param string|null $voice
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_swift(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000, ?string $voice = null): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->swift($text, $escape_digits, $frequency, $voice);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
+        $result = $this->fastpass_proxy("swift", $buffer, $escape_digits, func_get_args());
+        $result['endpos'] = 0;
 
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last", 'endpos' => 0];
+        return $result;
     }
 
     /**
@@ -1240,27 +1167,11 @@ class AGI
      * @param string $text
      * @param string $escape_digits
      * @param int $frequency
-     * @return array{code:int, result:numeric-string|null, data:string|null}
+     * @return array<string,mixed> see fastpass_proxy for details
      */
     public function fastpass_say_punctuation(string &$buffer, string $text, string $escape_digits = '', int $frequency = 8000): array
     {
-        $proceed = false;
-        $last = substr($buffer, -1) ?: '';
-        if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
-            // last char of buffer was not an escape digit
-            $proceed = true;
-        }
-        if ($buffer === '' || $proceed) {
-            $res = $this->say_punctuation($text, $escape_digits, $frequency);
-            if ($res['code'] === self::AGIRES_OK && $res['result'] > 0) {
-                $buffer .= chr($res['result']);
-            }
-
-            return $res;
-        }
-        $last = ord($last);
-
-        return ['code' => self::AGIRES_OK, 'result' => "$last"];
+        return $this->fastpass_proxy("say_punctuation", $buffer, $escape_digits, func_get_args());
     }
 
     /**
