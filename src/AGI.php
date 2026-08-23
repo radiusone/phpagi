@@ -365,9 +365,9 @@ class AGI
 
 
     /**
-     * Sets a global variable, using Asterisk 1.6 syntax.
+     * Sets a global variable, by executing the Set application and GLOBAL function
      *
-     * @link http://www.voip-info.org/wiki/view/Asterisk+cmd+Set
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
      *
      * @param string $pVariable
      * @param string|int|float $pValue
@@ -375,28 +375,33 @@ class AGI
      */
     public function set_global_var(string $pVariable, $pValue): array
     {
-        return $this->evaluate('Set(%s=%s,g);', $pVariable, $pValue);
+        $pVariable = preg_replace('/\W/', '', $pVariable);
+        $pValue = str_replace(['"', "\r\n", "\r", "\n"], ['\\"', '\\n'], $pValue);
+
+        return $this->exec('Set', [sprintf('GLOBAL(%s)="%s"', $pVariable, $pValue)]);
     }
 
 
     /**
-     * Sets a variable, using Asterisk 1.6 syntax.
+     * Sets a channel variable
+     * This is just an alias for AGI::set_variable()
      *
-     * @link http://www.voip-info.org/wiki/view/Asterisk+cmd+Set
-     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
+     * @deprecated since 3.0.6; use AGI::set_variable() instead
      * @param string $pVariable
      * @param string|int|float $pValue
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is 1 on sucess, 0 otherwise
      */
     public function set_var(string $pVariable, $pValue): array
     {
-        return $this->evaluate('Set(%s=%s);', $pVariable, $pValue);
+        return $this->set_variable($pVariable, "$pValue");
     }
 
 
     /**
      * NEW SIGNATURE IN 3.0
-     * Executes the specified Asterisk application with given options.
+     * Executes the specified Asterisk application with given options. No escaping or quoting
+     * is performed on the given options
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/exec/
      *
