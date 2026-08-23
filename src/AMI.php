@@ -31,13 +31,13 @@ class AMI
     public int $port;
 
     /** @var AGI|null Parent AGI */
-    private ?AGI $pagi = null;
+    protected ?AGI $pagi = null;
 
     /** @var array<string,callable> Event Handlers */
-    private array $event_handlers;
+    protected array $event_handlers;
 
     /** @var bool Whether we're successfully logged in */
-    private bool $logged_in = false;
+    protected bool $logged_in = false;
 
     /**
      * Constructor
@@ -156,7 +156,7 @@ class AMI
                 die("Error reading from AMI socket");
             }
             $buffer .= $buf;
-        } while (!feof($this->socket) && strpos($buffer, "\r\n\r\n") === false);
+        } while (!feof($this->socket) && !str_contains($buffer, "\r\n\r\n"));
 
         $msg = trim($buffer);
 
@@ -297,11 +297,11 @@ class AMI
      * @param string $functionName the name of the class method being run
      * @return array
      */
-    private function executeByReflection(string $functionName): array
+    protected function executeByReflection(string $functionName): array
     {
         try {
             $ref = new ReflectionMethod($this, $functionName);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             $this->log("Error executing $functionName");
 
             return [];
@@ -317,7 +317,7 @@ class AMI
                     $val = $val ? 'True' : 'False';
                 }
                 $args[$name] = $val;
-            } catch (ReflectionException $e) {
+            } catch (ReflectionException) {
                 // arguments from user code are missing a required argument
                 $this->log("Required arguments missing from call to $functionName");
 
@@ -354,7 +354,7 @@ class AMI
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AOCMessage/
      */
-    public function AOCMessage(): void
+    public function AOCMessage(): never
     {
         die("Not implemented");
     }
@@ -1516,7 +1516,7 @@ class AMI
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Originate/
      * @noinspection PhpUnusedParameterInspection
      *
-     * @param string $Channel Channel name to call
+     * @param string|null $Channel Channel name to call
      * @param string|null $Exten Extension to use (requires 'Context' and 'Priority')
      * @param string|null $Context Context to use (requires 'Exten' and 'Priority')
      * @param string|null $Priority Priority to use (requires 'Exten' and 'Context')
@@ -1854,7 +1854,7 @@ class AMI
      * @param array $parameters
      * @return void
      */
-    private function process_event(array $parameters): void
+    protected function process_event(array $parameters): void
     {
         $e = strtolower($parameters['Event']);
         $this->log("Got event.. $e");

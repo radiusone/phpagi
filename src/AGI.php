@@ -22,11 +22,11 @@ use ValueError;
 class AGI
 {
     /** @var string the Asterisk configuration directory */
-    private const AST_CONFIG_DIR = '/etc/asterisk/';
+    protected const AST_CONFIG_DIR = '/etc/asterisk/';
     /** @var string the Asterisk spool directory */
-    private const AST_SPOOL_DIR = '/var/spool/asterisk/';
+    protected const AST_SPOOL_DIR = '/var/spool/asterisk/';
     /** @var string the Asterisk temp directory */
-    private const AST_TMP_DIR = self::AST_SPOOL_DIR . '/tmp/';
+    protected const AST_TMP_DIR = self::AST_SPOOL_DIR . '/tmp/';
     /** @var string the default configuration file */
     public const DEFAULT_PHPAGI_CONFIG = self::AST_CONFIG_DIR . '/phpagi.conf';
 
@@ -34,7 +34,7 @@ class AGI
     public const AUDIO_FILENO = 3;
 
     /** @var int how many emails have been sent */
-    private static int $mailcount = 0;
+    protected static int $mailcount = 0;
 
     public Request $request;
 
@@ -42,10 +42,10 @@ class AGI
     public array $config;
 
     /** @var false|resource Input Stream */
-    private $in;
+    protected $in;
 
     /** @var false|resource Output Stream */
-    private $out;
+    protected $out;
 
     /** @var false|resource Audio Stream */
     public $audio = false;
@@ -54,10 +54,10 @@ class AGI
     public string $option_delim = ",";
 
     /** @var string|null An email address to send errors to */
-    private ?string $phpagi_error_handler_email = null;
+    protected ?string $phpagi_error_handler_email = null;
     
     /** @var AMI an AMI instance */
-    private AMI $asm;
+    protected AMI $asm;
 
     /**
      * Constructor
@@ -909,7 +909,7 @@ class AGI
      * @return array{code:int, result:numeric-string} ['result'] is -1 on hangup or error, 0 if playback completes with no
      * * digit received, otherwise ASCII code of the DTMF key
      */
-    private function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): array
+    protected function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): array
     {
         if (!method_exists($this, $method)) {
             return ['code' => AgiResult::BadCommand->value, 'result' => -1];
@@ -1260,7 +1260,7 @@ class AGI
      * @param string $escape_digits
      * @return array{code:int, result:numeric-string|null} the result of stream_file
      */
-    private function tts(string $command, string $fname, string $text, string $escape_digits): array
+    protected function tts(string $command, string $fname, string $text, string $escape_digits): array
     {
         $text = trim($text);
         if ($text === '') {
@@ -1493,11 +1493,6 @@ class AGI
     }
 
 
-    // *********************************************************************************************************
-    // **                             PRIVATE                                                                                             **
-    // *********************************************************************************************************
-
-
     /**
      * NEW SIGNATURE IN 3.0
      * Send an AGI command and parse the response
@@ -1507,7 +1502,7 @@ class AGI
      *    string values will be escaped and quoted
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
-    private function evaluate(string $command, ...$args): array
+    public function evaluate(string $command, ...$args): array
     {
         $broken = ['code' => AgiResult::Error->value, 'result' => "-1"];
 
@@ -1643,7 +1638,7 @@ class AGI
      * @param string $cmd command to find
      * @return string the path to the command
      */
-    private function which(string $cmd): string
+    protected function which(string $cmd): string
     {
         $default = '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/local/apache/bin:/usr/local/mysql/bin';
         $chpath = getenv('PATH') ?: $default;
@@ -1752,4 +1747,3 @@ class AGI
         }
     }
 }
-
