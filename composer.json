@@ -9,7 +9,10 @@
         }
     },
     "require": {
-        "php": "^7.4|^8.0",
-        "symfony/polyfill-php80": "^1.0"
+        "php": "^8.2",
+        "symfony/polyfill-php83": "^1.0",
+        "symfony/polyfill-php84": "^1.0",
+        "symfony/polyfill-php85": "^1.0",
+        "symfony/polyfill-php86": "^1.0"
     }
 }
