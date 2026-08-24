@@ -111,7 +111,7 @@ class AGI
     #[ArrayShape(self::REQUEST_SHAPE)]
     public array $request;
 
-    /** @var array<string,string> Config variables */
+    /** @var array<string,string|array<string,string>> Config variables */
     public array $config;
 
     /** @var false|resource Input Stream */
@@ -211,7 +211,7 @@ class AGI
             }
 
             if (is_resource($this->audio)) {
-                stream_set_blocking($this->audio, 0);
+                stream_set_blocking($this->audio, false);
             } else {
                 $this->conlog('Unable to open audio stream, continuing');
             }
@@ -1228,7 +1228,7 @@ class AGI
 
                 return $res;
             } else {
-                while (strlen($buffer) < $max_digits ?? PHP_INT_MAX) {
+                while (strlen($buffer) < ($max_digits ?? PHP_INT_MAX)) {
                     $res = $this->wait_for_digit();
                     if ($res['code'] !== self::AGIRES_OK) {
                         return $res;
@@ -1403,7 +1403,7 @@ class AGI
     {
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
         $command = escapeshellcmd($this->config['festival']['text2wave']);
-        $args = '-F ' . escapeshellarg($frequency);
+        $args = '-F ' . escapeshellarg("$frequency");
         $args .= ' -o ' . escapeshellarg("$fname.wav");
         $args .= ' ' . escapeshellarg("$fname.txt");
 
@@ -1765,12 +1765,12 @@ class AGI
      * @param string $message error message
      * @param string $file path to file
      * @param int $line line number of error
-     * @return void
+     * @return true
      */
-    public function phpagi_error_handler(int $level, string $message, string $file, int $line)
+    public function phpagi_error_handler(int $level, string $message, string $file, int $line): bool
     {
         if (ini_get('error_reporting') === "0") {
-            return;
+            return true;
         } // this happens with an @
 
         syslog(LOG_WARNING, $file . '[' . $line . ']: ' . $message);
@@ -1833,6 +1833,8 @@ class AGI
                 mail($this->phpagi_error_handler_email, $subject, $message);
             }
         }
+
+        return true;
     }
 
     /**
