@@ -19,13 +19,13 @@ enum ChannelState: int
     public function label(): string
     {
         return match($this) {
-            self::NotFound => 'No matching channel found',
+            self::NotFound => 'No channel name matched the argument given',
             self::Down => 'Channel is down and available',
             self::Reserved => 'Channel is down, but reserved',
             self::OffHook => 'Channel is off hook',
             self::Dialing => 'Digits (or equivalent) have been dialed',
-            self::Ring => 'Line is ringing',
-            self::Ringing => 'Remote end is ringing',
+            self::Ring => 'Remote end is ringing (e.g. listening to audible ringback tone). Also often used for initial state for a new channel.',
+            self::Ringing => 'Line is ringing',
             self::Up => 'Line is up',
             self::Busy => 'Line is busy',
             self::DialingOffHook => 'Digits (or equivalent) have been dialed while offhook',
