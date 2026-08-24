@@ -136,7 +136,7 @@ class AGI
      * Constructor
      *
      * @param string|null $config the name of the config file to parse
-     * @param array $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param array{error_handler:bool, debug:bool, admin:string, tempdir:string} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(?string $config = null, array $optconfig = [])
     {
@@ -680,11 +680,11 @@ class AGI
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/send_text/
      *
-     * @param $text
+     * @param string $text
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is -1 on hangup or error, 0 if the text is sent or
      * channel does not support text transmission.
      */
-    public function send_text($text): array
+    public function send_text(string $text): array
     {
         return $this->evaluate('SEND TEXT %s', $text);
     }
@@ -1249,13 +1249,14 @@ class AGI
      *
      * This function presents the user with a menu and reads the response
      *
-     * @param array $choices has the following structure:
+     * @param array<int|string,string> $choices has the following structure:
      *   array('1'=>'*Press 1 for this', // festival reads if prompt starts with *
      *           '2'=>'some-gsm-without-extension',
      *           '*'=>'*Press star for help');
+     * @param int $timeout
      * @return mixed key pressed on sucess, -1 on failure
      */
-    public function menu(array $choices, $timeout = 2000)
+    public function menu(array $choices, int $timeout = 2000)
     {
         $keys = join('', array_keys($choices));
         $choice = null;
