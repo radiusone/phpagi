@@ -9,13 +9,33 @@ licensed under the GNU Lesser General Public License (see COPYING for terms).
 
 Compatibility
 -------------
-This release (version 3) of the PhpAgi classes is a significant overhaul
-from the old versions.  Classes have been namespaced and renamed. Class
-properties are now strictly typed, as are method parameters and returns.
-Many new methods have been added, and old ones may have been renamed or
-had their signatures and behaviour changed from the previous version.
+### Version 4
+**Version 4** continues modernization of the codebase, although with
+fewer public-facing API changes than version 3.
 
-A possibly-not-exhaustive list of backwards-incompatible changes includes:
+* A static property `AGI::$returnObjects` can be set to `true`, causing AGI
+calls to return `PhpAgi\AGI\Response` objects instead of arrays. This will
+become the default behaviour in version 5. The property may be removed in
+version 6 or later.
+* A small number of method parameters were left untyped in version 3, due
+to the inability of PHP 7.4 to handle union types. These few exceptions
+have been resolved.
+* `AGI::$request` is now an object of type `PhpAgi\AGI\Request`, instead
+of an array. All properties are public, and maintain the same names as the
+previous array keys. In addition, a `PhpAgi\AGI\Request::$agi_args` array
+has been added, which contains arguments passed to the AGI script at startup.
+* The `AGI::evaluate()` method is public again, as it was in version 2.0.
+* Formerly private class members are now protected to ease extension of
+the class.
+
+### Version 3
+**Version 3** of the PhpAgi classes was a significant overhaul
+from the old versions.  Classes were namespaced and renamed. Class
+properties were strictly typed, as were method parameters and returns.
+Many new methods were added, and old ones renamed or
+had their signatures and behaviour changed.
+
+A possibly-not-exhaustive list of backwards-incompatible changes in version 3:
 
 <dl>
     <dt>AGI::evaluate(string $command, ...$args)</dt>
