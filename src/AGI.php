@@ -1137,43 +1137,41 @@ class AGI
      *
      * @param string $buffer
      * @param string $filename file to play. Do not include file extension.
-     * @param int|null $timeout milliseconds
-     * @param int|null $max_digits
-     * @return Response|AgiArray `result` holds the keys pressed and `data` holds the timeout if present.
+     * @param int $timeout milliseconds
+     * @param int $max_digits
+     * @return Response|AgiArray `result` holds the keys pressed (i.e. it will match [0-9A-D*]*) and `data` will be "timeout"
+     * if applicable. This differs from other commands which return ASCII codes of the DTMF keys pressed.
      */
     public function fastpass_get_data(
         string &$buffer,
         string $filename,
-        ?int $timeout = null,
-        ?int $max_digits = null,
+        int $timeout = 0,
+        int $max_digits = 1024,
     ): Response|array
     {
-        if (is_null($max_digits) || strlen($buffer) < $max_digits) {
-            if ($buffer == '') {
-                $res = $this->get_data($filename, $timeout, $max_digits);
-                if (
-                    (is_int($res['code']) && $res['code'] === AgiResult::Ok->value)
-                    || ($res instanceof Response && $res->code === AgiResult::Ok)
-                ) {
-                    $buffer .= $res['result'];
-                }
-
-                return $res;
-            } else {
-                while (strlen($buffer) < ($max_digits ?? PHP_INT_MAX)) {
-                    $res = $this->wait_for_digit();
-                    if (
-                        (is_int($res['code']) && $res['code'] !== AgiResult::Ok->value)
-                        || ($res instanceof Response && $res->code !== AgiResult::Ok)
-                    ) {
-                        return $res;
-                    }
-                    if ((int)$res['result'] === ord('#')) {
-                        break;
-                    }
-                    $buffer .= chr($res['result']);
-                }
+        if ($buffer === '') {
+            $res = $this->get_data($filename, $timeout, $max_digits);
+            if (
+                (is_int($res['code']) && $res['code'] === AgiResult::Ok->value)
+                || ($res instanceof Response && $res->code === AgiResult::Ok)
+            ) {
+                $buffer .= $res['result'];
             }
+
+            return $res;
+        }
+        while (strlen($buffer) < $max_digits) {
+            $res = $this->wait_for_digit();
+            if (
+                (is_int($res['code']) && $res['code'] !== AgiResult::Ok->value)
+                || ($res instanceof Response && $res->code !== AgiResult::Ok)
+            ) {
+                return $res;
+            }
+            if ((int)$res['result'] === ord('#')) {
+                break;
+            }
+            $buffer .= chr($res['result']);
         }
         $ret = new Response(AgiResult::Ok, $buffer);
 
