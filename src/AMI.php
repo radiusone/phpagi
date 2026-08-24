@@ -371,7 +371,7 @@ class AMI
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function AbsoluteTimeout(string $Channel, int|string $Timeout, string $ActionID = null): array
+    public function AbsoluteTimeout(string $Channel, int|string $Timeout, ?string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
@@ -1604,7 +1604,7 @@ class AMI
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function PJSIPHangup(string $Channel, int|string|null $Cause = null, string $ActionID = null): array
+    public function PJSIPHangup(string $Channel, int|string|null $Cause = null, ?string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__);
     }
