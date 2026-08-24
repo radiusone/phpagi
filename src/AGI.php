@@ -28,10 +28,13 @@ class AGI
 
     /** @var string the Asterisk configuration directory */
     protected const AST_CONFIG_DIR = '/etc/asterisk/';
+
     /** @var string the Asterisk spool directory */
     protected const AST_SPOOL_DIR = '/var/spool/asterisk/';
+
     /** @var string the Asterisk temp directory */
     protected const AST_TMP_DIR = self::AST_SPOOL_DIR . '/tmp/';
+
     /** @var string the default configuration file */
     public const DEFAULT_PHPAGI_CONFIG = self::AST_CONFIG_DIR . '/phpagi.conf';
 
@@ -43,7 +46,7 @@ class AGI
 
     public Request $request;
 
-    /** @var array<string,string> Config variables */
+    /** @var array<'phpagi'|'cepstral'|'festival'|'asmanager',string|array<string,string>> Config variables */
     public array $config;
 
     /** @var false|resource Input Stream */
@@ -68,14 +71,14 @@ class AGI
      * Constructor
      *
      * @param string|null $config the name of the config file to parse
-     * @param array $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param array{error_handler:bool, debug:bool, admin:string, tempdir:string} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(?string $config = null, array $optconfig = [])
     {
         // load config
         $config ??= self::DEFAULT_PHPAGI_CONFIG;
         if (file_exists($config)) {
-            $this->config = parse_ini_file($config, true);
+            $this->config = parse_ini_file($config, true, INI_SCANNER_TYPED);
         }
 
         // If optconfig is specified, stuff vals and vars into 'phpagi' config array,
@@ -149,7 +152,7 @@ class AGI
             }
 
             if (is_resource($this->audio)) {
-                stream_set_blocking($this->audio, 0);
+                stream_set_blocking($this->audio, false);
             } else {
                 $this->conlog('Unable to open audio stream, continuing');
             }
@@ -591,10 +594,10 @@ class AGI
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/send_text/
      *
-     * @param $text
+     * @param string $text
      * @return Response|AgiArray `result` is -1 on hangup, error or channel does not support text transmission; 0 on success
      */
-    public function send_text($text): Response|array
+    public function send_text(string $text): Response|array
     {
         return $this->evaluate('SEND TEXT %s', $text);
     }
@@ -1157,7 +1160,7 @@ class AGI
 
                 return $res;
             } else {
-                while (strlen($buffer) < $max_digits ?? PHP_INT_MAX) {
+                while (strlen($buffer) < ($max_digits ?? PHP_INT_MAX)) {
                     $res = $this->wait_for_digit();
                     if (
                         (is_int($res['code']) && $res['code'] !== AgiResult::Ok->value)
@@ -1186,13 +1189,13 @@ class AGI
      *
      * This function presents the user with a menu and reads the response
      *
-     * @param array $choices has the following structure:
+     * @param array<int|string,string> $choices has the following structure:
      *   array('1'=>'*Press 1 for this', // festival reads if prompt starts with *
      *           '2'=>'some-gsm-without-extension',
      *           '*'=>'*Press star for help');
      * @return string|int key pressed on sucess, -1 on failure
      */
-    public function menu(array $choices, $timeout = 2000): string|int
+    public function menu(array $choices, int $timeout = 2000): string|int
     {
         $keys = join('', array_keys($choices));
         $choice = null;
@@ -1355,7 +1358,7 @@ class AGI
     {
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
         $command = escapeshellcmd($this->config['festival']['text2wave']);
-        $args = '-F ' . escapeshellarg($frequency);
+        $args = '-F ' . escapeshellarg("$frequency");
         $args .= ' -o ' . escapeshellarg("$fname.wav");
         $args .= ' ' . escapeshellarg("$fname.txt");
 
@@ -1720,12 +1723,12 @@ class AGI
      * @param string $message error message
      * @param string $file path to file
      * @param int $line line number of error
-     * @return void
+     * @return true
      */
-    public function phpagi_error_handler(int $level, string $message, string $file, int $line): void
+    public function phpagi_error_handler(int $level, string $message, string $file, int $line): bool
     {
         if (ini_get('error_reporting') === "0") {
-            return;
+            return true;
         } // this happens with an @
 
         syslog(LOG_WARNING, $file . '[' . $line . ']: ' . $message);
@@ -1788,6 +1791,8 @@ class AGI
                 mail($this->phpagi_error_handler_email, $subject, $message);
             }
         }
+
+        return true;
     }
 
     /**

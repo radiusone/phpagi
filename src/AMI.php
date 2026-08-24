@@ -268,7 +268,7 @@ class AMI
             return true;
         }
 
-        $this->log("Failed to login: " . $res["Message"] ?? "Unknown error");
+        $this->log("Failed to login: " . ($res["Message"] ?? "Unknown error"));
         $this->disconnect();
 
         return false;
