@@ -10,6 +10,8 @@ enum AgiResult: int
     case Error = 500;
     /** AGI unknown command result code */
     case BadCommand = 510;
+    /** AGI hangup dead channel result code */
+    case BadHangup = 511;
     /** AGI invalid syntax result code */
     case Invalid = 520;
 }
