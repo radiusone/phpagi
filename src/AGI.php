@@ -796,24 +796,6 @@ class AGI
     // *********************************************************************************************************
 
     /**
-     * Set absolute maximum time of call.
-     *
-     * Note that the timeout is set from the current time forward, not counting the number of seconds the call has already been up.
-     * Each time you call AbsoluteTimeout(), all previous absolute timeouts are cancelled.
-     * Will return the call to the T extension so that you can playback an explanatory note to the calling party (the called party
-     * will not hear that)
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+-+documentation+of+application+commands
-     * @link http://www.dynx.net/ASTERISK/AGI/ccard/agi-ccard.agi
-     * @param int $seconds allowed, 0 disables timeout
-     * @return array{code:int, result:numeric-string|null, data:string|null}
-     */
-    public function exec_absolutetimeout(int $seconds = 0): array
-    {
-        return $this->exec('AbsoluteTimeout', [$seconds]);
-    }
-
-    /**
      * Executes an AGI compliant application.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/AGI/
@@ -840,20 +822,6 @@ class AGI
     {
         $args = ['CHANNEL(language)=' . $language];
         return $this->exec('Set', $args);
-    }
-
-    /**
-     * Do ENUM Lookup.
-     *
-     * Note: to retrieve the result, use
-     *   get_variable('ENUM');
-     *
-     * @param $exten
-     * @return array{code:int, result:numeric-string|null, data:string|null}
-     */
-    public function exec_enumlookup($exten): array
-    {
-        return $this->exec('EnumLookup', $exten);
     }
 
     /**
