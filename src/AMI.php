@@ -223,7 +223,7 @@ class AMI
      * Connect to Asterisk
      *
      * @example examples/sip_show_peer.php Get information about a sip peer
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Login/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Login/
      *
      * @param string|null $server
      * @param string|null $username
@@ -277,7 +277,7 @@ class AMI
     /**
      * Disconnect
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Logoff/
      *
      * @return void
      */
@@ -335,7 +335,7 @@ class AMI
     /**
      * Add an AGI command to the execute queue of the channel in Async AGI
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AGI/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/AGI/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Channel that is currently in Async AGI
@@ -352,7 +352,7 @@ class AMI
     /**
      * Generate an Advice of Charge message on a channel
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AOCMessage/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/AOCMessage/
      */
     public function AOCMessage(): never
     {
@@ -363,7 +363,7 @@ class AMI
      * Set absolute timeout
      * Hangup a channel after a certain time. Acknowledges set time with Timeout Set message
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AbsoluteTimeout/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/AbsoluteTimeout/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Channel name to hangup
@@ -379,7 +379,7 @@ class AMI
     /**
      * Sets an agent as no longer logged in
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AgentLogoff/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/AgentLogoff/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Agent Agent ID of the agent to log off
@@ -395,7 +395,7 @@ class AMI
     /**
      * Lists agents and their status
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Agents/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Agents/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -411,7 +411,7 @@ class AMI
      * Attended transfer
      * Attended transfer
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Atxfer/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Atxfer/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Transferer's channel
@@ -428,7 +428,7 @@ class AMI
      * Blind transfer channel(s) to the given destination
      * Redirect all channels currently bridged to the specified channel to the specified destination
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BlindTransfer/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BlindTransfer/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel
@@ -446,7 +446,7 @@ class AMI
      * Bridge two channels already in the PBX
      * Bridge together two channels already in the PBX
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Bridge/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Bridge/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel1 Channel to Bridge to Channel2
@@ -464,7 +464,7 @@ class AMI
      * Destroy a bridge
      * Deletes the bridge, causing channels to continue or hang up
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeDestroy/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeDestroy/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge to destroy
@@ -480,7 +480,7 @@ class AMI
      * Get information about a bridge
      * Returns detailed information about a bridge and the channels in it
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeInfo/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeInfo/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge about which to retrieve information
@@ -496,7 +496,7 @@ class AMI
      * Kick a channel from a bridge
      * The channel is removed from the bridge
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeKick/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeKick/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The channel to kick out of a bridge
@@ -514,7 +514,7 @@ class AMI
      * Get a list of bridges in the system
      * Returns a list of bridges, optionally filtering on a bridge type
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeList/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeList/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $BridgeType Optional type for filtering the resulting list of bridges
@@ -530,7 +530,7 @@ class AMI
      * List available bridging technologies and their statuses
      * Returns detailed information about the available bridging technologies
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -545,7 +545,7 @@ class AMI
      * Suspend a bridging technology
      * Marks a bridging technology as suspended, which prevents subsequently created bridges from using it
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologySuspend/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeTechnologySuspend/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -560,7 +560,7 @@ class AMI
      * Unsuspend a bridging technology
      * Clears a previously suspended bridging technology, which allows subsequently created bridges to use it
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyUnsuspend/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyUnsuspend/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -576,7 +576,7 @@ class AMI
      * Cancel an attended transfer. Note, this uses the configured cancel attended transfer feature option (atxferabort)
      * to cancel the transfer. If not available this action will fail
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CancelAtxfer/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CancelAtxfer/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The transferer channel
@@ -592,7 +592,7 @@ class AMI
      * Generate Challenge for MD5 Auth
      * Generate a challenge for MD5 authentication
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Challenge/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Challenge/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $AuthType Digest algorithm to use in the challenge. Valid values are MD5
@@ -608,7 +608,7 @@ class AMI
      * Change monitoring filename of a channel
      * This action may be used to change the file started by a previous 'Monitor' action
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ChangeMonitor/
+     * @link https://docs.asterisk.org/Asterisk_20_Documentation/API_Documentation/Dialplan_Applications/ChangeMonitor/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Used to specify the channel to record
@@ -625,7 +625,7 @@ class AMI
      * Execute Asterisk CLI Command
      * Run a CLI command
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Command/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Command/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Command Asterisk CLI command to run
@@ -641,7 +641,7 @@ class AMI
      * Kick a Confbridge user
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeKick/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeKick/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -660,7 +660,7 @@ class AMI
      * Lists all users in a particular ConfBridge conference. ConfbridgeList will follow as separate events,
      * followed by a final event called ConfbridgeListComplete
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeList/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeList/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference Conference number
@@ -677,7 +677,7 @@ class AMI
      * Lists data about all active conferences. ConfbridgeListRooms will follow as separate events,
      * followed by a final event called ConfbridgeListRoomsComplete
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeListRooms/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeListRooms/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -692,7 +692,7 @@ class AMI
      * Lock a Confbridge conference
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeLock/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeLock/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -708,7 +708,7 @@ class AMI
      * Mute a Confbridge user
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeMute/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeMute/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -726,7 +726,7 @@ class AMI
      * Set a conference user as the single video source distributed to all other participants
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeSetSingleVideoSrc/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeSetSingleVideoSrc/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -745,7 +745,7 @@ class AMI
      * If RecordFile is not provided, the default record file specified in the conference's bridge profile will be used,
      * if that is not present either a file will automatically be generated in the monitor directory
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStartRecord/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeStartRecord/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -762,7 +762,7 @@ class AMI
      * Stop recording a Confbridge conference
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStopRecord/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeStopRecord/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -778,7 +778,7 @@ class AMI
      * Unlock a Confbridge conference
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnlock/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnlock/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -794,7 +794,7 @@ class AMI
      * Unmute a Confbridge user
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnmute/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnmute/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
@@ -815,7 +815,7 @@ class AMI
      * Note The pause and restart Control options will stop a playback operation if that operation was not initiated from
      * the ControlPlayback application or the control stream file AGI command.
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ControlPlayback/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ControlPlayback/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The name of the channel that currently has a file being played back to it
@@ -838,7 +838,7 @@ class AMI
      * Show PBX core settings (version etc)
      * Query for Core PBX settings
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreSettings/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreSettings/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -854,7 +854,7 @@ class AMI
      * List all channels currently connected to the specified channel. This can be any channel, including Local channels,
      * and Local channels will be followed through to their other half
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannelMap/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreShowChannelMap/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -869,7 +869,7 @@ class AMI
      * List currently active channels
      * List currently defined channels and some information about them
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannels/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreShowChannels/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -884,7 +884,7 @@ class AMI
      * Show PBX core status variables
      * Query for Core PBX status
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreStatus/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreStatus/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -899,7 +899,7 @@ class AMI
      * Creates an empty file in the configuration directory
      * This action will create an empty file in the configuration directory. This action is intended to be used before an UpdateConfig action
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CreateConfig/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CreateConfig/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Filename The configuration filename to create (e.g. foo.conf)
@@ -916,7 +916,7 @@ class AMI
      * Equivalent to the CLI command "dahdi set dnd channel off".
      * Note Feature only supported by analog channels
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDoff/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIDNDoff/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND off
@@ -933,7 +933,7 @@ class AMI
      * Equivalent to the CLI command "dahdi set dnd channel on".
      * Note Feature only supported by analog channels
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDon/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIDNDon/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND on
@@ -949,7 +949,7 @@ class AMI
      * Dial over DAHDI channel while offhook
      * Generate DTMF control frames to the bridged peer
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDialOffhook/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIDialOffhook/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to dial digits
@@ -967,7 +967,7 @@ class AMI
      * Simulate an on-hook event by the user connected to the channel.
      * Note Valid only for analog channels
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIHangup/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIHangup/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to hangup
@@ -983,7 +983,7 @@ class AMI
      * Fully Restart DAHDI channels (terminates calls)
      * Equivalent to the CLI command "dahdi restart"
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIRestart/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIRestart/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -998,7 +998,7 @@ class AMI
      * Show status of DAHDI channels
      * Similar to the CLI command "dahdi show channels"
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIShowChannels/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIShowChannels/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $DAHDIChannel Specify the specific channel number to show. Show all channels if zero or not present
@@ -1016,7 +1016,7 @@ class AMI
      * Simulate a flash hook event by the user connected to the channel.
      * Note Valid only for analog channels
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDITransfer/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDITransfer/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to transfer
@@ -1032,7 +1032,7 @@ class AMI
      *  Delete DB entry
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBDel/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DBDel/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
@@ -1049,7 +1049,7 @@ class AMI
      *  Delete DB Tree
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBDelTree/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DBDelTree/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
@@ -1066,7 +1066,7 @@ class AMI
      * Get DB Entry
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBGet/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DBGet/
      *
      * @param string $Family
      * @param string $Key
@@ -1094,7 +1094,7 @@ class AMI
      * Get DB entries, optionally at a particular family/key
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBGetTree/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DBGetTree/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Family
@@ -1111,7 +1111,7 @@ class AMI
      *  Put DB entry
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBPut/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DBPut/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
@@ -1129,7 +1129,7 @@ class AMI
      * List the current known device states
      * This will list out all known device states in a sequence of DeviceStateChange events. When finished, a DeviceStateListComplete event will be emitted
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DeviceStateList/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DeviceStateList/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1144,7 +1144,7 @@ class AMI
      * Add an extension to the dialplan
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DialplanExtensionAdd/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DialplanExtensionAdd/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Context Context where the extension will be created. The context will be created if it does not already exist
@@ -1174,7 +1174,7 @@ class AMI
      * Remove an extension from the dialplan
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DialplanExtensionRemove/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DialplanExtensionRemove/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Context Context of the extension being removed
@@ -1197,7 +1197,7 @@ class AMI
      * Control Event Flow
      * Enable/Disable sending of events to this manager client
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Events/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Events/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $EventMask on - If all events should be sent.
@@ -1219,7 +1219,7 @@ class AMI
      * Will return an 'Extension Status' message. The response will include the hint
      * for the extension and the status.
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ExtensionState/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ExtensionState/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Exten Extension to check state on
@@ -1236,7 +1236,7 @@ class AMI
      * List the current known extension states
      * This will list out all known extension states in a sequence of ExtensionStatus events. When finished, a ExtensionStateListComplete event will be emitted
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ExtensionStateList/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ExtensionStateList/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1253,7 +1253,7 @@ class AMI
      * Get the value of a channel variable or function return.
      * Note If a channel name is not provided then the variable is considered global
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Getvar/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Getvar/
      * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/
      * @noinspection PhpUnusedParameterInspection
      *
@@ -1271,7 +1271,7 @@ class AMI
      * Hangup channel
      * Hangup a channel
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Hangup/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Hangup/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
@@ -1289,7 +1289,7 @@ class AMI
      * Show IAX Netstats
      * Show IAX channels network statistics
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXnetstats/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXnetstats/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1304,7 +1304,7 @@ class AMI
      * List IAX Peers
      * List all the IAX peers
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXpeerlist/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXpeerlist/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1319,7 +1319,7 @@ class AMI
      * List IAX peers
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXpeers/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXpeers/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1334,7 +1334,7 @@ class AMI
      * Show IAX registrations
      * Show IAX registrations
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXregistry/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXregistry/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1349,7 +1349,7 @@ class AMI
      * List categories in configuration file
      * This action will dump the categories in a given file
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ListCategories/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ListCategories/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Filename Configuration filename (e.g. foo.conf)
@@ -1365,7 +1365,7 @@ class AMI
      * List available manager commands
      * Returns the action name and synopsis for every action that is available to the user
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ListCommands/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ListCommands/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1381,7 +1381,7 @@ class AMI
      * A local channel created with "/n" will not automatically optimize away. Calling this command on the local channel
      * will clear that flag and allow it to optimize away if it's bridged or when it becomes bridged
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/LocalOptimizeAway/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/LocalOptimizeAway/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The channel name to optimize away
@@ -1397,7 +1397,7 @@ class AMI
      * Reload and rotate the Asterisk logger
      * Reload and rotate the logger. Analogous to the CLI command 'logger rotate'
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/LoggerRotate/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/LoggerRotate/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1412,7 +1412,7 @@ class AMI
      * Login Manager
      * Login Manager
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Login/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Login/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Username Username to login with as specified in manager.conf
@@ -1429,7 +1429,7 @@ class AMI
      * Logoff Manager
      * Logoff the current manager session
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Logoff/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1450,7 +1450,7 @@ class AMI
      * NewMessages: count
      * OldMessages: count
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxCount/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/MailboxCount/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
@@ -1469,7 +1469,7 @@ class AMI
      * Mailbox: mailboxid.
      * Waiting: 0 if messages waiting, 1 if no messages waiting.
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxStatus/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/MailboxStatus/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
@@ -1485,7 +1485,7 @@ class AMI
      * Monitor a channel
      * This action may be used to record the audio on a specified channel
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Monitor/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Monitor/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Used to specify the channel to record
@@ -1513,7 +1513,7 @@ class AMI
      * Originate a call
      * Generates an outgoing call to a Extension/Context/Priority or Application/Data
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Originate/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Originate/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Channel Channel name to call
@@ -1561,7 +1561,7 @@ class AMI
      * List parked calls
      * List parked calls
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ParkedCalls/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ParkedCalls/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ParkingLot If specified, only show parked calls from the parking lot with this name
@@ -1577,7 +1577,7 @@ class AMI
      * Keepalive command
      * A 'Ping' action will elicit a 'Pong' response. Used to keep the manager connection open
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Ping/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Ping/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1592,7 +1592,7 @@ class AMI
      * Hangup an incoming PJSIP channel with a SIP response code
      * Hangs up an incoming PJSIP channel and returns the specified SIP response code in the final response to the caller.
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/PJSIPHangup/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPHangup/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
@@ -1613,7 +1613,7 @@ class AMI
      * Add interface to queue
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueAdd/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/QueueAdd/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Queue Queue's name
@@ -1643,7 +1643,7 @@ class AMI
      * Reload a queue, queues, or any sub-section of a queue or queues
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueReload/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/QueueReload/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Queue The name of the queue to take action on. If no queue name is specified, then all queues are affected
@@ -1668,7 +1668,7 @@ class AMI
      * Remove interface from queue
      *
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueRemove/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/QueueRemove/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Queue The name of the queue to take action on
@@ -1686,7 +1686,7 @@ class AMI
      * Show queue status
      * Check the status of one or more queues
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueStatus/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/QueueStatus/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Queue Limit the response to the status of the specified queue
@@ -1703,7 +1703,7 @@ class AMI
      * Redirect (transfer) a call
      * Redirect (transfer) a call
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Redirect/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Redirect/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel
@@ -1738,7 +1738,7 @@ class AMI
      * This command can be used to set the value of channel variables or dialplan functions.
      * Note If a channel name is not provided then the variable is considered global
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Setvar/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Setvar/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Variable Variable name, function or expression
@@ -1757,7 +1757,7 @@ class AMI
      * List channel status
      * Will return the status information of each channel along with the value for the specified channel variables
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Status/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Status/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Channel The name of the channel to query for status
@@ -1780,7 +1780,7 @@ class AMI
      * Stop monitoring a channel
      * This action may be used to end a previously started 'Monitor' action
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/StopMonitor/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/StopMonitor/
      * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The name of the channel monitored
@@ -1814,7 +1814,7 @@ class AMI
     /**
      * Add event handler
      *
-     * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Events/AGIExecEnd/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Events/AGIExecEnd/
      *
      * @param string $event type or * for default handler
      * @param callable $callback function to handle the event
