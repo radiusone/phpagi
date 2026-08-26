@@ -37,6 +37,16 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
         Previously, <code>$args</code> could be a string or an array. Now,
         only an array can be passed.
     </dd>
+    <dt>AGI::set_var()</dt>
+    <dd>
+        Previously, this was broken and didn't actually do anything! Now,
+        it's deprecated and `AGI::set_variable()` should be used instead.
+    </dd>
+    <dt>`AMI::getConfig()`</dt>
+    <dd>
+        This method name conflicts with the GetConfig action, so the method has been
+        deprecated. Directly access the `AMI::$config` array instead.
+    </dd>
     <dt>AMI::Atxfer(string $Channel, string $Exten, string $Context, string $ActionID = null)</dt>
     <dd>
         The <code>$Priority</code> parameter is not supported by Asterisk
