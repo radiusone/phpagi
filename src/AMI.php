@@ -22,7 +22,7 @@ if (!class_exists('PhpAgi\\AGI')) {
  */
 class AMI
 {
-    /** @var array<string,mixed> Config variables */
+    /** @var array<string,string|array<string,string>> Config variables */
     public array $config;
 
     /** @var resource Socket */
@@ -73,6 +73,7 @@ class AMI
     /**
      * Retrieves the full config array or a section thereof
      *
+     * @deprecated since 3.0.6. This conflicts with the GetConfig AMI action; access the config array directly instead
      * @param string $section the config section to retrieve
      * @return array<array>|array<string,mixed>
      */
