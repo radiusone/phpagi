@@ -245,7 +245,7 @@ class AMI
         // get port from server if specified
         $c = explode(':', $server);
         $this->server = $c[0];
-        $this->port = $c[1] ?? $this->config['asmanager']['port'];
+        $this->port = (int)($c[1] ?? $this->config['asmanager']['port']);
 
         // connect the socket
         $result = fsockopen($this->server, $this->port, $errno, $errstr);

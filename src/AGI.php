@@ -136,7 +136,7 @@ class AGI
      * Constructor
      *
      * @param string|null $config the name of the config file to parse
-     * @param array{error_handler:bool, debug:bool, admin:string, tempdir:string} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param array{error_handler?:bool, debug?:bool, admin?:string, tempdir?:string, ...} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(?string $config = null, array $optconfig = [])
     {
@@ -449,7 +449,7 @@ class AGI
      * @param string $filename file to play. Do not include file extension.
      * @param int $timeout milliseconds
      * @param int $max_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] holds the digits and ['data'] holds the timeout if present.
+     * @return array{code:int, result:string|null, data:string|null} ['result'] holds the digits and ['data'] holds the timeout if present.
      * This differs from other commands with return DTMF as numbers representing ASCII characters.
      */
     public function get_data(string $filename, int $timeout = 0, int $max_digits = 1024): array
@@ -482,7 +482,7 @@ class AGI
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_full_variable/
      * @link https://docs.asterisk.org/Configuration/Dialplan/Expressions/
      * @param string $variable name
-     * @param string $channel channel
+     * @param string|false $channel channel
      * @param bool $getvalue return the value only
      * @return ($getvalue is true ? string : array{code:int, result:numeric-string|null, data:string|null}) see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value.  returns value if $getvalue is TRUE
      */
@@ -1013,7 +1013,7 @@ class AGI
     private function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): array
     {
         if (!method_exists($this, $method)) {
-            return ['code' => self::AGIRES_BADCMD, 'result' => -1];
+            return ['code' => self::AGIRES_BADCMD, 'result' => "-1"];
         }
 
         // $buffer is always first argument but we have it already
@@ -1213,7 +1213,7 @@ class AGI
      * @param string $filename file to play. Do not include file extension.
      * @param int $timeout milliseconds
      * @param int $max_digits
-     * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] holds the keys pressed (i.e. it will match [0-9A-D*]*)
+     * @return array{code:int, result:string} ['result'] holds the keys pressed (i.e. it will match [0-9A-D*]*)
      * and ['data'] will be "timeout" if applicable. This differs from other commands which return ASCII codes of the DTMF keys pressed.
      */
     public function fastpass_get_data(string &$buffer, string $filename, int $timeout = 0, int $max_digits = 1024): array
@@ -1231,10 +1231,11 @@ class AGI
             if ($res['code'] !== self::AGIRES_OK) {
                 return $res;
             }
-            if ((int)$res['result'] === ord('#')) {
+            $code = (int)$res['result'];
+            if ($code === ord('#')) {
                 break;
             }
-            $buffer .= chr($res['result']);
+            $buffer .= chr(max(0, min(255, $code)));
         }
 
         return ['code' => self::AGIRES_OK, 'result' => $buffer];
@@ -1273,8 +1274,9 @@ class AGI
                     break;
                 }
 
-                if ($ret['result'] !== "0") {
-                    $choice = chr($ret['result']);
+                $code = (int)$ret['result'];
+                if ($code !== 0) {
+                    $choice = chr(min(0, max(255, $code)));
                     break;
                 }
             }
@@ -1297,7 +1299,7 @@ class AGI
      *
      * @param string $context
      * @param string $extension
-     * @param string $priority
+     * @param numeric-string|int $priority
      */
     public function setContext(string $context, string $extension = 's', $priority = 1)
     {
@@ -1314,7 +1316,7 @@ class AGI
      * @example examples/input.php Get text input from the user and say it back
      *
      * @param string|null $callerid
-     * @return array('Name'=>$name, 'Number'=>$number)
+     * @return array{name:string, protocol:string, port:string, username?:string}
      */
     public function parse_callerid(?string $callerid = null): array
     {
