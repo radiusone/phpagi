@@ -1824,11 +1824,7 @@ class AMI
         $handlers = $this->event_handlers[$e] ?? $this->event_handlers['*'] ?? [];
 
         foreach ($handlers as $handler) {
-            if (!is_callable($handler, false, $name)) {
-                $this->log("No event handler for event '$e'");
-                continue;
-            }
-            $this->log("Executing handler '$name'");
+            $this->log("Executing handler for '$e'");
             $handler($e, $parameters, $this->server, $this->port);
         }
     }

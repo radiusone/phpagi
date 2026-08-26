@@ -71,7 +71,7 @@ class AGI
      * Constructor
      *
      * @param string|null $config the name of the config file to parse
-     * @param array{error_handler:bool, debug:bool, admin:string, tempdir:string} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param array{error_handler?:bool, debug?:bool, admin?:string, tempdir?:string,...} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(?string $config = null, array $optconfig = [])
     {
