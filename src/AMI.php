@@ -19,6 +19,7 @@ use ReflectionUnionType;
  * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * @copyright 2023 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
+ * @phpstan-type EventHandler callable(string $event, array<string,mixed> $parameters, string $server, int $port):void
  */
 class AMI
 {
@@ -37,8 +38,8 @@ class AMI
     /** @var AGI|null Parent AGI */
     protected ?AGI $pagi = null;
 
-    /** @var array<string,callable> Event Handlers */
-    protected array $event_handlers;
+    /** @var array<string,EventHandler[]> Event Handlers */
+    protected array $event_handlers = ['*' => []];
 
     /** @var bool Whether we're successfully logged in */
     protected bool $logged_in = false;
@@ -1792,7 +1793,7 @@ class AMI
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Events/AGIExecEnd/
      *
      * @param string $event type or * for default handler
-     * @param callable $callback function to handle the event
+     * @param EventHandler $callback function to handle the event
      * @return bool sucess
      */
     public function add_event_handler(string $event, callable $callback): bool
@@ -1842,7 +1843,7 @@ class AMI
                 continue;
             }
             $this->log("Executing handler '$name'");
-            call_user_func($handler, $e, $parameters, $this->server, $this->port);
+            $handler($e, $parameters, $this->server, $this->port);
         }
     }
 
