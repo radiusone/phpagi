@@ -2,6 +2,7 @@
 
 namespace PhpAgi;
 
+use Random\Randomizer;
 use ReflectionException;
 use ReflectionIntersectionType;
 use ReflectionMethod;
@@ -1852,7 +1853,7 @@ class AMI
      **/
     public function ActionID(): string
     {
-        return sprintf("A%6d", rand());
+        return 'A' . strtoupper(bin2hex((new Randomizer())->getBytes(8)));
     }
 
     /**

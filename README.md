@@ -27,6 +27,8 @@ has been added, which contains arguments passed to the AGI script at startup.
 * The `AGI::evaluate()` method is public again, as it was in version 2.0.
 * Formerly private class members are now protected to ease extension of
 the class.
+* Generated AMI action IDs still start with an uppercase 'A' but this is
+now followed by 16 hexadecimal characters, instead of 6 digits.
 
 ### Version 3
 **Version 3** of the PhpAgi classes was a significant overhaul
