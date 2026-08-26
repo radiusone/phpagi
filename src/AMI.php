@@ -73,21 +73,6 @@ class AMI
     }
 
     /**
-     * Retrieves the full config array or a section thereof
-     *
-     * @param string $section the config section to retrieve
-     * @return array<array>|array<string,mixed>
-     */
-    public function getConfig(string $section = ''): array
-    {
-        if ($section) {
-            return $this->config[$section] ?? [];
-        }
-
-        return $this->config;
-    }
-
-    /**
      * Send a request
      *
      * @param string $action
