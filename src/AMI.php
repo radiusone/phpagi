@@ -298,10 +298,11 @@ class AMI
      *
      * This calls send_request and passes the name of the calling function and its arguments
      *
-     * @param string $functionName the name of the class method being run
+     * @param string $functionName the name of the class method (and AMI command) being run
+     * @param list<mixed> $functionArgs the arguments passed to the method (and AMI command)
      * @return array
      */
-    private function executeByReflection(string $functionName): array
+    private function executeByReflection(string $functionName, array $functionArgs): array
     {
         try {
             $ref = new ReflectionMethod($this, $functionName);
@@ -311,12 +312,11 @@ class AMI
             return [];
         }
         $args = [];
-         foreach ($ref->getParameters() as $param) {
+        foreach ($ref->getParameters() as $param) {
             $name = $param->getName();
             $pos = $param->getPosition();
-            $stack = debug_backtrace(1);
             try {
-                $val = $stack[1]['args'][$pos] ?? $param->getDefaultValue();
+                $val = array_key_exists($pos, $functionArgs) ? $functionArgs[$pos] : $param->getDefaultValue();
                 if ($param->getType()->getName() === 'bool') {
                     $val = $val ? 'True' : 'False';
                 }
@@ -340,7 +340,6 @@ class AMI
      * Add an AGI command to the execute queue of the channel in Async AGI
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AGI/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Channel that is currently in Async AGI
      * @param string $Command Application to execute
@@ -350,7 +349,7 @@ class AMI
      */
     public function AGI(string $Channel, string $Command, ?string $CommandID = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -368,7 +367,6 @@ class AMI
      * Hangup a channel after a certain time. Acknowledges set time with Timeout Set message
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AbsoluteTimeout/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Channel name to hangup
      * @param int|string $Timeout Maximum duration of the call (sec)
@@ -377,14 +375,13 @@ class AMI
      */
     public function AbsoluteTimeout(string $Channel, $Timeout, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
      * Sets an agent as no longer logged in
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/AgentLogoff/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Agent Agent ID of the agent to log off
      * @param bool|null $Soft Set to true to not hangup existing calls
@@ -393,21 +390,20 @@ class AMI
      */
     public function AgentLogoff(string $Agent, ?bool $Soft = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
      * Lists agents and their status
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Agents/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function Agents(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -416,7 +412,6 @@ class AMI
      * Attended transfer
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Atxfer/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Transferer's channel
      * @param string $Exten Extension to transfer to
@@ -425,7 +420,7 @@ class AMI
      */
     public function Atxfer(string $Channel, string $Exten, string $Context, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -433,7 +428,6 @@ class AMI
      * Redirect all channels currently bridged to the specified channel to the specified destination
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BlindTransfer/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel
      * @param string $Exten
@@ -443,7 +437,7 @@ class AMI
      */
     public function BlindTransfer(string $Channel, string $Exten, string $Context, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -451,7 +445,6 @@ class AMI
      * Bridge together two channels already in the PBX
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Bridge/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel1 Channel to Bridge to Channel2
      * @param string $Channel2 Channel to Bridge to Channel1
@@ -461,7 +454,7 @@ class AMI
      */
     public function Bridge(string $Channel1, string $Channel2, string $Tone = 'no', ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -469,7 +462,6 @@ class AMI
      * Deletes the bridge, causing channels to continue or hang up
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeDestroy/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge to destroy
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -477,7 +469,7 @@ class AMI
      */
     public function BridgeDestroy(string $BridgeUniqueid, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -485,7 +477,6 @@ class AMI
      * Returns detailed information about a bridge and the channels in it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeInfo/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $BridgeUniqueid The unique ID of the bridge about which to retrieve information
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -493,7 +484,7 @@ class AMI
      */
     public function BridgeInfo(string $BridgeUniqueid, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -501,7 +492,6 @@ class AMI
      * The channel is removed from the bridge
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeKick/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The channel to kick out of a bridge
      * @param string|null $BridgeUniqueid The unique ID of the bridge containing the channel to destroy.
@@ -511,7 +501,7 @@ class AMI
      */
     public function BridgeKick(string $Channel, ?string $BridgeUniqueid = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -519,7 +509,6 @@ class AMI
      * Returns a list of bridges, optionally filtering on a bridge type
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeList/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $BridgeType Optional type for filtering the resulting list of bridges
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -527,7 +516,7 @@ class AMI
      */
     public function BridgeList(?string $BridgeType = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -535,14 +524,13 @@ class AMI
      * Returns detailed information about the available bridging technologies
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function BridgeTechnologyList(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -550,14 +538,13 @@ class AMI
      * Marks a bridging technology as suspended, which prevents subsequently created bridges from using it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologySuspend/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function BridgeTechnologySuspend(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -565,14 +552,13 @@ class AMI
      * Clears a previously suspended bridging technology, which allows subsequently created bridges to use it
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyUnsuspend/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function BridgeTechnologyUnsuspend(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -581,7 +567,6 @@ class AMI
      * to cancel the transfer. If not available this action will fail
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CancelAtxfer/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The transferer channel
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -589,7 +574,7 @@ class AMI
      */
     public function CancelAtxfer(string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -597,7 +582,6 @@ class AMI
      * Generate a challenge for MD5 authentication
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Challenge/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $AuthType Digest algorithm to use in the challenge. Valid values are MD5
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -605,7 +589,7 @@ class AMI
      */
     public function Challenge(string $AuthType = 'MD5', ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -613,7 +597,6 @@ class AMI
      * This action may be used to change the file started by a previous 'Monitor' action
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ChangeMonitor/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Used to specify the channel to record
      * @param string $File Is the new name of the file created in the monitor spool directory
@@ -622,7 +605,7 @@ class AMI
      */
     public function ChangeMonitor(string $Channel, string $File, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -630,7 +613,6 @@ class AMI
      * Run a CLI command
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Command/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Command Asterisk CLI command to run
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -638,7 +620,7 @@ class AMI
      */
     public function Command(string $Command, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -646,7 +628,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeKick/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string $Channel If this parameter is "all", all channels will be kicked from the conference.
@@ -656,7 +637,7 @@ class AMI
      */
     public function ConfbridgeKick(string $Conference, string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -665,7 +646,6 @@ class AMI
      * followed by a final event called ConfbridgeListComplete
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeList/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference Conference number
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -673,7 +653,7 @@ class AMI
      */
     public function ConfbridgeList(string $Conference, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -682,14 +662,13 @@ class AMI
      * followed by a final event called ConfbridgeListRoomsComplete
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeListRooms/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function ConfbridgeListRooms(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -697,7 +676,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeLock/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -705,7 +683,7 @@ class AMI
      */
     public function ConfbridgeLock(string $Conference, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -713,7 +691,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeMute/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used.
@@ -723,7 +700,7 @@ class AMI
      */
     public function ConfbridgeMute(string $Conference, string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -731,7 +708,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeSetSingleVideoSrc/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used
@@ -740,7 +716,7 @@ class AMI
      */
     public function ConfbridgeSetSingleVideoSrc(string $Conference, string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -750,7 +726,6 @@ class AMI
      * if that is not present either a file will automatically be generated in the monitor directory
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStartRecord/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string|null $RecordFile
@@ -759,7 +734,7 @@ class AMI
      */
     public function ConfbridgeStartRecord(string $Conference, ?string $RecordFile = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -767,7 +742,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeStopRecord/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -775,7 +749,7 @@ class AMI
      */
     public function ConfbridgeStopRecord(string $Conference, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -783,7 +757,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnlock/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -791,7 +764,7 @@ class AMI
      */
     public function ConfbridgeUnlock(string $Conference, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -799,7 +772,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ConfbridgeUnmute/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Conference
      * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used.
@@ -809,7 +781,7 @@ class AMI
      */
     public function ConfbridgeUnmute(string $Conference, string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -820,7 +792,6 @@ class AMI
      * the ControlPlayback application or the control stream file AGI command.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ControlPlayback/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The name of the channel that currently has a file being played back to it
      * @param string $Control stop - Stop the playback operation
@@ -835,7 +806,7 @@ class AMI
      */
     public function ControlPlayback(string $Channel, string $Control, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -843,14 +814,13 @@ class AMI
      * Query for Core PBX settings
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreSettings/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function CoreSettings(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -859,14 +829,13 @@ class AMI
      * and Local channels will be followed through to their other half
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannelMap/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function CoreShowChannelMap(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -874,14 +843,13 @@ class AMI
      * List currently defined channels and some information about them
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreShowChannels/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function CoreShowChannels(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -889,14 +857,13 @@ class AMI
      * Query for Core PBX status
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CoreStatus/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function CoreStatus(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -904,7 +871,6 @@ class AMI
      * This action will create an empty file in the configuration directory. This action is intended to be used before an UpdateConfig action
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/CreateConfig/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Filename The configuration filename to create (e.g. foo.conf)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -912,7 +878,7 @@ class AMI
      */
     public function CreateConfig(string $Filename, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -921,7 +887,6 @@ class AMI
      * Note Feature only supported by analog channels
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDoff/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND off
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -929,7 +894,7 @@ class AMI
      */
     public function DAHDIDNDoff(string $DAHDIChannel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -938,7 +903,6 @@ class AMI
      * Note Feature only supported by analog channels
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDNDon/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND on
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -946,7 +910,7 @@ class AMI
      */
     public function DAHDIDNDon(string $DAHDIChannel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -954,7 +918,6 @@ class AMI
      * Generate DTMF control frames to the bridged peer
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIDialOffhook/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to dial digits
      * @param string $Number Digits to dial
@@ -963,7 +926,7 @@ class AMI
      */
     public function DAHDIDialOffhook(string $DAHDIChannel, string $Number, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -972,7 +935,6 @@ class AMI
      * Note Valid only for analog channels
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIHangup/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to hangup
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -980,7 +942,7 @@ class AMI
      */
     public function DAHDIHangup(string $DAHDIChannel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -988,14 +950,13 @@ class AMI
      * Equivalent to the CLI command "dahdi restart"
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIRestart/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function DAHDIRestart(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1003,7 +964,6 @@ class AMI
      * Similar to the CLI command "dahdi show channels"
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDIShowChannels/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $DAHDIChannel Specify the specific channel number to show. Show all channels if zero or not present
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1011,7 +971,21 @@ class AMI
      */
     public function DAHDIShowChannels(?string $DAHDIChannel = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * Show status of DAHDI spans
+     * Similar to the CLI command "dahdi show status"
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIShowStatus/
+     *
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     */
+    public function DAHDIShowStatus(?string $ActionID = null): array
+    {
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
 
@@ -1021,7 +995,6 @@ class AMI
      * Note Valid only for analog channels
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DAHDITransfer/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $DAHDIChannel DAHDI channel number to transfer
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1029,7 +1002,7 @@ class AMI
      */
     public function DAHDITransfer(string $DAHDIChannel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1037,7 +1010,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBDel/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
      * @param string $Key
@@ -1046,7 +1018,7 @@ class AMI
      */
     public function DBDel(string $Family, string $Key, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1054,7 +1026,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBDelTree/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
      * @param string $Key
@@ -1063,7 +1034,7 @@ class AMI
      */
     public function DBDelTree(string $Family, string $Key, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1099,7 +1070,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBGetTree/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Family
      * @param string|null $Key
@@ -1108,7 +1078,7 @@ class AMI
      */
     public function DBGetTree(?string $Family = null, ?string $Key = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1116,7 +1086,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DBPut/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Family
      * @param string $Key
@@ -1126,7 +1095,7 @@ class AMI
      */
     public function DBPut(string $Family, string $Key, string $Val, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1134,14 +1103,13 @@ class AMI
      * This will list out all known device states in a sequence of DeviceStateChange events. When finished, a DeviceStateListComplete event will be emitted
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DeviceStateList/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function DeviceStateList(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1149,7 +1117,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DialplanExtensionAdd/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Context Context where the extension will be created. The context will be created if it does not already exist
      * @param string $Extension Name of the extension that will be created (may include callerid match by separating with '/')
@@ -1171,7 +1138,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1179,7 +1146,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/DialplanExtensionRemove/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Context Context of the extension being removed
      * @param string $Extension Name of the extension being removed (may include callerid match by separating with '/')
@@ -1194,7 +1160,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1202,7 +1168,6 @@ class AMI
      * Enable/Disable sending of events to this manager client
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Events/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $EventMask on - If all events should be sent.
      *     off - If no events should be sent.
@@ -1212,7 +1177,7 @@ class AMI
      */
     public function Events(string $EventMask, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1224,7 +1189,6 @@ class AMI
      * for the extension and the status.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ExtensionState/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Exten Extension to check state on
      * @param string $Context Context for extension
@@ -1233,7 +1197,7 @@ class AMI
      */
     public function ExtensionState(string $Exten, string $Context, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1241,14 +1205,30 @@ class AMI
      * This will list out all known extension states in a sequence of ExtensionStatus events. When finished, a ExtensionStateListComplete event will be emitted
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ExtensionStateList/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function ExtensionStateList(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * Responds with a detailed description of a single FAX session
+     * Provides details about a specific FAX session. The response will include a common subset of the
+     * output from the CLI command 'fax show session ' for each technology. If the FAX technolgy used
+     * by this session does not include a handler for FAXSession, then this action will fail.
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/FAXSession/
+     *
+     * @param string $SessionNumber The session ID of the fax the user is interested in.
+     * @param string|null $ActionID ActionID for this transaction. Will be returned
+     * @return array
+     */
+    public function FAXSession(string $SessionNumber, ?string $ActionID = null): array
+    {
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1259,7 +1239,6 @@ class AMI
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Getvar/
      * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Variable Variable name, function or expression
      * @param string|null $Channel Channel to read variable from
@@ -1268,7 +1247,7 @@ class AMI
      */
     public function Getvar(string $Variable, ?string $Channel = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1276,7 +1255,6 @@ class AMI
      * Hangup a channel
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Hangup/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
      *     Example exact channel: SIP/provider-0000012a Example regular expression: /^SIP/provider-.*$/
@@ -1286,7 +1264,7 @@ class AMI
      */
     public function Hangup(string $Channel, $Cause = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1294,14 +1272,13 @@ class AMI
      * Show IAX channels network statistics
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXnetstats/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function IAXnetstats(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1309,14 +1286,13 @@ class AMI
      * List all the IAX peers
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXpeerlist/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function IAXpeerlist(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1324,14 +1300,13 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXpeers/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function IAXPeers(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1339,14 +1314,13 @@ class AMI
      * Show IAX registrations
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/IAXregistry/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function IAXregistry(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1354,7 +1328,6 @@ class AMI
      * This action will dump the categories in a given file
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ListCategories/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Filename Configuration filename (e.g. foo.conf)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1362,7 +1335,7 @@ class AMI
      */
     public function ListCategories(string $Filename, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1370,14 +1343,13 @@ class AMI
      * Returns the action name and synopsis for every action that is available to the user
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ListCommands/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function ListCommands(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1386,7 +1358,6 @@ class AMI
      * will clear that flag and allow it to optimize away if it's bridged or when it becomes bridged
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/LocalOptimizeAway/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The channel name to optimize away
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1394,7 +1365,7 @@ class AMI
      */
     public function LocalOptimizeAway(string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1402,14 +1373,13 @@ class AMI
      * Reload and rotate the logger. Analogous to the CLI command 'logger rotate'
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/LoggerRotate/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function LoggerRotate(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1417,7 +1387,6 @@ class AMI
      * Login Manager
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Login/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Username Username to login with as specified in manager.conf
      * @param string $Secret Secret to login with as specified in manager.conf
@@ -1426,7 +1395,7 @@ class AMI
      */
     public function Login(string $Username, string $Secret, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1434,14 +1403,13 @@ class AMI
      * Logoff the current manager session
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Logoff/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function Logoff(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1455,14 +1423,13 @@ class AMI
      * OldMessages: count
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxCount/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      */
     public function MailboxCount(string $Mailbox, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1474,7 +1441,6 @@ class AMI
      * Waiting: 0 if messages waiting, 1 if no messages waiting.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/MailboxStatus/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1482,7 +1448,7 @@ class AMI
      */
     public function MailboxStatus(string $Mailbox, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1490,7 +1456,6 @@ class AMI
      * This action may be used to record the audio on a specified channel
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Monitor/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Used to specify the channel to record
      * @param string|null $File Is the name of the file created in the monitor spool directory.
@@ -1509,7 +1474,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1518,7 +1483,6 @@ class AMI
      * Generates an outgoing call to a Extension/Context/Priority or Application/Data
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Originate/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel Channel name to call
      * @param string|null $Exten Extension to use (requires 'Context' and 'Priority')
@@ -1557,7 +1521,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1566,7 +1530,6 @@ class AMI
      * List parked calls
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/ParkedCalls/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ParkingLot If specified, only show parked calls from the parking lot with this name
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1574,7 +1537,7 @@ class AMI
      */
     public function ParkedCalls(?string $ParkingLot = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1582,14 +1545,13 @@ class AMI
      * A 'Ping' action will elicit a 'Pong' response. Used to keep the manager connection open
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Ping/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
     public function Ping(?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1597,7 +1559,6 @@ class AMI
      * Hangs up an incoming PJSIP channel and returns the specified SIP response code in the final response to the caller.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/PJSIPHangup/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
      *     Example exact channel: SIP/provider-0000012a Example regular expression: /^SIP/provider-.*$/
@@ -1610,7 +1571,7 @@ class AMI
      */
     public function PJSIPHangup(string $Channel, $Cause = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1618,7 +1579,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueAdd/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Queue Queue's name
      * @param string $Interface The name of the interface (tech/name) to add to the queue
@@ -1640,7 +1600,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1648,7 +1608,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueReload/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Queue The name of the queue to take action on. If no queue name is specified, then all queues are affected
      * @param bool|null $Members Whether to reload the queue's members
@@ -1665,7 +1624,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1673,7 +1632,6 @@ class AMI
      *
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueRemove/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Queue The name of the queue to take action on
      * @param string $Interface The interface (tech/name) to remove from queue
@@ -1682,7 +1640,7 @@ class AMI
      */
     public function QueueRemove(string $Queue, string $Interface, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1691,7 +1649,6 @@ class AMI
      * Check the status of one or more queues
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/QueueStatus/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Queue Limit the response to the status of the specified queue
      * @param string|null $Member Limit the response to the status of the specified member
@@ -1699,7 +1656,7 @@ class AMI
      */
     public function QueueStatus(?string $Queue = null, ?string $Member = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1708,7 +1665,6 @@ class AMI
      * Redirect (transfer) a call
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Redirect/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel
      * @param string $Exten
@@ -1733,7 +1689,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1743,7 +1699,6 @@ class AMI
      * Note If a channel name is not provided then the variable is considered global
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Setvar/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Variable Variable name, function or expression
      * @param string $Value Variable or function value
@@ -1753,7 +1708,7 @@ class AMI
      */
     public function Setvar(string $Variable, string $Value, ?string $Channel = null, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1762,7 +1717,6 @@ class AMI
      * Will return the status information of each channel along with the value for the specified channel variables
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/Status/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string|null $Channel The name of the channel to query for status
      * @param string|null $Variables Comma ',' separated list of variable to include
@@ -1777,7 +1731,7 @@ class AMI
         ?string $ActionID = null
     ): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     /**
@@ -1785,7 +1739,6 @@ class AMI
      * This action may be used to end a previously started 'Monitor' action
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AMI_Actions/StopMonitor/
-     * @noinspection PhpUnusedParameterInspection
      *
      * @param string $Channel The name of the channel monitored
      * @param string|null $ActionID ActionID for this transaction. Will be returned
@@ -1793,7 +1746,7 @@ class AMI
      */
     public function StopMonitor(string $Channel, ?string $ActionID = null): array
     {
-        return $this->executeByReflection(__FUNCTION__);
+        return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
 
     // *********************************************************************************************************
