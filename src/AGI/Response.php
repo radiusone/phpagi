@@ -8,7 +8,7 @@ use PhpAgi\Enums\AgiResult;
 use ValueError;
 
 /**
- * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int}
+ * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
  */
 class Response implements ArrayAccess
 {
