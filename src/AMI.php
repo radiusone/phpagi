@@ -303,7 +303,7 @@ class AMI
         }
         $args = [];
         foreach ($ref->getParameters() as $param) {
-            $name = $param->getName();
+            $name = $this->updateParameterName($functionName, $param->getName());
             $pos = $param->getPosition();
             try {
                 $val = array_key_exists($pos, $functionArgs)
@@ -409,6 +409,30 @@ class AMI
             $this->log("Executing handler for '$e'");
             $handler($e, $parameters, $this->server, $this->port);
         }
+    }
+
+    private function updateParameterName(string $function, string $param): string
+    {
+        $mapping = [
+            'AOCMessage' => [
+                'UnitAmount' => 'UnitAmount(0)',
+                'UnitType' => 'UnitType(0)',
+            ],
+            'SendText' => [
+                'ContentType' => 'Content-Type',
+            ],
+            'UpdateConfig' => [
+                'Action' => 'Action-000000',
+                'Cat' => 'Cat-000000',
+                'Var' => 'Var-000000',
+                'Value' => 'Value-000000',
+                'Match' => 'Match-000000',
+                'Line' => 'Line-000000',
+                'Options' => 'Options-000000',
+            ],
+        ];
+
+        return $mapping[$function][$param] ?? $param;
     }
 
     /**
