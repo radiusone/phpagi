@@ -6,7 +6,7 @@ use PhpAgi\Enums\ChannelState;
 use ValueError;
 
 /**
- * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:numeric-string|null, data?:string|null}
+ * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int}
  */
 trait Commands
 {

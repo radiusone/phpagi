@@ -18,7 +18,7 @@ use PhpAgi\Enums\AgiResult;
  * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * @copyright 2023 - 2026 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
- * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:numeric-string|null, data?:string|null}
+ * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int}
  */
 class AGI
 {
@@ -1023,7 +1023,7 @@ class AGI
         } else {
             $ret = new Response(AgiResult::Ok, "0");
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
-                // this will be $ret['result']
+                // this will be $ret['result'] or $ret['endpos']
                 $ret[$matches['key']] = $matches['value'];
                 if (isset($matches['data'])) {
                     $ret['data'] = $matches['data'];
