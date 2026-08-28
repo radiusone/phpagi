@@ -22,6 +22,7 @@ $param_renames = [
 $i = ['int|string', 'int|numeric-string'];
 $b = ['bool', 'bool'];
 $s = ['string', 'string'];
+$si = ['int|string', 'int|string'];
 $m = ['float|int|string', 'float|int|string'];
 /** @var array<string,array<string,string>> $param_types a list of action parameters that should be converted to int or bool */
 $param_types = [
@@ -34,7 +35,8 @@ $param_types = [
         'Code' => $i,
     ],
     'DBPut' => ['Val' => $m],
-    'DialplanExtensionAdd' => ['Replace' => $b],
+    'DialplanExtensionAdd' => ['Priority' => $si, 'Replace' => $b],
+    'DialplanExtensionRemove' => ['Priority' => $si],
     'Filter' => ['MatchCriteria' => $s],
     'Hangup' => ['Cause' => $i],
     'MeetmeMute' => ['Usernum' => $i],
@@ -43,18 +45,19 @@ $param_types = [
     'MixMonitorMute' => ['State' => $b],
     'MuteAudio' => ['State' => $b],
     'MWIUpdate' => ['OldMessages' => $i, 'NewMessages' => $i],
-    'Originate' => ['Timeout' => $i, 'EarlyMedia' => $b, 'Async' => $b],
+    'Originate' => ['Priority' => $si, 'Timeout' => $i, 'EarlyMedia' => $b, 'Async' => $b],
     'Park' => ['Timeout' => $i],
     'PJSIPHangup' => ['Cause' => $i],
     'PJSIPSetMaintenance' => ['State' => $b],
     'PlayDTMF' => ['Duration' => $i, 'Receive' => $b],
     'PlayMF' => ['Duration' => $i],
     'QueueAdd' => ['Penalty' => $i, 'Paused' => $b],
-    'QueueChangePriorityCaller' => ['Immediate' => $b],
+    'QueueChangePriorityCaller' => ['Priority' => $si, 'Immediate' => $b],
     'QueueMemberRingInUse' => ['RingInUse' => $b],
     'QueuePause' => ['Paused' => $b],
     'QueuePenalty' => ['Penalty' => $i],
     'QueueReload' => ['Members' => $b, 'Rules' => $b, 'Parameters' => $b],
+    'Redirect' => ['Priority' => $si, 'ExtraPriority' => $si],
     'SendFlash' => ['Receive' => $b],
     'SetVar' => ['Value' => $m],
     'SorceryMemoryCacheStaleObject' => ['Reload' => $b],

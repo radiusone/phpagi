@@ -824,7 +824,7 @@ trait Actions
      *
      * @param string $Context Context where the extension will be created. The context will be created if it does not already exist
      * @param string $Extension Name of the extension that will be created (may include callerid match by separating with '/')
-     * @param string $Priority Priority being added to this extension. Must be either hint or a numerical value
+     * @param int|string $Priority Priority being added to this extension. Must be either hint or a numerical value
      * @param string $Application The application to use for this extension at the requested priority
      * @param string|null $ApplicationData Arguments to the application
      * @param bool|null $Replace If set to 'yes', '1', 'true' or any of the other values we evaluate as true, then if an extension
@@ -836,7 +836,7 @@ trait Actions
     public function DialplanExtensionAdd(
         string $Context,
         string $Extension,
-        string $Priority,
+        int|string $Priority,
         string $Application,
         ?string $ApplicationData = null,
         ?bool $Replace = null,
@@ -853,12 +853,17 @@ trait Actions
      *
      * @param string $Context Context of the extension being removed
      * @param string $Extension Name of the extension being removed (may include callerid match by separating with '/')
-     * @param string|null $Priority If provided, only remove this priority from the extension instead of all priorities in the
+     * @param int|string|null $Priority If provided, only remove this priority from the extension instead of all priorities in the
      * extension
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function DialplanExtensionRemove(string $Context, string $Extension, ?string $Priority = null, ?string $ActionID = null): array
+    public function DialplanExtensionRemove(
+        string $Context,
+        string $Extension,
+        int|string|null $Priority = null,
+        ?string $ActionID = null
+    ): array
     {
         return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
@@ -1528,7 +1533,7 @@ trait Actions
      * @param string $Channel Channel name to call
      * @param string|null $Exten Extension to use (requires Context and Priority)
      * @param string|null $Context Context to use (requires Exten and Priority)
-     * @param string|null $Priority Priority to use (requires Exten and Context)
+     * @param int|string|null $Priority Priority to use (requires Exten and Context)
      * @param string|null $Application Application to execute
      * @param string|null $Data Data to use (requires Application)
      * @param int|numeric-string|null $Timeout How long to wait for call to be answered (in ms.)
@@ -1549,7 +1554,7 @@ trait Actions
         string $Channel,
         ?string $Exten = null,
         ?string $Context = null,
-        ?string $Priority = null,
+        int|string|null $Priority = null,
         ?string $Application = null,
         ?string $Data = null,
         int|string|null $Timeout = null,
@@ -2107,13 +2112,19 @@ trait Actions
      *
      * @param string $Queue The name of the queue to take action on
      * @param string $Caller The caller (channel) to change priority on queue
-     * @param string $Priority Priority value for change for caller on queue
+     * @param int|string $Priority Priority value for change for caller on queue
      * @param bool|null $Immediate When set to yes will cause the priority change to be reflected immediately, causing the channel to
      * change position within the queue
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
-    public function QueueChangePriorityCaller(string $Queue, string $Caller, string $Priority, ?bool $Immediate = null, ?string $ActionID = null): array
+    public function QueueChangePriorityCaller(
+        string $Queue,
+        string $Caller,
+        int|string $Priority,
+        ?bool $Immediate = null,
+        ?string $ActionID = null
+    ): array
     {
         return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
@@ -2326,11 +2337,11 @@ trait Actions
      * @param string $Channel Channel to redirect
      * @param string $Exten Extension to transfer to
      * @param string $Context Context to transfer to
-     * @param string $Priority Priority to transfer to
+     * @param int|string $Priority Priority to transfer to
      * @param string|null $ExtraChannel Second call leg to transfer (optional)
      * @param string|null $ExtraExten Extension to transfer extrachannel to (optional)
      * @param string|null $ExtraContext Context to transfer extrachannel to (optional)
-     * @param string|null $ExtraPriority Priority to transfer extrachannel to (optional)
+     * @param int|string|null $ExtraPriority Priority to transfer extrachannel to (optional)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
      * @return array
      */
@@ -2338,11 +2349,11 @@ trait Actions
         string $Channel,
         string $Exten,
         string $Context,
-        string $Priority,
+        int|string $Priority,
         ?string $ExtraChannel = null,
         ?string $ExtraExten = null,
         ?string $ExtraContext = null,
-        ?string $ExtraPriority = null,
+        int|string|null $ExtraPriority = null,
         ?string $ActionID = null
     ): array
     {
