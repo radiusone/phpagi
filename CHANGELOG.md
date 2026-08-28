@@ -10,11 +10,42 @@ in major versions of the package.
         of an array. All properties are public, and maintain the same
         names as the previous array keys.
     </dd>
+    <dt><code>AGI::receive_char(int $timeout)</code></dt>
+    <dt><code>AGI::set_autohangup(int $timeout)</code></dt>
+    <dd>
+        The <code>$timeout</code> parameter is no longer optional.
+    </dd>
+    <dt><code>AGI::tdd_mode(bool $setting)</code></dt>
+    <dd>
+        The <code>$setting</code> parameter no longer accepts a string value.
+    </dd>
+    <dt><code>AGI::verbose()</code></dt>
+    <dd>
+        This method no longer calls PHP's `syslog()` function.
+    </dd>
+    <dt><code>AGI::channel_status(string $channelname = '')</code></dt>
+    <dt><code>AGI::get_data(string $file, int $timeout = 0, int $max_digits = 1024)</code></dt>
+    <dt><code>AGI::get_fullvariable(string $variable, string $channelname = '', bool $getvalue = false)</code></dt>
+    <dt><code>AGI::get_variable(string $variablename, bool $getvalue = false)</code></dt>
+    <dt><code>AGI::hangup(string $channelname = '')</code></dt>
+    <dt><code>AGI::record_file( string $file, string $format, string $escape_digits = '', int $timeout = -1, int $offset_samples = 0, bool $beep = false, int $silence = 0)</code></dt>
+    <dt><code>AGI::say_alpha(string $number, string $escape_digits = '')</code></dt>
+    <dt><code>AGI::say_digits(int $number, string $escape_digits = '')</code></dt>
+    <dt><code>AGI::set_callerid(string $number)</code></dt>
+    <dt><code>AGI::set_context(string $desired_context)</code></dt>
+    <dt><code>AGI::set_extension(string $new_extension)</code></dt>
+    <dt><code>AGI::set_variable(string $variablename, string $value)</code></dt>
+    <dt><code>AGI::stream_file(string $filename, string $escape_digits = '', int $sample_offset = 0)</code></dt>
+    <dt><code>AGI::</code></dt>
+    <dd>
+        Some parameters in these methods have changed names to
+        match documentation.
+    </dd>
 </dl>
 
 ### AMI
 <dl>
-    <dt><code>AMI::ActionID</code></dt>
+    <dt><code>AMI::ActionID()</code></dt>
     <dd>
         Generated AMI action IDs still start with an uppercase 'A' but
         this is now followed by 16 hexadecimal characters, instead of

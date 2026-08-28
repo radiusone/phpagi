@@ -11,11 +11,12 @@ use ValueError;
 trait Commands
 {
     /**
-     * Answer channel if not already in answer state.
+     * Answer channel
+     * Answers channel if not already in answer state
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/answer/
      *
-     * @return Response|AgiArray `result` is 0 on success, -1 on failure.
+     * @return Response|AgiArray `result` is -1 on channel failure, or 0 if successful
      */
     public function answer(): Response|array
     {
@@ -23,17 +24,39 @@ trait Commands
     }
 
     /**
-     * Get the status of the specified channel. If no channel name is specified, return the status of the current channel.
+     * Interrupts Async AGI
+     * Interrupts expected flow of Async AGI commands and returns control to previous source (typically, the PBX
+     * dialplan)
+     *
+     * @return Response|AgiArray
+     */
+    public function asyncagi_break(): Response|array
+    {
+        return $this->evaluate('ASYNCAGI BREAK');
+    }
+
+    /**
+     * Returns status of the connected channel
+     * Returns the status of the specified channelname. If no channel name is given then returns the status of the
+     * current channel. Return values:
+     * - 0 Channel is down and available
+     * - 1 Channel is down, but reserved
+     * - 2 Channel is off hook
+     * - 3 Digits (or equivalent) have been dialed
+     * - 4 Line is ringing
+     * - 5 Remote end is ringing
+     * - 6 Line is up
+     * - 7 Line is busy
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/channel_status/
      *
-     * @param string $channel
-     * @return Response|AgiArray `data` contains a textual description of the state.
+     * @param string $channelname
+     * @return Response|AgiArray `result` contains the state, `data` contains a textual description of the state
      */
-    public function channel_status(string $channel = ''): Response|array
+    public function channel_status(string $channelname = ''): Response|array
     {
-        $ret = strlen($channel)
-            ? $this->evaluate('CHANNEL STATUS %s', $channel)
+        $ret = strlen($channelname)
+            ? $this->evaluate('CHANNEL STATUS %s', $channelname)
             : $this->evaluate('CHANNEL STATUS');
 
         $res = (int)$ret['result'];
@@ -47,13 +70,58 @@ trait Commands
     }
 
     /**
-     * Deletes an entry in the Asterisk database for a given family and key.
+     * Sends audio file on channel and allows the listener to control the stream
+     * Send the given file, allowing playback to be controlled by the given digits, if any. Use double quotes for the
+     * digits if you wish none to be permitted. If offsetms is provided then the audio will seek to offsetms before
+     * play starts. It sets the following channel variables upon completion:
+     * - CPLAYBACKSTATUS Contains the status of the attempt as a text string "SUCCESS" or "USERSTOPPED" or
+     * "REMOTESTOPPED" or "ERROR".
+     * - CPLAYBACKOFFSET Contains the offset in ms into the file where playback was at when it stopped. -1 is end of
+     * file.
+     * - CPLAYBACKSTOPKEY If the playback is stopped by the user this variable contains the key that was pressed.
+     *
+     * @param string $filename The file extension must not be included in the filename
+     * @param string $escape_digits
+     * @param string|int $skipms
+     * @param string $ffchr Defaults to #
+     * @param string $rewchr Defaults to *
+     * @param string $pausechr
+     * @param string|int $offsetms Offset, in milliseconds, to start the audio playback
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, or the ASCII
+     * numerical value of the digit if one was pressed,or -1 on error or if the channel was disconnected. Returns the
+     * position where playback was terminated as endpos.
+     */
+    public function control_stream_file(
+        string $filename,
+        string $escape_digits,
+        string|int $skipms = 0,
+        string $ffchr = '#',
+        string $rewchr = '*',
+        string $pausechr = '',
+        string|int $offsetms = 0
+    ): Response|array
+    {
+        return $this->evaluate(
+            'CONTROL STREAM FILE %s %s %s %s %s %s %s',
+            $filename,
+            $escape_digits,
+            $skipms,
+            $ffchr,
+            $rewchr,
+            $pausechr,
+            $offsetms
+        );
+    }
+
+    /**
+     * Removes database key/value
+     * Deletes an entry in the Asterisk database for a given family and key
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/database_del/
      *
      * @param string $family
      * @param string $key
-     * @return Response|AgiArray `result` is 1 on sucess, 0 otherwise.
+     * @return Response|AgiArray `result` is 1 if successful, 0 otherwise.
      */
     public function database_del(string $family, string $key): Response|array
     {
@@ -61,13 +129,14 @@ trait Commands
     }
 
     /**
-     * Deletes a family or specific keytree within a family in the Asterisk database.
+     * Removes database keytree/value
+     * Deletes a family or specific keytree within a family in the Asterisk database
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/database_deltree/
      *
      * @param string $family
      * @param string $keytree
-     * @return Response|AgiArray `result` is 1 on sucess, 0 otherwise.
+     * @return Response|AgiArray `result` is 1 if successful, 0 otherwise.
      */
     public function database_deltree(string $family, string $keytree = ''): Response|array
     {
@@ -77,13 +146,15 @@ trait Commands
     }
 
     /**
-     * Retrieves an entry in the Asterisk database for a given family and key.
+     * Gets database value
+     * Retrieves an entry in the Asterisk database for a given family and key
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/database_get/
      *
      * @param string $family
      * @param string $key
-     * @return Response|AgiArray `result` is 1 on sucess, 0 failure. `data` holds the value
+     * @return Response|AgiArray `result` is 0 if key is not set. `result` is 1 if key is set and returns the variable
+     * in `data`
      */
     public function database_get(string $family, string $key): Response|array
     {
@@ -91,6 +162,7 @@ trait Commands
     }
 
     /**
+     * Adds/updates database value
      * Adds or updates an entry in the Asterisk database for a given family, key, and value.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/database_put/
@@ -98,17 +170,20 @@ trait Commands
      * @param string $family
      * @param string $key
      * @param string $value
-     * @return Response|AgiArray `result` is 1 on sucess, 0 otherwise
+     * @return Response|AgiArray `result` is 1 if successful, 0 otherwise
      */
     public function database_put(string $family, string $key, string $value): Response|array
     {
         return $this->evaluate('DATABASE PUT %s %s %s', $family, $key, $value);
     }
 
+
     /**
-     * NEW SIGNATURE IN 3.0
-     * Executes the specified Asterisk application with given options. No escaping or quoting
-     * is performed on the given options
+     * Executes a given Application
+     * Executes the specified Asterisk application with given options. exec does not evaluate dialplan functions and
+     * variables unless it is explicitly enabled by setting the AGIEXECFULL variable to yes.
+     *
+     * No escaping or quoting is performed on the given options.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/exec/
      *
@@ -124,113 +199,128 @@ trait Commands
     }
 
     /**
-     * Plays the given file and receives DTMF data.
+     * Prompts for DTMF on a channel
+     * Stream the given file, and receive DTMF data
      *
-     * This is similar to STREAM FILE, but this command can accept and return many DTMF digits,
-     * while STREAM FILE returns immediately after the first DTMF digit is detected.
-     *
-     * Asterisk looks for the file to play in /var/lib/asterisk/sounds by default.
-     *
-     * If the user doesn't press any keys when the message plays, there is $timeout milliseconds
-     * of silence then the command ends.
-     *
-     * The user has the opportunity to press a key at any time during the message or the
-     * post-message silence. If the user presses a key while the message is playing, the
-     * message stops playing. When the first key is pressed a timer starts counting for
-     * $timeout milliseconds. Every time the user presses another key the timer is restarted.
-     * The command ends when the counter goes to zero or the maximum number of digits is entered,
-     * whichever happens first.
-     *
-     * If you don't specify a time out then a default timeout of 2000 is used following a pressed
-     * digit. If no digits are pressed then 6 seconds of silence follow the message.
-     *
-     * If you don't specify $max_digits then the user can enter as many digits as they want.
-     *
-     * Pressing the # key has the same effect as the timer running out: the command ends and
-     * any previously keyed digits are returned. A side effect of this is that there is no
-     * way to read a # key using this command.
-     *
-     * @example examples/ping.php Ping an IP address
      * @link hhttps://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/get_data/
      *
-     * @param string $filename file to play. Do not include file extension.
-     * @param int $timeout milliseconds
-     * @param positive-int $max_digits
-     * @return Response|AgiArray `result` holds the digits and `data` holds the timeout if present.
-     * This differs from other commands which return ASCII codes.
+     * @param string $file file to play. Do not include file extension
+     * @param int $timeout milliseconds to wait after playing the file or receiving a digit before exiting
+     * @param positive-int $max_digits if this many digits are received, exits immediately
+     * @return Response|AgiArray `result` is the digits received from the channel at the other end; `data` is 'timeout' if applicable
      */
-    public function get_data(string $filename, int $timeout = 0, int $max_digits = 1024): Response|array
+    public function get_data(string $file, int $timeout = 0, int $max_digits = 1024): Response|array
     {
-        return $this->evaluate('GET DATA %s %d %d', $filename, $timeout, $max_digits);
+        return $this->evaluate('GET DATA %s %d %d', $file, $timeout, $max_digits);
     }
 
     /**
-     * Fetch the result of a dialplan-like expression.
+     * Evaluates a channel expression
+     * Evaluates the given expression against the channel specified by channelname, or the current channel if
+     * channelname is not provided. Unlike GET VARIABLE, the expression is processed in a manner similar to dialplan
+     * evaluation, allowing complex and built-in variables to be accessed, e.g. 'The time is ${EPOCH}'
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/get_full_variable/
      * @link https://docs.asterisk.org/Configuration/Dialplan/Expressions/
+     *
      * @param string $variable name
-     * @param string $channel channel
+     * @param string $channelname channel
      * @param bool $getvalue return the value only
-     * @return ($getvalue is true ? string : Response|AgiArray) when $getvalue is false, `result` is 0 if variable hasn't been set,
-     * 1 if it has; `data` holds the value
+     * @return ($getvalue is true ? string : Response|AgiArray) when $getvalue is false, `result` is 0 if no channel
+     * matching channelname exists, 1 otherwise; `data` holds the value
      */
-    public function get_fullvariable(string $variable, string $channel = '', bool $getvalue = false): Response|array|string
+    public function get_fullvariable(string $variable, string $channelname = '', bool $getvalue = false): Response|array|string
     {
-        $res = strlen($channel ?: '')
-            ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channel)
+        $res = strlen($channelname ?: '')
+            ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channelname)
             : $this->evaluate('GET FULL VARIABLE %s', $variable);
 
         return $getvalue ? strval($res['data']) : $res;
     }
 
     /**
-     * Fetch the value of a variable.
+     * Stream file, prompt for DTMF, with timeout
+     * Behaves similar to STREAM FILE but used with a timeout option
      *
-     * Does not work with global variables. Does not work with some variables that are generated by modules.
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/get_option/
+     *
+     * @param string $filename
+     * @param string $escape_digits
+     * @param int $timeout
+     * @return Response|array
+     */
+    public function get_option(string $filename, string $escape_digits = '', int $timeout = 0): Response|array
+    {
+        return $timeout > 0
+            ? $this->evaluate('GET OPTION %s %s %d', $filename, $escape_digits, $timeout)
+            : $this->evaluate('GET OPTION %s %s', $filename, $escape_digits);
+    }
+
+    /**
+     * Gets a channel variable
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/get_variable/
      * @link https://docs.asterisk.org/Configuration/Dialplan/Variables/
      *
-     * @param string $variable name
+     * @param string $variablename
      * @param bool $getvalue return the value only
-     * @return ($getvalue is true ? string : Response|AgiArray) `result` is 0 if variable hasn't been set, 1 if it has.
-     * `data` holds the value. Or just returns the value if `$getvalue` is `true`
+     * @return ($getvalue is true ? string : Response|AgiArray) `result` is 0 if variablename is not set. `result` is 1
+     * if variablename is set and returns the variable in `data`
      */
-    public function get_variable(string $variable, bool $getvalue = false): Response|array|string
+    public function get_variable(string $variablename, bool $getvalue = false): Response|array|string
     {
-        $res = $this->evaluate('GET VARIABLE %s', $variable);
+        $res = $this->evaluate('GET VARIABLE %s', $variablename);
 
         return $getvalue ? strval($res['data']) : $res;
     }
 
     /**
-     * Hangup the specified channel. If no channel name is given, hang up the current channel.
+     * Cause the channel to execute the specified dialplan subroutine.
+     * Cause the channel to execute the specified dialplan subroutine, returning to the dialplan with execution of
+     * a Return()
      *
-     * With power comes responsibility. Hanging up channels other than your own isn't something
-     * that is done routinely. If you are not sure why you are doing so, then don't.
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/gosub/
      *
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
-     * @example examples/input.php Get text input from the user and say it back
-     * @example examples/ping.php Ping an IP address
+     * @param string $context
+     * @param string $extension
+     * @param string|int $priority
+     * @param string $optional_argument
+     * @return Response|array
+     */
+    public function gosub(
+        string $context,
+        string $extension,
+        string|int $priority,
+        string $optional_argument = ''
+    ): Response|array
+    {
+        return strlen($optional_argument)
+            ? $this->evaluate('GOSUB %s %s %s %s', $context, $extension, $priority, $optional_argument)
+            : $this->evaluate('GOSUB %s %s %s', $context, $extension, $priority);
+    }
+
+    /**
+     * Hangup a channel
+     * Hangs up the specified channel. If no channel name is given, hangs up the current channel
+     *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/hangup/
      *
-     * @param string $channel
-     * @return Response|AgiArray `result` is 1 on success, -1 on failure.
+     * @param string $channelname
+     * @return Response|AgiArray
      */
-    public function hangup(string $channel = ''): Response|array
+    public function hangup(string $channelname = ''): Response|array
     {
-        return strlen($channel)
-            ? $this->evaluate('HANGUP %s', $channel)
+        return strlen($channelname)
+            ? $this->evaluate('HANGUP %s', $channelname)
             : $this->evaluate('HANGUP');
     }
 
     /**
-     * Does nothing.
+     * Does nothing
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/noop/
      *
-     * @param string $string a message
+     * @param string $string a message; Asterisk ignores this but it can be helpful for debugging
      * @return Response|AgiArray
      */
     public function noop(string $string = ''): Response|array
@@ -239,50 +329,66 @@ trait Commands
     }
 
     /**
-     * Receive a character of text from a connected channel. Waits up to $timeout milliseconds for
-     * a character to arrive, or infinitely if $timeout is zero.
+     * Receives one character from channels supporting it
+     * Receives a character of text on a channel. Most channels do not support the reception of text.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/receive_char/
      *
-     * @param int $timeout milliseconds
-     * @return Response|AgiArray `result` is 0 on timeout or not supported, -1 on failure, otherwise the ASCII code of the DTMF key
+     * @param int $timeout The maximum time to wait for input in milliseconds, or 0 for infinite
+     * @return Response|AgiArray `result` is the decimal value of the character if one is received, or 0 if the
+     * channel does not support text reception. `result` is -1 only on error or hangup
      */
-    public function receive_char(int $timeout = -1): Response|array
+    public function receive_char(int $timeout): Response|array
     {
-        return $this->evaluate("RECEIVE CHAR $timeout");
+        return $this->evaluate('RECEIVE CHAR %d', $timeout);
     }
 
     /**
+     * Receives text from channels supporting it
+     * Receives a string of text on a channel. Most channels do not support the reception of text.
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/receive_text/
+     *
+     * @param int $timeout The timeout to be the maximum time to wait for input in milliseconds, or 0 for infinite
+     * @return Response|array `result` is -1 for failure or 1 for success, and the string in `data`
+     */
+    public function receive_text(int $timeout): Response|array
+    {
+        return $this->evaluate('RECEIVE TEXT %d', $timeout);
+    }
+
+    /**
+     * Records to a given file
      * Record sound to a file until an acceptable DTMF digit is received or a specified amount of
      * time has passed. Optionally the file BEEP is played before recording begins.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/record_file/
      *
-     * @param string $file to record, without extension, often created in /var/lib/asterisk/sounds
-     * @param string $format of the file. GSM and WAV are commonly used formats. MP3 is read-only and thus cannot be used.
-     * @param string $escape_digits
-     * @param int $timeout is the maximum record time in milliseconds, or -1 for no timeout.
-     * @param int $offset to seek to without exceeding the end of the file.
-     * @param bool $beep
-     * @param int $silence number of seconds of silence allowed before the function returns despite the
-     * lack of dtmf digits or reaching timeout.
+     * @param string $file The destination filename of the recorded audio
+     * @param string $format The audio format in which to save the resulting file
+     * @param string $escape_digits The DTMF digits that will terminate the recording process
+     * @param int $timeout The maximum recording time in milliseconds. Set to -1 for no limit
+     * @param int $offset_samples Causes the recording to first seek to the specified offset before recording begins
+     * @param bool $beep Causes Asterisk to play a beep as recording begins
+     * @param int $silence The number of seconds of silence that are permitted before the recording is terminated,
+     * regardless of the escape_digits or timeout arguments
      * @return Response|AgiArray `result` is -1 on error, 0 on hangup, otherwise the ASCII code of the DTMF key
      */
     public function record_file(
         string $file,
         string $format,
         string $escape_digits = '',
-        int    $timeout = -1,
-        int    $offset = 0,
-        bool   $beep = false,
-        int    $silence = 0,
+        int $timeout = -1,
+        int $offset_samples = 0,
+        bool $beep = false,
+        int $silence = 0,
     ): Response|array
     {
         $cmd = 'RECORD FILE %s %s %s %d';
         $args = [$file, $format, $escape_digits, $timeout];
-        if ($offset) {
+        if ($offset_samples) {
             $cmd .= ' %d';
-            $args[] = $offset;
+            $args[] = $offset_samples;
         }
         if ($beep) {
             $cmd .= ' BEEP';
@@ -296,44 +402,103 @@ trait Commands
     }
 
     /**
-     * Say a given character string, returning early if any of the given DTMF digits are received on the channel.
+     * Says a given character string
+     * Say a given character string, returning early if any of the given DTMF digits are received on the channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_alpha/
      *
-     * @param string $text
+     * @param string $number
      * @param string $escape_digits
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
      */
-    public function say_alpha(string $text, string $escape_digits = ''): Response|array
+    public function say_alpha(string $number, string $escape_digits = ''): Response|array
     {
-        return $this->evaluate('SAY ALPHA %s %s', $text, $escape_digits);
+        return $this->evaluate('SAY ALPHA %s %s', $number, $escape_digits);
     }
 
     /**
-     * Say the given digit string, returning early if any of the given DTMF escape digits are received on the channel.
+     * Says a given date
+     * Say a given date, returning early if any of the given DTMF digits are received on the channel.
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_date/
+     *
+     * @param int|null $date Is number of seconds elapsed since 00:00:00 on January 1, 1970 Coordinated Universal Time
+     * (UTC) or null for current time
+     * @param string $escape_digits
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
+     */
+    public function say_date(?int $date = null, string $escape_digits = ''): Response|array
+    {
+        $date ??= time();
+
+        return $this->evaluate('SAY DATE %d %s', $date, $escape_digits);
+    }
+
+
+    /**
+     * Says a given time as specified by the format given
+     * Say a given time, returning early if any of the given DTMF digits are received on the channel
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_time/
+     *
+     * @param int|null $time Is number of seconds elapsed since 00:00:00 on January 1, 1970 Coordinated Universal Time
+     * (UTC) or null for the current time
+     * @param string $escape_digits
+     * @param string $format Is the format the time should be said in. See voicemail.conf (defaults to ABdY 'digits/at' IMp)
+     * @param string $timezone Acceptable values can be found in /usr/share/zoneinfo. Defaults to machine default
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
+     */
+    public function say_datetime(
+        ?int $time = null,
+        string $escape_digits = '',
+        string $format = '',
+        string $timezone = '',
+    ): Response|array
+    {
+        $time ??= time();
+        $cmd = 'SAY DATETIME %d %s';
+        $args = [$time, $escape_digits];
+        if ($format) {
+            $cmd .= ' %s';
+            $args[] = $format;
+        }
+        if ($timezone) {
+            $cmd .= ' %s';
+            $args[] = $timezone;
+        }
+
+        return $this->evaluate($cmd, $args);
+    }
+
+    /**
+     * Says a given digit string
+     * Say a given digit string, returning early if any of the given DTMF digits are received on the channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_digits/
      *
-     * @param int $digits
+     * @param int $number
      * @param string $escape_digits
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
      */
-    public function say_digits(int $digits, string $escape_digits = ''): Response|array
+    public function say_digits(int $number, string $escape_digits = ''): Response|array
     {
-        return $this->evaluate('SAY DIGITS %d %s', $digits, $escape_digits);
+        return $this->evaluate('SAY DIGITS %d %s', $number, $escape_digits);
     }
 
     /**
-     * Say the given number, returning early if any of the given DTMF escape digits are received on the channel.
+     * Says a given number
+     * Say a given number, returning early if any of the given DTMF digits are received on the channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_number/
      *
      * @param int $number
      * @param string $escape_digits
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
      */
     public function say_number(int $number, string $escape_digits = ''): Response|array
     {
@@ -341,14 +506,16 @@ trait Commands
     }
 
     /**
-     * Say the given character string, returning early if any of the given DTMF escape digits are received on the channel.
+     * Says a given character string with phonetics
+     * Say a given character string with phonetics, returning early if any of the given DTMF digits are received on
+     * the channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_phonetic/
      *
      * @param string $text
      * @param string $escape_digits
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
      */
     public function say_phonetic(string $text, string $escape_digits = ''): Response|array
     {
@@ -356,14 +523,16 @@ trait Commands
     }
 
     /**
-     * Say a given time, returning early if any of the given DTMF escape digits are received on the channel.
+     * Says a given time
+     * Say a given time, returning early if any of the given DTMF digits are received on the channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_time/
      *
-     * @param int|null $time number of seconds elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+     * @param int|null $time Is number of seconds elapsed since 00:00:00 on January 1, 1970 Coordinated Universal Time
+     * (UTC) or null for the current time
      * @param string $escape_digits
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error/hangup
      */
     public function say_time(?int $time = null, string $escape_digits = ''): Response|array
     {
@@ -373,14 +542,16 @@ trait Commands
     }
 
     /**
-     * Send the specified image on a channel.
+     * Sends images to channels supporting it
+     * Send the given image on a channel. Most channels do not support the transmission of images
      *
      * Most channels do not support the transmission of images.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/send_image/
      *
-     * @param string $image without extension, often in /var/lib/asterisk/images
-     * @return Response|AgiArray `result` is -1 on hangup, error or channel does not support image transmission; 0 on success
+     * @param string $image Image names should not include extensions
+     * @return Response|AgiArray `result` is 0 if image is sent, or if the channel does not support image transmission.
+     * `result` is -1 only on error/hangup
      */
     public function send_image(string $image): Response|array
     {
@@ -388,14 +559,14 @@ trait Commands
     }
 
     /**
-     * Send the given text to the connected channel.
-     *
-     * Most channels do not support transmission of text.
+     * Sends text to channels supporting it
+     * Sends the given text on a channel. Most channels do not support the transmission of text
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/send_text/
      *
      * @param string $text
-     * @return Response|AgiArray `result` is -1 on hangup, error or channel does not support text transmission; 0 on success
+     * @return Response|AgiArray `result` is 0 if text is sent, or if the channel does not support text transmission.
+     * `result` is -1 only on error/hangup
      */
     public function send_text(string $text): Response|array
     {
@@ -403,76 +574,62 @@ trait Commands
     }
 
     /**
-     * Cause the channel to automatically hangup at $time seconds in the future.
-     * If $time is 0 then the autohangup feature is disabled on this channel.
-     *
-     * If the channel is hungup prior to $time seconds, this setting has no effect.
+     * Autohangup channel in some time
+     * Cause the channel to automatically hangup at time seconds in the future. Setting to 0 will cause the autohangup
+     * feature to be disabled on this channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_autohangup/
      *
-     * @param int $time until automatic hangup
-     * @return Response|AgiArray `result` is always 0
+     * @param int $time
+     * @return Response|AgiArray
      */
-    public function set_autohangup(int $time = 0): Response|array
+    public function set_autohangup(int $time): Response|array
     {
         return $this->evaluate('SET AUTOHANGUP %d', $time);
     }
 
     /**
+     * Sets callerid for the current channel
      * Changes the caller ID of the current channel.
-     * This command will let you take liberties with the <caller ID specification> but the format shown in the example above works
-     *  well: the name enclosed in double quotes followed immediately by the number inside angle brackets. If there is no name then
-     *  you can omit it. If the name contains no spaces you can omit the double quotes around it. The number must follow the name
-     *  immediately; don't put a space between them. The angle brackets around the number are necessary; if you omit them the
-     *  number will be considered to be part of the name.     *
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_callerid/
      *
-     * @param string $cid example: "John Smith"<1234567>
-     * @return Response|AgiArray `result` is always 1
+     * @param string $number example: "John Smith"<1234567>
+     * @return Response|AgiArray
      */
-    public function set_callerid(string $cid): Response|array
+    public function set_callerid(string $number): Response|array
     {
-        return $this->evaluate('SET CALLERID %s', $cid);
+        return $this->evaluate('SET CALLERID %s', $number);
     }
 
     /**
+     * Sets channel context
      * Sets the context for continuation upon exiting the application.
-     *
-     * Setting the context does NOT automatically reset the extension and the priority; if you want to start at the top of the new
-     * context you should set extension and priority yourself.
-     *
-     * If you specify a non-existent context you receive no error indication (['result'] is still 0) but you do get a
-     * warning message on the Asterisk console.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_context/
      *
-     * @param string $context
-     * @return Response|AgiArray `result` is always 0
+     * @param string $desired_context
+     * @return Response|AgiArray
      */
-    public function set_context(string $context): Response|array
+    public function set_context(string $desired_context): Response|array
     {
-        return $this->evaluate('SET CONTEXT %s', $context);
+        return $this->evaluate('SET CONTEXT %s', $desired_context);
     }
 
     /**
-     * Set the extension to be used for continuation upon exiting the application.
-     *
-     * Setting the extension does NOT automatically reset the priority. If you want to start with the first priority of the
-     * extension you should set the priority yourself.
-     *
-     * If you specify a non-existent extension you receive no error indication (['result'] is still 0) but you do
-     * get a warning message on the Asterisk console.
+     * Changes channel extension
+     * Changes the extension for continuation upon exiting the application
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_extension/
      *
-     * @param string $extension
-     * @return Response|AgiArray `result` is always 0
+     * @param string $new_extension
+     * @return Response|AgiArray
      */
-    public function set_extension(string $extension): Response|array
+    public function set_extension(string $new_extension): Response|array
     {
-        return $this->evaluate('SET EXTENSION %s', $extension);
+        return $this->evaluate('SET EXTENSION %s', $new_extension);
     }
+
 
     /**
      * Sets a global variable, by executing the Set application and GLOBAL function
@@ -491,18 +648,21 @@ trait Commands
         return $this->exec('Set', [sprintf('GLOBAL(%s)="%s"', $pVariable, $pValue)]);
     }
 
+
     /**
-     * Enable/Disable Music on hold generator.
+     * Enable/Disable Music on hold generator
+     * Enables/Disables the music on hold generator. If class is not specified, then the default music on hold class
+     * will be used. This generator will be stopped automatically when playing a file
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_music/
      *
      * @param bool $enabled
      * @param string $class
-     * @return Response|AgiArray `result` is always 0
+     * @return Response|AgiArray Always `result` is 0
      */
     public function set_music(bool $enabled = true, string $class = ''): Response|array
     {
-        $enabled = $enabled ? 'ON' : 'OFF';
+        $enabled = $enabled ? 'on' : 'off';
 
         return strlen($class)
             ? $this->evaluate('SET MUSIC %s %s', $enabled, $class)
@@ -510,102 +670,203 @@ trait Commands
     }
 
     /**
-     * Set the priority to be used for continuation upon exiting the application.
-     *
-     * If you specify a non-existent priority you receive no error indication (['result'] is still 0)
-     * and no warning is issued on the Asterisk console.
+     * Set channel dialplan priority
+     * Changes the priority for continuation upon exiting the application. The priority must be a valid priority
+     * or label
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_music/
      *
-     * @param int $priority
+     * @param string|int $priority
      * @return Response|AgiArray `result` is always 0
      */
-    public function set_priority(int $priority): Response|array
+    public function set_priority(string|int $priority): Response|array
     {
-        return $this->evaluate('SET PRIORITY %d', $priority);
+        return $this->evaluate('SET PRIORITY %s', $priority);
     }
 
 
     /**
-     * Sets a channel variable
      * This is just an alias for AGI::set_variable()
      *
-     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
      * @deprecated since 3.0.6; use AGI::set_variable() instead
-     * @param string $pVariable
-     * @param float|int|string $pValue
-     * @return Response|AgiArray `result` is 1 on sucess, 0 otherwise
      */
     public function set_var(string $pVariable, float|int|string $pValue): Response|array
     {
         return $this->set_variable($pVariable, "$pValue");
     }
 
+
     /**
-     * Sets a variable to the specified value. The variables so created can later be used by later using ${<variablename>}
-     * in the dialplan.
-     *
-     * These variables live in the channel Asterisk creates when you pickup a phone and as such they are both local and temporary.
-     * Variables created in one channel can not be accessed by another channel. When you hang up the phone, the channel is deleted
-     * and any variables in that channel are deleted as well.
+     * Sets a channel variable
+     * Sets a variable to the current channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_variable/
      *
-     * @param string $variable is case sensitive
+     * @param string $variablename
      * @param string $value
      * @return Response|AgiArray `result` is always 1
      */
-    public function set_variable(string $variable, string $value): Response|array
+    public function set_variable(string $variablename, string $value): Response|array
     {
-        return $this->evaluate('SET VARIABLE %s %s', $variable, $value);
+        return $this->evaluate('SET VARIABLE %s %s', $variablename, $value);
     }
 
     /**
-     * Play the given audio file, allowing playback to be interrupted by a DTMF digit. This command is similar to the GET DATA
-     * command but this command returns after the first DTMF digit has been pressed while GET DATA can accumulated any number of
-     * digits before returning.
+     * Activates a grammar
+     * Activates the specified grammar on the speech object
+     *
+     * @param string $grammar_name
+     * @return Response|AgiArray
+     */
+    public function speech_activate_grammar(string $grammar_name): Response|array
+    {
+        return $this->evaluate('SPEECH ACTIVATE GRAMMAR %s', $grammar_name);
+    }
+
+    /**
+     * Creates a speech object
+     * Create a speech object to be used by the other Speech AGI commands
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_create/
+     *
+     * @param string $engine
+     * @return Response|AgiArray
+     */
+    public function speech_create(string $engine): Response|array
+    {
+        return $this->evaluate('SPEECH CREATE %s', $engine);
+    }
+
+    /**
+     * Deactivates a grammar
+     * Deactivates the specified grammar on the speech object
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_deactivate_grammar/
+     *
+     * @param string $grammar_name
+     * @return Response|AgiArray
+     */
+    public function speech_deactivate_grammar(string $grammar_name): Response|array
+    {
+        return $this->evaluate('SPEECH DEACTIVATE GRAMMAR %s', $grammar_name);
+    }
+
+    /**
+     * Recognizes speech
+     * Plays back given prompt while listening for speech and dtmf
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_recognize/
+     *
+     * @param string $prompt
+     * @param int $timeout
+     * @param int $offset
+     * @return SpeechRecognizeResponse|AgiArray
+     */
+    public function speech_recognize(string $prompt, int $timeout = 0, int $offset = 0): SpeechRecognizeResponse|array
+    {
+        return $this->evaluate('SPEECH RECOGNIZE %s %d %d', $prompt, $timeout, $offset);
+    }
+
+    /**
+     * Sets a speech engine setting
+     * Set an engine-specific setting
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_set/
+     *
+     * @param string $name
+     * @param string $value
+     * @return Response|AgiArray
+     */
+    public function speech_set(string $name, string $value): Response|array
+    {
+        return $this->evaluate('SPEECH SET %s %s', $name, $value);
+    }
+
+    /**
+     * Destroys a speech object
+     * Destroy the speech object created by SPEECH CREATE
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_destroy/
+     *
+     * @return Response|AgiArray
+     */
+    public function speech_destroy(): Response|array
+    {
+        return $this->evaluate('SPEECH DESTROY');
+    }
+
+    /**
+     * Loads a grammar
+     * Loads the specified grammar as the specified name
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_load_grammar/
+     *
+     * @param string $grammar_name
+     * @param string $path_to_grammar
+     * @return Response|AgiArray
+     */
+    public function speech_load_grammar(string $grammar_name, string $path_to_grammar): Response|array
+    {
+        return $this->evaluate('SPEECH LOAD GRAMMAR %s %s', $grammar_name, $path_to_grammar);
+    }
+
+    /**
+     * Unloads a grammar
+     * Unloads the specified grammar
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_unload_grammar/
+     *
+     * @param string $grammar_name
+     * @return Response|array
+     */
+    public function speech_unload_grammar(string $grammar_name): Response|array
+    {
+        return $this->evaluate('SPEECH UNLOAD GRAMMAR %s', $grammar_name);
+    }
+
+    /**
+     * Sends audio file on channel
+     * Send the given file, allowing playback to be interrupted by the given digits, if any. If musiconhold is
+     * playing before calling stream file it will be automatically stopped and will not be restarted after completion.
+     * It sets the following channel variables upon completion:
+     * - PLAYBACKSTATUS The status of the playback attempt as a text string "SUCCESS" or "FAILED"
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/stream_file/
      *
-     * @param string $filename without extension, often in /var/lib/asterisk/sounds
-     * @param string $escape_digits
-     * @param int $offset
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @param string $filename File name to play. The file extension must not be included in the filename
+     * @param string $escape_digits Use double quotes for the digits if you wish none to be permitted
+     * @param int $sample_offset If sample offset is provided then the audio will seek to sample offset before play starts
+     * @return Response|AgiArray `result` is 0 if playback completes without a digit being pressed, the ASCII
+     * numerical value of the digit if one was pressed, or -1 on error or if the channel was disconnected
      */
-    public function stream_file(string $filename, string $escape_digits = '', int $offset = 0): Response|array
+    public function stream_file(string $filename, string $escape_digits = '', int $sample_offset = 0): Response|array
     {
-        return $this->evaluate('STREAM FILE %s %s %d', $filename, $escape_digits, $offset);
+        return $this->evaluate('STREAM FILE %s %s %d', $filename, $escape_digits, $sample_offset);
     }
 
     /**
-     * Enable or disable TDD transmission/reception on the current channel.
+     * Toggles TDD mode (for the deaf)
+     * Enable/Disable TDD transmission/reception on a channel
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/tdd_mode/
      *
-     * @param string $setting can be on, off or mate
-     * @return Response|AgiArray `result` is 1 on sucess, 0 if the channel is not TDD capable.
+     * @param bool $setting
+     * @return Response|AgiArray `result` is 1 if sucessful, or 0 if the channel is not TDD-capable
      */
-    public function tdd_mode(string $setting): Response|array
+    public function tdd_mode(bool $setting): Response|array
     {
-        return $this->evaluate('TDD MODE %s', $setting);
+        return $this->evaluate('TDD MODE %s', $setting ? "on" : "off");
     }
 
     /**
-     * Sends $message to the Asterisk console via the 'verbose' message system.
-     *
-     * If the Asterisk verbosity level is $level or greater, send $message to the console.
-     *
-     * The Asterisk verbosity system works as follows. The Asterisk user gets to set the desired verbosity at startup time or later
-     * using the console 'set verbose' command. Messages are displayed on the console if their verbose level is less than or equal
-     * to desired verbosity set by the user. More important messages should have a low verbose level; less important messages
-     * should have a high verbose level.
+     * Logs a message to the asterisk verbose log
+     * Sends message to the console via verbose message system. level is the verbose level (1-4)
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/verbose/
      *
      * @param string $message
-     * @param int<1,4> $level from 1 to 4
-     * @return Response|AgiArray `result` is always 1
+     * @param int<1,4> $level
+     * @return Response|AgiArray Always `result` is 1
      */
     public function verbose(string $message, int $level = 1): Response|array
     {
@@ -616,7 +877,6 @@ trait Commands
         );
         $level = max(min($level, 4), 0);
         foreach ($lines as $msg) {
-            syslog(LOG_WARNING, $msg);
             $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
         }
 
@@ -624,13 +884,14 @@ trait Commands
     }
 
     /**
-     * Waits up to $timeout milliseconds for channel to receive a DTMF digit.
+     * Waits for a digit to be pressed
+     * Waits up to timeout milliseconds for channel to receive a DTMF digit.
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/wait_for_digit/
      *
-     * @param int $timeout in millisecons. Use -1 for the timeout value if you want the call to wait indefinitely.
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if wait completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
+     * @param int $timeout Use -1 for the timeout value if you desire the call to block indefinitely
+     * @return Response|AgiArray `result` is -1 on channel failure, 0 if no digit is receive in the timeout, or the
+     * numerical value of the ascii digit if one is received.
      */
     public function wait_for_digit(int $timeout = -1): Response|array
     {
