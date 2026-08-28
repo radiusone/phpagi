@@ -9,13 +9,13 @@ licensed under the GNU Lesser General Public License (see COPYING for terms).
 
 Compatibility
 -------------
-For a list of breaking changes to class methods, see the [changelog](CHANGELOG.md).
+For a list of breaking changes to class methods, see the [changelog](docs/CHANGELOG.md).
 
 ### Version 4
 **Version 4** continues modernization of the codebase, although with
 fewer public-facing API changes than version 3.
-* AGI command and AMI action methods are now being automatically generated
-from Asterisk's XML documentation. For version 4, documentation from
+* AMI action methods are now being automatically generated  from
+Asterisk's XML documentation. For version 4, documentation from
 Asterisk 22 has been used. The use of named parameters is now **very
 strongly** suggested in user code. Why?
   1) Asterisk documentation may change

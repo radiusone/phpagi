@@ -1,7 +1,15 @@
-This file documents *potentially breaking* changes to method signatures
-in major versions of the package.
+This file documents *potentially breaking* changes in major versions of
+the package.
 
 ## Version 4
+* The minimum PHP version is now 8.2
+* Any attempt at autoloading has been removed; it's assumed you are using
+Composer to manage dependencies, and you'll need to include source files
+manually if not
+* AMI action methods are based on Asterisk version 22
+* * methods may have been removed for actions that still exist in older versions
+* * methods may exist for actions that don't yet exist in older versions
+
 ### AGI
 <dl>
     <dt><code>AGI::$request</code></dt>
@@ -106,6 +114,7 @@ in major versions of the package.
 </dl>
 
 ## Version 3
+* The minimum PHP version is now 7.4
 ### AGI
 <dl>
     <dt>Namespace</dt>
