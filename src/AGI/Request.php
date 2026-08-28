@@ -2,7 +2,11 @@
 
 namespace PhpAgi\AGI;
 
-class Request
+use ArrayAccess;
+use InvalidArgumentException;
+use LogicException;
+
+class Request implements ArrayAccess
 {
     /**
      * @param string|null $agi_request name of agi script
@@ -55,5 +59,30 @@ class Request
         public array $agi_args = [],
     )
     {
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, $offset);
+    }
+
+    /**
+     * @return string[]|string|null
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return property_exists($this, $offset)
+            ? $this->$offset
+            : throw new InvalidArgumentException();
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new LogicException();
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new LogicException();
     }
 }
