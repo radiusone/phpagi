@@ -787,12 +787,12 @@ class AGI
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/set_music/
      *
-     * @param int $priority
+     * @param string|int $priority
      * @return array{code:int, result:numeric-string|null, data:string|null}
      */
-    public function set_priority(int $priority): array
+    public function set_priority($priority): array
     {
-        return $this->evaluate('SET PRIORITY %d', $priority);
+        return $this->evaluate('SET PRIORITY %s', $priority);
     }
 
     /**
@@ -1299,7 +1299,7 @@ class AGI
      *
      * @param string $context
      * @param string $extension
-     * @param numeric-string|int $priority
+     * @param string|int $priority
      */
     public function setContext(string $context, string $extension = 's', $priority = 1)
     {
