@@ -25,15 +25,16 @@ class SpeechRecognizeResponse extends Response
     /** @var string[]|null  */
     protected ?array $grammars = null;
 
-    public function __get(string $name): string
+    public function __get(string $name): string|null
     {
         if (preg_match('/^(score|text|grammar)(\d+)$/', $name, $m)) {
             $store = $m[1] . 's';
             $i = $m[2];
 
-            return $this->{$store}[$i] ?? throw new InvalidArgumentException();
+            return $this->{$store}[$i] ?? null;
         }
-        throw new InvalidArgumentException();
+
+        return $this->$name;
     }
 
     public function __set(string $name, mixed $value): void
@@ -44,7 +45,7 @@ class SpeechRecognizeResponse extends Response
             $this->{$store} ??= [];
             $this->{$store}[$i] = $value;
         } else {
-            throw new InvalidArgumentException();
+            $this->$name = $value;
         }
     }
 

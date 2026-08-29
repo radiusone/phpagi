@@ -49,15 +49,17 @@ class Response implements ArrayAccess
 
     public function offsetGet(mixed $offset): mixed
     {
-        return $this->offsetExists($offset) ? $this->$offset : throw new ValueError();
+        if ($this->offsetExists($offset)) {
+            return $this->$offset;
+        }
+
+        return null;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($this->offsetExists($offset)) {
             $this->$offset = $value;
-        } else {
-            throw new ValueError();
         }
     }
 
