@@ -47,7 +47,7 @@ class AGI
 
     public Request $request;
 
-    /** @var array<'phpagi'|'cepstral'|'festival'|'asmanager',string|array<string,string>> Config variables */
+    /** @var array<'phpagi'|'cepstral'|'festival'|'asmanager',array<string,string>> Config variables */
     public array $config;
 
     /** @var false|resource Input Stream */
@@ -72,7 +72,7 @@ class AGI
      * Constructor
      *
      * @param string|null $config the name of the config file to parse
-     * @param array{error_handler?:bool, debug?:bool, admin?:string, tempdir?:string,...} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
+     * @param array{error_handler?:bool, debug?:bool, admin?:string, tempdir?:string, ...} $optconfig an array of configuration vars and vals, stuffed into $this->config['phpagi']
      */
     public function __construct(?string $config = null, array $optconfig = [])
     {
@@ -134,11 +134,11 @@ class AGI
 
         // open audio if eagi detected
         if ($this->request->agi_enhanced === '1.0') {
-            if (file_exists('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO)) {
-                $this->audio = fopen('/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO, 'r');
-            } elseif (file_exists('/dev/fd/' . self::AUDIO_FILENO)) {
+            if (file_exists($fn = '/proc/' . getmypid() . '/fd/' . self::AUDIO_FILENO)) {
+                $this->audio = fopen($fn, 'r');
+            } elseif (file_exists($fn = '/dev/fd/' . self::AUDIO_FILENO)) {
                 // may need to mount fdescfs
-                $this->audio = fopen('/dev/fd/' . self::AUDIO_FILENO, 'r');
+                $this->audio = fopen($fn, 'r');
             }
 
             if (is_resource($this->audio)) {
@@ -710,6 +710,9 @@ class AGI
         int $frequency = 8000,
     ): Response|array
     {
+        if (!is_executable($this->config['festival']['text2wave'])) {
+            return new Response(AgiResult::Error, "-1");
+        }
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
         $command = escapeshellcmd($this->config['festival']['text2wave']);
         $args = '-F ' . escapeshellarg("$frequency");
@@ -738,6 +741,9 @@ class AGI
         ?string $voice = null,
     ): Response|array
     {
+        if (!is_executable($this->config['cepstral']['swift'])) {
+            return new Response(AgiResult::Error, "-1");
+        }
         $voice ??= $this->config['cepstral']['voice'] ?? '';
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
 
