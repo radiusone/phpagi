@@ -109,7 +109,7 @@ class AGI
 
         // initialize error handler
         if ($this->config['phpagi']['error_handler']) {
-            set_error_handler([$this, 'phpagi_error_handler']);
+            set_error_handler($this->phpagi_error_handler(...));
             $this->phpagi_error_handler_email = $this->config['phpagi']['admin'];
             error_reporting(E_ALL);
         }
@@ -1081,70 +1081,69 @@ class AGI
      */
     public function phpagi_error_handler(int $level, string $message, string $file, int $line): bool
     {
-        if (ini_get('error_reporting') === "0") {
+        $error_type = match ($level) {
+            E_WARNING, E_USER_WARNING => 'Warning',
+            E_NOTICE, E_USER_NOTICE => 'Notice',
+            E_ERROR, E_USER_ERROR => 'Error',
+            default => 'Other error',
+        };
+
+        error_log(sprintf(
+            '%s "%s" in %s:%d',
+            $error_type,
+            $message,
+            $file,
+            $line
+        ));
+
+        // send the mail if fewer than 5 errors
+        if (
+            self::$mailcount > 5
+            || !filter_var($this->phpagi_error_handler_email, FILTER_VALIDATE_EMAIL)
+        ) {
             return true;
-        } // this happens with an @
+        }
 
-        syslog(LOG_WARNING, $file . '[' . $line . ']: ' . $message);
+        // build message
+        $basefile = basename($file);
+        $subject = "$basefile/$line/$error_type: $message";
+        $message = "$error_type: $message in $file on line $line\n\n";
 
-        if (!is_null($this->phpagi_error_handler_email)) {// generate email debugging information
-            // decode error level
-            switch ($level) {
-                case E_WARNING:
-                case E_USER_WARNING:
-                    $level = "Warning";
-                    break;
-                case E_NOTICE:
-                case E_USER_NOTICE:
-                    $level = "Notice";
-                    break;
-                case E_ERROR:
-                case E_USER_ERROR:
-                    $level = "Error";
-                    break;
-            }
-
-            // build message
-            $basefile = basename($file);
-            $subject = "$basefile/$line/$level: $message";
-            $message = "$level: $message in $file on line $line\n\n";
-
-            // figure out who we are
-            if (extension_loaded('sockets')) {
-                $addr = null;
-                $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-                socket_connect($socket, '224.0.0.0', 1);
-                socket_getsockname($socket, $addr);
-                socket_close($socket);
+        // figure out who we are
+        if (extension_loaded('sockets')) {
+            $addr = null;
+            $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+            socket_connect($socket, '224.0.0.0', 1);
+            socket_getsockname($socket, $addr);
+            socket_close($socket);
+            if ($addr) {
                 $message .= "\n\nIP Address: $addr\n";
             }
+        }
 
-            // include variables
-            $message .= "\n\nGLOBALS:\n" . print_r($GLOBALS, true);
-            $message .= "\n\nBacktrace:\n" . print_r(debug_backtrace(), true);
+        // include variables
+        $message .= "\n\nGLOBALS:\n" . print_r($GLOBALS, true);
+        $message .= "\n\nBacktrace:\n" . print_r(debug_backtrace(), true);
 
-            // include code fragment
-            if (file_exists($file) && is_readable($file) && filesize($file) < 1024 * 1024) {
-                $message .= "\n\n$file:\n";
-                $code = file($file, FILE_IGNORE_NEW_LINES);
-                $code = array_slice($code, max(0, $line - 5), 10, true);
-                foreach ($code as $k => $v) {
-                    $message .= sprintf("%-5d %s\n", $k + 1, $v);
-                }
-            }
-
-            // make sure message is fully readable (convert unprintable chars to hex representation)
-            $message = preg_replace_callback(
-                '/[^ -~\\t\\r\\n]/', // matches anything that isn't printable or whitespace
-                fn($c) => '\\x0' . dechex(ord($c[0])),
-                $message
-            );
-
-            // send the mail if fewer than 5 errors
-            if (self::$mailcount++ <= 5) {
-                mail($this->phpagi_error_handler_email, $subject, $message);
+        // include code fragment
+        if (file_exists($file) && is_readable($file) && filesize($file) < 1024 * 1024) {
+            $message .= "\n\n$file:\n";
+            $code = file($file, FILE_IGNORE_NEW_LINES);
+            $code = array_slice($code, max(0, $line - 5), 10, true);
+            foreach ($code as $k => $v) {
+                $message .= sprintf("%-5d %s\n", $k + 1, $v);
             }
         }
+
+        // make sure message is fully readable (convert unprintable chars to hex representation)
+        $message = preg_replace_callback(
+            '/[^ -~\\t\\r\\n]/', // matches anything that isn't printable or whitespace
+            fn($c) => '\\x0' . dechex(ord($c[0])),
+            $message
+        );
+
+        mail($this->phpagi_error_handler_email, $subject, $message);
+        self::$mailcount++;
 
         return true;
     }
