@@ -31,7 +31,7 @@ class Request implements ArrayAccess
      * @param string|null $agi_threadid
      * @param string|null $agi_network value is yes if this is a fastagi
      * @param string|null $agi_network_script name of the script to execute
-     * @param string[] $agi_args arguments passed to the AGI script
+     * @param array<positive-int,string> $agi_args arguments passed to the AGI script
      */
     public function __construct(
         public ?string $agi_request = null,
@@ -67,7 +67,7 @@ class Request implements ArrayAccess
     }
 
     /**
-     * @return string[]|string|null
+     * @return ($offset is 'agi_args' ? array<positive-int,string> : string|null)
      */
     public function offsetGet(mixed $offset): mixed
     {
