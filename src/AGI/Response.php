@@ -13,13 +13,19 @@ use ValueError;
 class Response implements ArrayAccess
 {
     protected static array $arrayables = ['code', 'result', 'data', 'endpos'];
+
     /**
      * @param AgiResult $code
      * @param numeric-string $result
      * @param string|null $data
      * @param int|null $endpos
      */
-    public function __construct(public AgiResult $code, public string $result, public ?string $data = null, public ?int $endpos = null)
+    public function __construct(
+        public AgiResult $code,
+        public string $result,
+        public ?string $data = null,
+        public ?int $endpos = null,
+    )
     {
     }
 
@@ -50,8 +56,9 @@ class Response implements ArrayAccess
     {
         if ($this->offsetExists($offset)) {
             $this->$offset = $value;
+        } else {
+            throw new ValueError();
         }
-        throw new ValueError();
     }
 
     public function offsetUnset(mixed $offset): void
