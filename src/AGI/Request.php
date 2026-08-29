@@ -61,6 +61,24 @@ class Request implements ArrayAccess
     {
     }
 
+    public static function fromInput($input): self
+    {
+        $req = new self();
+        $str = fgets($input);
+        while ($str && $str !== "\n") {
+            [$key, $val] = explode(':', $str, 2);
+            $key = trim($key);
+            if (preg_match('/^agi_arg_(\d+)$/', $key, $match)) {
+                $req->agi_args[$match[1]] = trim($val);
+            } elseif (property_exists($req, $key)) {
+                $req->$key = trim($val);
+            }
+            $str = fgets($input);
+        }
+
+        return $req;
+    }
+
     public function offsetExists(mixed $offset): bool
     {
         return property_exists($this, $offset);
