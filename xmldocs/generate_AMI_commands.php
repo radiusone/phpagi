@@ -150,7 +150,7 @@ $php = <<< 'PHP'
 %{note}
      *
 %{docargs}
-     * @return array
+     * @return AmiResponse
      */
     public function %{function}%{args}: array
     {
@@ -171,6 +171,9 @@ $trait = <<< PHP
 
 namespace PhpAgi\AMI;
 
+/**
+ * @phpstan-type AmiArray array{Response?:string, Message?:string, Output?:string, ActionID?:string, EventList?:string, events?:list<array<string,mixed>>, ...<string,string>}
+ */
 trait Actions
 {
     $methods

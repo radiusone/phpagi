@@ -2,6 +2,9 @@
 
 namespace PhpAgi\AMI;
 
+/**
+ * @phpstan-type AmiArray array{Response?:string, Message?:string, Output?:string, ActionID?:string, EventList?:string, events?:list<array<string,mixed>>, ...<string,string>}
+ */
 trait Actions
 {
     /**
@@ -13,7 +16,7 @@ trait Actions
      * @param string $Channel Channel name to hangup
      * @param int|numeric-string $Timeout Maximum duration of the call (sec)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function AbsoluteTimeout(string $Channel, int|string $Timeout, ?string $ActionID = null): array
     {
@@ -28,7 +31,7 @@ trait Actions
      * @param string $Agent Agent ID of the agent to log off
      * @param bool|null $Soft Set to true to not hangup existing calls
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function AgentLogoff(string $Agent, ?bool $Soft = null, ?string $ActionID = null): array
     {
@@ -42,7 +45,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Agents/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Agents(?string $ActionID = null): array
     {
@@ -59,7 +62,7 @@ trait Actions
      * @param string $Command Application to execute
      * @param string|null $CommandID This will be sent back in CommandID header of AsyncAGI exec event notification
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function AGI(string $Channel, string $Command, ?string $CommandID = null, ?string $ActionID = null): array
     {
@@ -127,7 +130,7 @@ trait Actions
      * @param int|numeric-string|null $Code Specifies the charging code, which can be set to a value between 1 and 10. This value is
      * required when ChargedItem==SpecialArrangement or RateType==SpecialCode
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function AOCMessage(
         string $MsgType,
@@ -168,7 +171,7 @@ trait Actions
      * @param string $Exten Extension to transfer to
      * @param string|null $Context Context to transfer to
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Atxfer(string $Channel, string $Exten, ?string $Context = null, ?string $ActionID = null): array
     {
@@ -184,7 +187,7 @@ trait Actions
      * @param string $Channel
      * @param string|null $Context
      * @param string|null $Exten
-     * @return array
+     * @return AmiArray
      */
     public function BlindTransfer(string $Channel, ?string $Context = null, ?string $Exten = null): array
     {
@@ -201,7 +204,7 @@ trait Actions
      * @param string $Channel2 Channel to Bridge to Channel1
      * @param 'no'|'Channel1'|'Channel2'|'Both'|null $Tone Play courtesy tone to Channel 2
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Bridge(string $Channel1, string $Channel2, ?string $Tone = null, ?string $ActionID = null): array
     {
@@ -216,7 +219,7 @@ trait Actions
      *
      * @param string $BridgeUniqueid The unique ID of the bridge to destroy
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeDestroy(string $BridgeUniqueid, ?string $ActionID = null): array
     {
@@ -231,7 +234,7 @@ trait Actions
      *
      * @param string $BridgeUniqueid The unique ID of the bridge about which to retrieve information
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeInfo(string $BridgeUniqueid, ?string $ActionID = null): array
     {
@@ -248,7 +251,7 @@ trait Actions
      * @param string|null $BridgeUniqueid The unique ID of the bridge containing the channel to destroy. This parameter can be
      * omitted, or supplied to insure that the channel is not removed from the wrong bridge
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeKick(string $Channel, ?string $BridgeUniqueid = null, ?string $ActionID = null): array
     {
@@ -263,7 +266,7 @@ trait Actions
      *
      * @param string|null $BridgeType Optional type for filtering the resulting list of bridges
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeList(?string $BridgeType = null, ?string $ActionID = null): array
     {
@@ -277,7 +280,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/BridgeTechnologyList/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeTechnologyList(?string $ActionID = null): array
     {
@@ -292,7 +295,7 @@ trait Actions
      *
      * @param string $BridgeTechnology The name of the bridging technology to suspend
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeTechnologySuspend(string $BridgeTechnology, ?string $ActionID = null): array
     {
@@ -307,7 +310,7 @@ trait Actions
      *
      * @param string $BridgeTechnology The name of the bridging technology to unsuspend
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function BridgeTechnologyUnsuspend(string $BridgeTechnology, ?string $ActionID = null): array
     {
@@ -323,7 +326,7 @@ trait Actions
      *
      * @param string $Channel The transferer channel
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function CancelAtxfer(string $Channel, ?string $ActionID = null): array
     {
@@ -338,7 +341,7 @@ trait Actions
      *
      * @param 'MD5' $AuthType Digest algorithm to use in the challenge. Valid values are:
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Challenge(string $AuthType, ?string $ActionID = null): array
     {
@@ -353,7 +356,7 @@ trait Actions
      *
      * @param string $Command Asterisk CLI command to run
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Command(string $Command, ?string $ActionID = null): array
     {
@@ -369,7 +372,7 @@ trait Actions
      * @param string $Channel If this parameter is "all", all channels will be kicked from the conference.If this parameter is
      * "participants", all non-admin channels will be kicked from the conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeKick(string $Conference, string $Channel, ?string $ActionID = null): array
     {
@@ -385,7 +388,7 @@ trait Actions
      *
      * @param string $Conference Conference number
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeList(string $Conference, ?string $ActionID = null): array
     {
@@ -400,7 +403,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ConfbridgeListRooms/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeListRooms(?string $ActionID = null): array
     {
@@ -414,7 +417,7 @@ trait Actions
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeLock(string $Conference, ?string $ActionID = null): array
     {
@@ -431,7 +434,7 @@ trait Actions
      * this parameter is "all", all channels will be muted.If this parameter is "participants", all non-admin channels will be
      * muted
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeMute(string $Conference, string $Channel, ?string $ActionID = null): array
     {
@@ -446,7 +449,7 @@ trait Actions
      * @param string $Conference
      * @param string $Channel If this parameter is not a complete channel name, the first channel with this prefix will be used
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeSetSingleVideoSrc(string $Conference, string $Channel, ?string $ActionID = null): array
     {
@@ -464,7 +467,7 @@ trait Actions
      * @param string $Conference
      * @param string|null $RecordFile
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeStartRecord(string $Conference, ?string $RecordFile = null, ?string $ActionID = null): array
     {
@@ -478,7 +481,7 @@ trait Actions
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeStopRecord(string $Conference, ?string $ActionID = null): array
     {
@@ -492,7 +495,7 @@ trait Actions
      *
      * @param string $Conference
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeUnlock(string $Conference, ?string $ActionID = null): array
     {
@@ -509,7 +512,7 @@ trait Actions
      * this parameter is "all", all channels will be unmuted.If this parameter is "participants", all non-admin channels will
      * be unmuted
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ConfbridgeUnmute(string $Conference, string $Channel, ?string $ActionID = null): array
     {
@@ -528,7 +531,7 @@ trait Actions
      * @param string $Channel The name of the channel that currently has a file being played back to it
      * @param 'stop'|'forward'|'reverse'|'pause'|'restart' $Control
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ControlPlayback(string $Channel, string $Control, ?string $ActionID = null): array
     {
@@ -542,7 +545,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreSettings/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function CoreSettings(?string $ActionID = null): array
     {
@@ -557,7 +560,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreShowChannelMap/
      *
      * @param string|null $Channel The channel to get the mapping for. Requires a channel name
-     * @return array
+     * @return AmiArray
      */
     public function CoreShowChannelMap(?string $Channel = null): array
     {
@@ -571,7 +574,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreShowChannels/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function CoreShowChannels(?string $ActionID = null): array
     {
@@ -585,7 +588,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/CoreStatus/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function CoreStatus(?string $ActionID = null): array
     {
@@ -601,7 +604,7 @@ trait Actions
      *
      * @param string $Filename The configuration filename to create (e.g. foo.conf)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function CreateConfig(string $Filename, ?string $ActionID = null): array
     {
@@ -617,7 +620,7 @@ trait Actions
      * @param string $DAHDIChannel DAHDI channel number to dial digits
      * @param string $Number Digits to dial
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIDialOffhook(string $DAHDIChannel, string $Number, ?string $ActionID = null): array
     {
@@ -632,7 +635,7 @@ trait Actions
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND off
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIDNDoff(string $DAHDIChannel, ?string $ActionID = null): array
     {
@@ -647,7 +650,7 @@ trait Actions
      *
      * @param string $DAHDIChannel DAHDI channel number to set DND on
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIDNDon(string $DAHDIChannel, ?string $ActionID = null): array
     {
@@ -662,7 +665,7 @@ trait Actions
      *
      * @param string $DAHDIChannel DAHDI channel number to hangup
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIHangup(string $DAHDIChannel, ?string $ActionID = null): array
     {
@@ -676,7 +679,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIRestart/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIRestart(?string $ActionID = null): array
     {
@@ -691,7 +694,7 @@ trait Actions
      *
      * @param string|null $DAHDIChannel Specify the specific channel number to show. Show all channels if zero or not present
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIShowChannels(?string $DAHDIChannel = null, ?string $ActionID = null): array
     {
@@ -704,7 +707,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DAHDIShowStatus/
      *
-     * @return array
+     * @return AmiArray
      */
     public function DAHDIShowStatus(): array
     {
@@ -719,7 +722,7 @@ trait Actions
      *
      * @param string $DAHDIChannel DAHDI channel number to transfer
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DAHDITransfer(string $DAHDIChannel, ?string $ActionID = null): array
     {
@@ -734,7 +737,7 @@ trait Actions
      * @param string $Family
      * @param string $Key
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DBDel(string $Family, string $Key, ?string $ActionID = null): array
     {
@@ -749,7 +752,7 @@ trait Actions
      * @param string $Family
      * @param string|null $Key
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DBDelTree(string $Family, ?string $Key = null, ?string $ActionID = null): array
     {
@@ -764,7 +767,7 @@ trait Actions
      * @param string $Family
      * @param string $Key
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DBGet(string $Family, string $Key, ?string $ActionID = null): array
     {
@@ -779,7 +782,7 @@ trait Actions
      * @param string|null $Family
      * @param string|null $Key
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DBGetTree(?string $Family = null, ?string $Key = null, ?string $ActionID = null): array
     {
@@ -795,7 +798,7 @@ trait Actions
      * @param string $Key
      * @param float|int|string|null $Val
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DBPut(string $Family, string $Key, float|int|string|null $Val = null, ?string $ActionID = null): array
     {
@@ -810,7 +813,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/DeviceStateList/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DeviceStateList(?string $ActionID = null): array
     {
@@ -831,7 +834,7 @@ trait Actions
      * already exists at the requested context, extension, and priority it will be overwritten. Otherwise, the existing
      * extension will remain and the action will fail
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function DialplanExtensionAdd(
         string $Context,
@@ -856,14 +859,9 @@ trait Actions
      * @param int|string|null $Priority If provided, only remove this priority from the extension instead of all priorities in the
      * extension
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
-    public function DialplanExtensionRemove(
-        string $Context,
-        string $Extension,
-        int|string|null $Priority = null,
-        ?string $ActionID = null
-    ): array
+    public function DialplanExtensionRemove(string $Context, string $Extension, int|string|null $Priority = null, ?string $ActionID = null): array
     {
         return $this->executeByReflection(__FUNCTION__, func_get_args());
     }
@@ -876,7 +874,7 @@ trait Actions
      *
      * @param 'on'|'off'|'system,call,log,...' $EventMask
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Events(string $EventMask, ?string $ActionID = null): array
     {
@@ -894,7 +892,7 @@ trait Actions
      * @param string $Exten Extension to check state on
      * @param string $Context Context for extension
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ExtensionState(string $Exten, string $Context, ?string $ActionID = null): array
     {
@@ -909,7 +907,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ExtensionStateList/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ExtensionStateList(?string $ActionID = null): array
     {
@@ -926,7 +924,7 @@ trait Actions
      *
      * @param string $SessionNumber The session ID of the fax the user is interested in
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function FAXSession(string $SessionNumber, ?string $ActionID = null): array
     {
@@ -942,7 +940,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/FAXSessions/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function FAXSessions(?string $ActionID = null): array
     {
@@ -958,7 +956,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/FAXStats/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function FAXStats(?string $ActionID = null): array
     {
@@ -982,7 +980,7 @@ trait Actions
      * @param string|null $Filter The match expression to be applied to the event.See the manager.conf.sample file in the
      * configs/samples directory of the Asterisk source tree for more information
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Filter(
         ?string $Operation = null,
@@ -1010,7 +1008,7 @@ trait Actions
      * restrict as the value will restrict the operation to ONLY templates. Not specifying a TEMPLATES expression results in
      * the default behavior which is to not include templates
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function GetConfig(string $Filename, ?string $Category = null, ?string $Filter = null, ?string $ActionID = null): array
     {
@@ -1033,7 +1031,7 @@ trait Actions
      * restrict as the value will restrict the operation to ONLY templates. Not specifying a TEMPLATES expression results in
      * the default behavior which is to not include templates
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function GetConfigJSON(string $Filename, ?string $Category = null, ?string $Filter = null, ?string $ActionID = null): array
     {
@@ -1050,7 +1048,7 @@ trait Actions
      * @param string $Variable Variable name, function or expression
      * @param string|null $Channel Channel to read variable from
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Getvar(string $Variable, ?string $Channel = null, ?string $ActionID = null): array
     {
@@ -1067,7 +1065,7 @@ trait Actions
      * /regex/Example exact channel: SIP/provider-0000012aExample regular expression: /^SIP/provider-.*$/
      * @param int|numeric-string|null $Cause Numeric hangup cause
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Hangup(string $Channel, int|string|null $Cause = null, ?string $ActionID = null): array
     {
@@ -1080,7 +1078,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXnetstats/
      *
-     * @return array
+     * @return AmiArray
      */
     public function IAXnetstats(): array
     {
@@ -1094,7 +1092,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXpeerlist/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function IAXpeerlist(?string $ActionID = null): array
     {
@@ -1107,7 +1105,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXpeers/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function IAXpeers(?string $ActionID = null): array
     {
@@ -1120,7 +1118,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/IAXregistry/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function IAXregistry(?string $ActionID = null): array
     {
@@ -1136,7 +1134,7 @@ trait Actions
      * @param string $JID XMPP/Jabber JID (Name) of recipient
      * @param string $Message Message to be sent to the buddy
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function JabberSend(string $Jabber, string $JID, string $Message, ?string $ActionID = null): array
     {
@@ -1151,7 +1149,7 @@ trait Actions
      *
      * @param string $Filename Configuration filename (e.g. foo.conf)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ListCategories(string $Filename, ?string $ActionID = null): array
     {
@@ -1165,7 +1163,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/ListCommands/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ListCommands(?string $ActionID = null): array
     {
@@ -1181,7 +1179,7 @@ trait Actions
      *
      * @param string $Channel The channel name to optimize away
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function LocalOptimizeAway(string $Channel, ?string $ActionID = null): array
     {
@@ -1195,7 +1193,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/LoggerRotate/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function LoggerRotate(?string $ActionID = null): array
     {
@@ -1216,7 +1214,7 @@ trait Actions
      * "0x" prepended. See the description for an example of creating a key in Python
      * @param 'on'|'off'|'system,call,log,...'|null $Events
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Login(
         string $Username,
@@ -1237,7 +1235,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Logoff/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Logoff(?string $ActionID = null): array
     {
@@ -1253,7 +1251,7 @@ trait Actions
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MailboxCount(string $Mailbox, ?string $ActionID = null): array
     {
@@ -1269,7 +1267,7 @@ trait Actions
      *
      * @param string $Mailbox Full mailbox ID mailbox@vm-context
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MailboxStatus(string $Mailbox, ?string $ActionID = null): array
     {
@@ -1285,7 +1283,7 @@ trait Actions
      *
      * @param string|null $Conference Conference number
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MeetmeList(?string $Conference = null, ?string $ActionID = null): array
     {
@@ -1300,7 +1298,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/MeetmeListRooms/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MeetmeListRooms(?string $ActionID = null): array
     {
@@ -1315,7 +1313,7 @@ trait Actions
      * @param string $Meetme
      * @param int|numeric-string $Usernum
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MeetmeMute(string $Meetme, int|string $Usernum, ?string $ActionID = null): array
     {
@@ -1330,7 +1328,7 @@ trait Actions
      * @param string $Meetme
      * @param int|numeric-string $Usernum
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MeetmeUnmute(string $Meetme, int|string $Usernum, ?string $ActionID = null): array
     {
@@ -1342,9 +1340,9 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/MessageSend/
      *
-     * @param string|null $Destination A To URI for the message. If Destination is provided, the To parameter can also be
-     * supplied and may alter the message based on the specified message technology.For backwards compatibility, if
-     * Destination is not provided, the To parameter must be provided and will be used as the message destination
+     * @param string|null $Destination A To URI for the message. If Destination is provided, the To parameter can also be supplied and
+     * may alter the message based on the specified message technology.For backwards compatibility, if Destination is not
+     * provided, the To parameter must be provided and will be used as the message destination
      * @param string|null $To A To URI for the message if needed for the message technology being used to send this message. This can
      * be a SIP(S) URI, such as Alice <sip:alice@atlanta.com>, or a string in the format alice@atlanta.com.This parameter is
      * required if the Destination parameter is not provided
@@ -1355,7 +1353,7 @@ trait Actions
      * @param string|null $Variable Message variable to set, multiple Variable: headers are allowed. The header value is a comma
      * separated list of name=value pairs
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MessageSend(
         ?string $Destination = null,
@@ -1387,7 +1385,7 @@ trait Actions
      * @param string|null $Command Will be executed when the recording is over. Any strings matching ^{X} will be unescaped to X. All
      * variables will be evaluated at the time MixMonitor is called
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MixMonitor(
         string $Channel,
@@ -1411,7 +1409,7 @@ trait Actions
      * channels)
      * @param bool|null $State Turn mute on or off : 1 to turn on, 0 to turn off
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MixMonitorMute(string $Channel, ?string $Direction = null, ?bool $State = null, ?string $ActionID = null): array
     {
@@ -1427,7 +1425,7 @@ trait Actions
      *
      * @param string $Module Asterisk module name (not including extension)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ModuleCheck(string $Module, ?string $ActionID = null): array
     {
@@ -1447,7 +1445,7 @@ trait Actions
      * @param string|null $Recursive For refresh operations, attempt to recursively unload any other modules that are dependent on
      * this module, if that would allow it to successfully unload, and load them again afterwards
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ModuleLoad(string $LoadType, ?string $Module = null, ?string $Recursive = null, ?string $ActionID = null): array
     {
@@ -1464,7 +1462,7 @@ trait Actions
      * @param 'in'|'out'|'all' $Direction
      * @param bool $State
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MuteAudio(string $Channel, string $Direction, bool $State, ?string $ActionID = null): array
     {
@@ -1480,7 +1478,7 @@ trait Actions
      * @param string $Mailbox Mailbox ID in the form of /regex/ for all mailboxes matching the regular expression. Otherwise it is for
      * a specific mailbox
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MWIDelete(string $Mailbox, ?string $ActionID = null): array
     {
@@ -1496,7 +1494,7 @@ trait Actions
      * @param string $Mailbox Mailbox ID in the form of /regex/ for all mailboxes matching the regular expression. Otherwise it is for
      * a specific mailbox
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MWIGet(string $Mailbox, ?string $ActionID = null): array
     {
@@ -1512,7 +1510,7 @@ trait Actions
      * @param int|numeric-string|null $OldMessages The number of old messages in the mailbox. Defaults to zero if missing
      * @param int|numeric-string|null $NewMessages The number of new messages in the mailbox. Defaults to zero if missing
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function MWIUpdate(
         string $Mailbox,
@@ -1548,7 +1546,7 @@ trait Actions
      * @param string|null $PreDialGoSub PreDialGoSub Context,Extension,Priority to set options/headers needed before start the
      * outgoing extension
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Originate(
         string $Channel,
@@ -1593,7 +1591,7 @@ trait Actions
      * @param string|null $ParkingSpace The parking space extension in the parking lot. If the space is already in use then execution
      * will continue at the next priority
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Park(
         string $Channel,
@@ -1615,7 +1613,7 @@ trait Actions
      *
      * @param string|null $ParkingLot If specified, only show parked calls from the parking lot with this name
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ParkedCalls(?string $ParkingLot = null, ?string $ActionID = null): array
     {
@@ -1629,7 +1627,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Parkinglots/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Parkinglots(?string $ActionID = null): array
     {
@@ -1643,7 +1641,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/Ping/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Ping(?string $ActionID = null): array
     {
@@ -1664,7 +1662,7 @@ trait Actions
      * /regex/Example exact channel: SIP/provider-0000012aExample regular expression: /^SIP/provider-.*$/
      * @param int|numeric-string $Cause May be one of
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPHangup(string $Channel, int|string $Cause, ?string $ActionID = null): array
     {
@@ -1688,7 +1686,7 @@ trait Actions
      * value will compose the body of the message if another variable sets Content-Type. name=valueOne of Option or Variable
      * must be specified
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPNotify(
         ?string $Endpoint = null,
@@ -1709,7 +1707,7 @@ trait Actions
      *
      * @param string $Endpoint The endpoint you want to qualify
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPQualify(string $Endpoint, ?string $ActionID = null): array
     {
@@ -1725,7 +1723,7 @@ trait Actions
      *
      * @param string $Registration The outbound registration to register or '*all' to register them all
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPRegister(string $Registration, ?string $ActionID = null): array
     {
@@ -1744,7 +1742,7 @@ trait Actions
      * @param string $Endpoint The PJSIP endpoint name, or all to toggle maintenance mode for every configured endpoint
      * @param bool $State Desired maintenance state
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPSetMaintenance(string $Endpoint, bool $State, ?string $ActionID = null): array
     {
@@ -1758,7 +1756,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowAors/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowAors(): array
     {
@@ -1772,7 +1770,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowAuths/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowAuths(): array
     {
@@ -1786,7 +1784,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowContacts/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowContacts(): array
     {
@@ -1804,7 +1802,7 @@ trait Actions
      *
      * @param string $Endpoint The endpoint to list
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowEndpoint(string $Endpoint, ?string $ActionID = null): array
     {
@@ -1818,7 +1816,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowEndpoints/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowEndpoints(): array
     {
@@ -1834,7 +1832,7 @@ trait Actions
      * @param string|null $Endpoint If specified, show the status for this endpoint only. If omitted, list all endpoints currently in
      * maintenance mode
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowMaintenance(?string $Endpoint = null, ?string $ActionID = null): array
     {
@@ -1848,7 +1846,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowRegistrationInboundContactStatuses/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowRegistrationInboundContactStatuses(): array
     {
@@ -1864,7 +1862,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowRegistrationsInbound/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowRegistrationsInbound(): array
     {
@@ -1879,7 +1877,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowRegistrationsOutbound/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowRegistrationsOutbound(): array
     {
@@ -1893,7 +1891,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowResourceLists/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowResourceLists(): array
     {
@@ -1907,7 +1905,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowSubscriptionsInbound/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowSubscriptionsInbound(): array
     {
@@ -1921,7 +1919,7 @@ trait Actions
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PJSIPShowSubscriptionsOutbound/
      *
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPShowSubscriptionsOutbound(): array
     {
@@ -1937,7 +1935,7 @@ trait Actions
      *
      * @param string $Registration The outbound registration to unregister or '*all' to unregister them all
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PJSIPUnregister(string $Registration, ?string $ActionID = null): array
     {
@@ -1955,7 +1953,7 @@ trait Actions
      * @param int|numeric-string|null $Duration The duration, in milliseconds, of the digit to be played
      * @param bool|null $Receive Emulate receiving DTMF on this channel instead of sending it out
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PlayDTMF(
         string $Channel,
@@ -1978,7 +1976,7 @@ trait Actions
      * @param string $Digit The MF digit to play
      * @param int|numeric-string|null $Duration The duration, in milliseconds, of the digit to be played
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PlayMF(string $Channel, string $Digit, int|string|null $Duration = null, ?string $ActionID = null): array
     {
@@ -1994,7 +1992,7 @@ trait Actions
      *
      * @param string $Provider Presence Provider to check the state of
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PresenceState(string $Provider, ?string $ActionID = null): array
     {
@@ -2009,7 +2007,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PresenceStateList/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PresenceStateList(?string $ActionID = null): array
     {
@@ -2024,7 +2022,7 @@ trait Actions
      *
      * @param string $File Path of file to write debug output
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PRIDebugFileSet(string $File, ?string $ActionID = null): array
     {
@@ -2037,7 +2035,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/PRIDebugFileUnset/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PRIDebugFileUnset(?string $ActionID = null): array
     {
@@ -2053,7 +2051,7 @@ trait Actions
      * @param string $Span Which span to affect
      * @param 'off'|'on'|'hex'|'intense' $Level What debug level to set. May be a numerical value or a text value from the list below
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PRIDebugSet(string $Span, string $Level, ?string $ActionID = null): array
     {
@@ -2068,7 +2066,7 @@ trait Actions
      *
      * @param string|null $Span Specify the specific span to show. Show all spans if zero or not present
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function PRIShowSpans(?string $Span = null, ?string $ActionID = null): array
     {
@@ -2089,7 +2087,7 @@ trait Actions
      * @param string|null $MemberName Text alias for the interface
      * @param string|null $StateInterface
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueAdd(
         string $Queue,
@@ -2116,7 +2114,7 @@ trait Actions
      * @param bool|null $Immediate When set to yes will cause the priority change to be reflected immediately, causing the channel to
      * change position within the queue
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueChangePriorityCaller(
         string $Queue,
@@ -2140,7 +2138,7 @@ trait Actions
      * @param string|null $Interface
      * @param string|null $Message
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueLog(
         string $Queue,
@@ -2163,7 +2161,7 @@ trait Actions
      * @param bool $RingInUse
      * @param string|null $Queue
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueMemberRingInUse(string $Interface, bool $RingInUse, ?string $Queue = null, ?string $ActionID = null): array
     {
@@ -2182,7 +2180,7 @@ trait Actions
      * paused or unpaused in all the queues it is a member of
      * @param string|null $Reason Text description, returned in the event QueueMemberPause
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueuePause(
         string $Interface,
@@ -2206,7 +2204,7 @@ trait Actions
      * @param string|null $Queue If specified, only set the penalty for the member of this queue. Otherwise, set the penalty for the
      * member in all queues to which the member belongs
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueuePenalty(string $Interface, int|string $Penalty, ?string $Queue = null, ?string $ActionID = null): array
     {
@@ -2223,7 +2221,7 @@ trait Actions
      * @param bool|null $Rules Whether to reload queuerules.conf
      * @param bool|null $Parameters Whether to reload the other queue options
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueReload(
         ?string $Queue = null,
@@ -2244,7 +2242,7 @@ trait Actions
      * @param string $Queue The name of the queue to take action on
      * @param string $Interface The interface (tech/name) to remove from queue
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueRemove(string $Queue, string $Interface, ?string $ActionID = null): array
     {
@@ -2259,7 +2257,7 @@ trait Actions
      *
      * @param string|null $Queue The name of the queue on which to reset statistics
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueReset(?string $Queue = null, ?string $ActionID = null): array
     {
@@ -2274,7 +2272,7 @@ trait Actions
      *
      * @param string|null $Rule The name of the rule in queuerules.conf whose contents to list
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueRule(?string $Rule = null, ?string $ActionID = null): array
     {
@@ -2290,7 +2288,7 @@ trait Actions
      * @param string|null $Queue Limit the response to the status of the specified queue
      * @param string|null $Member Limit the response to the status of the specified member
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueStatus(?string $Queue = null, ?string $Member = null, ?string $ActionID = null): array
     {
@@ -2305,7 +2303,7 @@ trait Actions
      *
      * @param string|null $Queue Queue for which the summary is requested
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueSummary(?string $Queue = null, ?string $ActionID = null): array
     {
@@ -2322,7 +2320,7 @@ trait Actions
      * @param string|null $WithdrawInfo Optional info to store. If the call is successfully withdrawn from the queue, this information
      * will be available in the QUEUE_WITHDRAW_INFO variable
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function QueueWithdrawCaller(string $Queue, string $Caller, ?string $WithdrawInfo = null, ?string $ActionID = null): array
     {
@@ -2343,7 +2341,7 @@ trait Actions
      * @param string|null $ExtraContext Context to transfer extrachannel to (optional)
      * @param int|string|null $ExtraPriority Priority to transfer extrachannel to (optional)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Redirect(
         string $Channel,
@@ -2367,7 +2365,7 @@ trait Actions
      *
      * @param string|null $Module Name of the module to reload
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Reload(?string $Module = null, ?string $ActionID = null): array
     {
@@ -2383,7 +2381,7 @@ trait Actions
      * @param string $Channel Channel name to send hook flash to
      * @param bool|null $Receive Emulate receiving a hook flash on this channel instead of sending it out
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SendFlash(string $Channel, ?bool $Receive = null, ?string $ActionID = null): array
     {
@@ -2400,7 +2398,7 @@ trait Actions
      * @param string $Message Message to send
      * @param string|null $ContentType The type of content in the message
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SendText(string $Channel, string $Message, ?string $ContentType = null, ?string $ActionID = null): array
     {
@@ -2418,7 +2416,7 @@ trait Actions
      * @param string $Value Variable or function value
      * @param string|null $Channel Channel to set variable for
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Setvar(string $Variable, string $Value, ?string $Channel = null, ?string $ActionID = null): array
     {
@@ -2434,7 +2432,7 @@ trait Actions
      * @param string|null $Extension Show a specific extension
      * @param string|null $Context Show a specific context
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function ShowDialPlan(?string $Extension = null, ?string $Context = null, ?string $ActionID = null): array
     {
@@ -2449,7 +2447,7 @@ trait Actions
      *
      * @param string $Cache The name of the cache to expire all objects from
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SorceryMemoryCacheExpire(string $Cache, ?string $ActionID = null): array
     {
@@ -2467,7 +2465,7 @@ trait Actions
      * @param string $Cache The name of the cache to expire the object from
      * @param string $Object The name of the object to expire
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SorceryMemoryCacheExpireObject(string $Cache, string $Object, ?string $ActionID = null): array
     {
@@ -2482,7 +2480,7 @@ trait Actions
      *
      * @param string $Cache The name of the cache to populate
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SorceryMemoryCachePopulate(string $Cache, ?string $ActionID = null): array
     {
@@ -2496,7 +2494,7 @@ trait Actions
      *
      * @param string $Cache The name of the cache to mark all object as stale in
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SorceryMemoryCacheStale(string $Cache, ?string $ActionID = null): array
     {
@@ -2514,7 +2512,7 @@ trait Actions
      * @param bool|null $Reload If true, then immediately reload the object from the backend cache instead of waiting for the next
      * retrieval
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function SorceryMemoryCacheStaleObject(string $Cache, string $Object, ?bool $Reload = null, ?string $ActionID = null): array
     {
@@ -2532,7 +2530,7 @@ trait Actions
      * @param bool|null $AllVariables If set to "true", the Status event will include all channel variables for the requested
      * channel(s)
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function Status(
         ?string $Channel = null,
@@ -2553,7 +2551,7 @@ trait Actions
      * @param string $Channel The name of the channel monitored
      * @param string|null $MixMonitorID If a valid ID is provided, then this command will stop only that specific MixMonitor
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function StopMixMonitor(string $Channel, ?string $MixMonitorID = null, ?string $ActionID = null): array
     {
@@ -2582,7 +2580,7 @@ trait Actions
      * @param string|null $Options A comma separated list of action-specific options.The following actions share the same
      * options...0's represent 6 digit number beginning with 000000
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function UpdateConfig(
         string $SrcFilename,
@@ -2612,7 +2610,7 @@ trait Actions
      * @param string|null $Header1 Content1
      * @param string|null $HeaderN ContentN
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function UserEvent(string $UserEvent, ?string $Header1 = null, ?string $HeaderN = null, ?string $ActionID = null): array
     {
@@ -2628,7 +2626,7 @@ trait Actions
      * @param string $Context The context you want to check
      * @param string $Mailbox The mailbox you want to check
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailBoxSummary(string $Context, string $Mailbox, ?string $ActionID = null): array
     {
@@ -2650,7 +2648,7 @@ trait Actions
      * @param string $ToMailbox The mailbox you want to move the Voicemail to
      * @param string $ToFolder The Folder you want to move the Voicemail to
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailForward(
         string $Context,
@@ -2678,7 +2676,7 @@ trait Actions
      * @param string $ID The ID of the Voicemail you want to move
      * @param string $ToFolder The Folder you want to move the Voicemail to
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailMove(
         string $Context,
@@ -2707,7 +2705,7 @@ trait Actions
      * @param string|null $Context
      * @param string|null $Mailbox
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailRefresh(?string $Context = null, ?string $Mailbox = null, ?string $ActionID = null): array
     {
@@ -2725,7 +2723,7 @@ trait Actions
      * @param string $Folder The Folder containing the Voicemail you want to remove
      * @param string $ID The ID of the Voicemail you want to remove
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailRemove(string $Context, string $Mailbox, string $Folder, string $ID, ?string $ActionID = null): array
     {
@@ -2738,7 +2736,7 @@ trait Actions
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AMI_Actions/VoicemailUsersList/
      *
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailUsersList(?string $ActionID = null): array
     {
@@ -2754,7 +2752,7 @@ trait Actions
      * @param string $Context The context you want to check
      * @param string $Mailbox The mailbox you want to check
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function VoicemailUserStatus(string $Context, string $Mailbox, ?string $ActionID = null): array
     {
@@ -2770,7 +2768,7 @@ trait Actions
      *
      * @param int|numeric-string $Timeout Maximum time (in seconds) to wait for events, -1 means forever
      * @param string|null $ActionID ActionID for this transaction. Will be returned
-     * @return array
+     * @return AmiArray
      */
     public function WaitEvent(int|string $Timeout, ?string $ActionID = null): array
     {

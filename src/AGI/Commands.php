@@ -6,7 +6,7 @@ use PhpAgi\Enums\ChannelState;
 use ValueError;
 
 /**
- * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
+ * @phpstan-type AgiArray array{code:-1|200|500|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
  */
 trait Commands
 {
@@ -247,7 +247,7 @@ trait Commands
      * @param string $filename
      * @param string $escape_digits
      * @param int $timeout
-     * @return Response|array
+     * @return Response|AgiArray
      */
     public function get_option(string $filename, string $escape_digits = '', int $timeout = 0): Response|array
     {
@@ -285,7 +285,7 @@ trait Commands
      * @param string $extension
      * @param string|int $priority
      * @param string $optional_argument
-     * @return Response|array
+     * @return Response|AgiArray
      */
     public function gosub(
         string $context,
@@ -350,7 +350,7 @@ trait Commands
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/receive_text/
      *
      * @param int $timeout The timeout to be the maximum time to wait for input in milliseconds, or 0 for infinite
-     * @return Response|array `result` is -1 for failure or 1 for success, and the string in `data`
+     * @return Response|AgiArray `result` is -1 for failure or 1 for success, and the string in `data`
      */
     public function receive_text(int $timeout): Response|array
     {
@@ -689,6 +689,7 @@ trait Commands
      * This is just an alias for AGI::set_variable()
      *
      * @deprecated since 3.0.6; use AGI::set_variable() instead
+     * @return Response|AgiArray
      */
     public function set_var(string $pVariable, float|int|string $pValue): Response|array
     {
@@ -817,7 +818,7 @@ trait Commands
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_unload_grammar/
      *
      * @param string $grammar_name
-     * @return Response|array
+     * @return Response|AgiArray
      */
     public function speech_unload_grammar(string $grammar_name): Response|array
     {

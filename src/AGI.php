@@ -18,7 +18,7 @@ use PhpAgi\Enums\AgiResult;
  * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * @copyright 2023 - 2026 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
- * @phpstan-type AgiArray array{code:-1|200|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
+ * @phpstan-type AgiArray array{code:-1|200|500|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
  */
 class AGI
 {
@@ -47,7 +47,7 @@ class AGI
 
     public Request $request;
 
-    /** @var array<'phpagi'|'cepstral'|'festival'|'asmanager',array<string,string>> Config variables */
+    /** @var array{phpagi?:array<string,mixed>, cepstral?:array<string,mixed>, festival?: array<string,mixed>, asmanager?:array<string,mixed>} Config variables */
     public array $config;
 
     /** @var false|resource Input Stream */

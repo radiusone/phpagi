@@ -22,6 +22,7 @@ use ReflectionUnionType;
  * @copyright 2023 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
  * @phpstan-type EventHandler callable(string $event, array<string,mixed> $parameters, string $server, int $port):void
+ * @phpstan-type AmiArray array{Response?:string, Message?:string, Output?:string, ActionID?:string, EventList?:string, events?:list<array<string,mixed>>, ...<string,string>}
  */
 class AMI
 {
@@ -52,7 +53,7 @@ class AMI
      * Constructor
      *
      * @param string|null $config is the name of the config file to parse or a parent agi from which to read the config
-     * @param array $optconfig is an array of configuration vars and vals, stuffed into $this->config['asmanager']
+     * @param array{server?:string, port?:int, username?:string, secret?:string, write_log?:bool} $optconfig is an array of configuration vars and vals, stuffed into $this->config['asmanager']
      * @return void
      */
     public function __construct(?string $config = null, array $optconfig = [])
@@ -79,8 +80,8 @@ class AMI
      * Send a request
      *
      * @param string $action
-     * @param array $parameters
-     * @return array of parameters
+     * @param array<string,string|string[]> $parameters
+     * @return AmiArray
      */
     public function send_request(string $action, array $parameters = []): array
     {
@@ -140,6 +141,8 @@ class AMI
      * Peer: PJSIP/1234
      * PeerStatus: Reachable
      * ```
+     *
+     * @return AmiArray
      */
     public function read_one_msg(): array
     {
@@ -191,6 +194,8 @@ class AMI
      * 1. it does not handle socket errors in any way
      * 2. it is terribly synchronous, esp. with eventlists,
      *    i.e. your code is blocked on waiting until full responce is received
+     *
+     * @return AmiArray
      */
     public function wait_response($actionid = null): array
     {
@@ -290,7 +295,7 @@ class AMI
      *
      * @param string $functionName the name of the class method (and AMI command) being run
      * @param list<mixed> $functionArgs the arguments passed to the method (and AMI command)
-     * @return array
+     * @return AmiArray
      */
     protected function executeByReflection(string $functionName, array $functionArgs): array
     {
@@ -395,7 +400,7 @@ class AMI
     /**
      * Process event
      *
-     * @param array $parameters
+     * @param array{Event: string, ...<string,string>} $parameters
      * @return void
      */
     protected function process_event(array $parameters): void
