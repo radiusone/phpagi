@@ -161,10 +161,6 @@ class AGI
         }
     }
 
-    // *********************************************************************************************************
-    // **                             APPLICATIONS                                                                                        **
-    // *********************************************************************************************************
-
     /**
      * Executes an AGI compliant application.
      *
@@ -198,8 +194,6 @@ class AGI
     /**
      * Dial.
      *
-     * Dial takes input from ${VXML_URL} to send XML Url to Cisco 7960
-     * Dial takes input from ${ALERT_INFO} to set ring cadence for Cisco phones
      * Dial returns ${CAUSECODE}: If the dial failed, this is the errormessage.
      * Dial returns ${DIALSTATUS}: Text code returning status of last dial attempt.
      *
@@ -247,36 +241,27 @@ class AGI
     // *********************************************************************************************************
 
     /**
-     * @param string $method
+     * @param callable $method
      * @param string $buffer
      * @param string $escape_digits
      * @param mixed ...$args arguments to be passed to the method
      * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
      * digit received, otherwise the ASCII code of the DTMF key
      */
-    protected function fastpass_proxy(string $method, string &$buffer, string $escape_digits, ...$args): Response|array
+    protected function fastpass_proxy(callable $method, string &$buffer, string $escape_digits, ...$args): Response|array
     {
-        if (!method_exists($this, $method)) {
-            $ret = new Response(AgiResult::BadCommand, "-1");
-
-            return self::$returnObjects ? $ret : $ret->toArray();
-        }
-
         // $buffer is always first argument but we have it already
         unset($args[0]);
         $proceed = false;
-        $last = substr($buffer, -1) ?: '';
+        $last = substr($buffer, -1);
         if ($escape_digits !== '' && $buffer !== '' && !str_contains($escape_digits, $last)) {
             // last char of buffer was not an escape digit
             $proceed = true;
         }
         if ($buffer === '' || $proceed) {
-            $res = $this->$method(...$args);
+            $res = $method(...$args);
             if (
-                (
-                    (is_int($res['code']) && $res['code'] === AgiResult::Ok->value)
-                    || ($res instanceof Response && $res->code === AgiResult::Ok)
-                )
+                ($res['code'] === AgiResult::Ok || $res['code'] === AgiResult::Ok->value)
                 && $res['result'] > 0
             ) {
                 $buffer .= chr($res['result']);
@@ -304,7 +289,12 @@ class AGI
      */
     public function fastpass_say_digits(string &$buffer, int $digits, string $escape_digits = ''): Response|array
     {
-        return $this->fastpass_proxy("say_digits", $buffer, $escape_digits, func_get_args());
+        return $this->fastpass_proxy(
+            $this->say_digits(...),
+            $buffer,
+            $escape_digits,
+            func_get_args(),
+        );
     }
 
     /**
@@ -321,7 +311,12 @@ class AGI
      */
     public function fastpass_say_number(string &$buffer, int $number, string $escape_digits = ''): Response|array
     {
-        return $this->fastpass_proxy("say_number", $buffer, $escape_digits, func_get_args());
+        return $this->fastpass_proxy(
+            $this->say_number(...),
+            $buffer,
+            $escape_digits,
+            func_get_args(),
+        );
     }
 
     /**
@@ -338,7 +333,12 @@ class AGI
      */
     public function fastpass_say_phonetic(string &$buffer, string $text, string $escape_digits = ''): Response|array
     {
-        return $this->fastpass_proxy("say_phonetic", $buffer, $escape_digits, func_get_args());
+        return $this->fastpass_proxy(
+            $this->say_phonetic(...),
+            $buffer,
+            $escape_digits,
+            func_get_args(),
+        );
     }
 
     /**
@@ -355,7 +355,12 @@ class AGI
      */
     public function fastpass_say_time(string &$buffer, ?int $time = null, string $escape_digits = ''): Response|array
     {
-        return $this->fastpass_proxy("say_time", $buffer, $escape_digits, func_get_args());
+        return $this->fastpass_proxy(
+            $this->say_time(...),
+            $buffer,
+            $escape_digits,
+            func_get_args(),
+        );
     }
 
     /**
@@ -380,10 +385,12 @@ class AGI
         int $offset = 0,
     ): Response|array
     {
-        $result = $this->fastpass_proxy("stream_file", $buffer, $escape_digits, func_get_args());
-        $result['endpos'] = 0;
-
-        return $result;
+        return $this->fastpass_proxy(
+            $this->stream_file(...),
+            $buffer,
+            $escape_digits,
+            func_get_args()
+        );
     }
 
     /**
@@ -406,10 +413,12 @@ class AGI
         int $frequency = 8000,
     ): Response|array
     {
-        $result = $this->fastpass_proxy("text2wav", $buffer, $escape_digits, func_get_args());
-        $result['endpos'] = 0;
-
-        return $result;
+        return $this->fastpass_proxy(
+            $this->text2wav(...),
+            $buffer,
+            $escape_digits,
+            func_get_args()
+        );
     }
 
     /**
@@ -434,10 +443,12 @@ class AGI
         ?string $voice = null,
     ): Response|array
     {
-        $result = $this->fastpass_proxy("swift", $buffer, $escape_digits, func_get_args());
-        $result['endpos'] = 0;
-
-        return $result;
+        return $this->fastpass_proxy(
+            $this->swift(...),
+            $buffer,
+            $escape_digits,
+            func_get_args(),
+        );
     }
 
     /**
