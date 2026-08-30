@@ -441,27 +441,6 @@ class AGI
     }
 
     /**
-     * Say Puncutation in a string.
-     * Return early if $buffer is adequate for request.
-     *
-     * @param string $buffer
-     * @param string $text
-     * @param string $escape_digits
-     * @param int $frequency
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
-     */
-    public function fastpass_say_punctuation(
-        string &$buffer,
-        string $text,
-        string $escape_digits = '',
-        int $frequency = 8000,
-    ): Response|array
-    {
-        return $this->fastpass_proxy("say_punctuation", $buffer, $escape_digits, func_get_args());
-    }
-
-    /**
      * Plays the given file and receives DTMF data.
      * Return early if $buffer is adequate for request.
      *
@@ -534,122 +513,18 @@ class AGI
         return self::$returnObjects ? $ret : $ret->toArray();
     }
 
-    // *********************************************************************************************************
-    // **                             DERIVED                                                                                             **
-    // *********************************************************************************************************
-
-    /**
-     * Menu.
-     *
-     * This function presents the user with a menu and reads the response
-     *
-     * @param array<int|string,string> $choices has the following structure:
-     *   array('1'=>'*Press 1 for this', // festival reads if prompt starts with *
-     *           '2'=>'some-gsm-without-extension',
-     *           '*'=>'*Press star for help');
-     * @return string|int key pressed on sucess, -1 on failure
-     */
-    public function menu(array $choices, int $timeout = 2000): string|int
-    {
-        $keys = join('', array_keys($choices));
-        $choice = null;
-        while (is_null($choice)) {
-            foreach ($choices as $prompt) {
-                if (str_starts_with($prompt, '*')) {
-                    $ret = $this->text2wav(substr($prompt, 1), $keys);
-                } else {
-                    $ret = $this->stream_file($prompt, $keys);
-                }
-
-                if (
-                    (is_int($ret['code']) && $ret['code'] !== AgiResult::Ok->value)
-                    || ($ret instanceof Response && $ret->code !== AgiResult::Ok)
-                    || $ret['result'] === '-1'
-                ) {
-                    $choice = -1;
-                    break;
-                }
-
-                if ($ret['result'] !== '0') {
-                    $choice = chr($ret['result']);
-                    break;
-                }
-            }
-
-            if (is_null($choice)) {
-                $ret = $this->get_data('beep', $timeout, 1);
-                if (
-                    (is_int($ret['code']) && $ret['code'] !== AgiResult::Ok->value)
-                    || ($ret instanceof Response && $ret->code !== AgiResult::Ok)
-                    || $ret['result'] === '-1'
-                ) {
-                    $choice = -1;
-                } elseif ($ret['result'] !== '' && str_contains($keys, $ret['result'])) {
-                    $choice = $ret['result'];
-                }
-            }
-        }
-
-        return $choice;
-    }
-
     /**
      * setContext - Set context, extension and priority.
      *
      * @param string $context
      * @param string $extension
-     * @param int|numeric-string $priority
+     * @param int|string $priority
      */
     public function setContext(string $context, string $extension = 's', int|string $priority = 1): void
     {
         $this->set_context($context);
         $this->set_extension($extension);
         $this->set_priority($priority);
-    }
-
-    /**
-     * Parse caller id.
-     * "name" <proto:user@server:port>
-     *
-     * @example examples/dtmf.php Get DTMF tones from the user and say the digits
-     * @example examples/input.php Get text input from the user and say it back
-     *
-     * @param string|null $callerid
-     * @return array{name:string, protocol:string, port:string, username?:string}
-     */
-    public function parse_callerid(?string $callerid = null): array
-    {
-        $callerid ??= $this->request->agi_callerid;
-
-        $ret = ['name' => '', 'protocol' => '', 'port' => ''];
-        $callerid = trim($callerid);
-
-        if (str_starts_with($callerid, '"') || str_starts_with($callerid, "'")) {
-            $d = substr($callerid, 0, 1);
-            $callerid = explode($d, substr($callerid, 1));
-            $ret['name'] = array_shift($callerid);
-            $callerid = join($d, $callerid);
-        }
-
-        $callerid = explode('@', trim($callerid, '<> '));
-        $username = explode(':', array_shift($callerid));
-        if (count($username) === 1) {
-            $ret['username'] = $username[0];
-        } else {
-            $ret['protocol'] = array_shift($username);
-            $ret['username'] = join(':', $username);
-        }
-
-        $callerid = join('@', $callerid);
-        $host = explode(':', $callerid);
-        if (count($host) === 1) {
-            $ret['host'] = $host[0];
-        } else {
-            $ret['host'] = array_shift($host);
-            $ret['port'] = join(':', $host);
-        }
-
-        return $ret;
     }
 
     /**
@@ -756,153 +631,6 @@ class AGI
         }
 
         return $this->tts("$command $args", $fname, $text, $escape_digits);
-    }
-
-    /**
-     * Text Input.
-     *
-     * Based on ideas found at http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
-     *
-     * Example:
-     *               UC   H     LC   i      ,     SP   h     o      w    SP   a    r      e     SP   y      o      u     ?
-     *   $string = '*8'.'44*'.'*5'.'444*'.'00*'.'0*'.'44*'.'666*'.'9*'.'0*'.'2*'.'777*'.'33*'.'0*'.'999*'.'666*'.'88*'.'0000*';
-     *
-     * @link http://www.voip-info.org/wiki-Asterisk+cmd+DTMFToText
-     *
-     * @param string $mode
-     * @return string
-     */
-    public function text_input(string $mode = 'NUMERIC'): string
-    {
-        $alpha = [
-            'k0' => ' ', 'k00' => ',', 'k000' => '.', 'k0000' => '?', 'k00000' => '0',
-            'k1' => '!', 'k11' => ':', 'k111' => ';', 'k1111' => '#', 'k11111' => '1',
-            'k2' => 'A', 'k22' => 'B', 'k222' => 'C', 'k2222' => '2',
-            'k3' => 'D', 'k33' => 'E', 'k333' => 'F', 'k3333' => '3',
-            'k4' => 'G', 'k44' => 'H', 'k444' => 'I', 'k4444' => '4',
-            'k5' => 'J', 'k55' => 'K', 'k555' => 'L', 'k5555' => '5',
-            'k6' => 'M', 'k66' => 'N', 'k666' => 'O', 'k6666' => '6',
-            'k7' => 'P', 'k77' => 'Q', 'k777' => 'R', 'k7777' => 'S', 'k77777' => '7',
-            'k8' => 'T', 'k88' => 'U', 'k888' => 'V', 'k8888' => '8',
-            'k9' => 'W', 'k99' => 'X', 'k999' => 'Y', 'k9999' => 'Z', 'k99999' => '9',
-        ];
-        $symbol = [
-            'k0' => '=',
-            'k1' => '<', 'k11' => '(', 'k111' => '[', 'k1111' => '{', 'k11111' => '1',
-            'k2' => '@', 'k22' => '$', 'k222' => '&', 'k2222' => '%', 'k22222' => '2',
-            'k3' => '>', 'k33' => ')', 'k333' => ']', 'k3333' => '}', 'k33333' => '3',
-            'k4' => '+', 'k44' => '-', 'k444' => '*', 'k4444' => '/', 'k44444' => '4',
-            'k5' => "'", 'k55' => '`', 'k555' => '5',
-            'k6' => '"', 'k66' => '6',
-            'k7' => '^', 'k77' => '7',
-            'k8' => '\\', 'k88' => '|', 'k888' => '8',
-            'k9' => '_', 'k99' => '~', 'k999' => '9',
-        ];
-        $text = '';
-        do {
-            $command = false;
-            $result = $this->get_data('beep');
-            foreach (explode('*', $result['result']) as $code) {
-                if ($command) {
-                    switch (substr($code, 0, 1)) {
-                        case '2':
-                            $text = substr($text, 0, -1);
-                            break; // backspace
-                        case '5':
-                            $mode = 'LOWERCASE';
-                            break;
-                        case '6':
-                            $mode = 'NUMERIC';
-                            break;
-                        case '7':
-                            $mode = 'SYMBOL';
-                            break;
-                        case '8':
-                            $mode = 'UPPERCASE';
-                            break;
-                        case '9':
-                            $text = substr($text, 0, strrpos($text, ' '));
-                            break; // backspace a word
-                    }
-                    $code = substr($code, 1);
-                    $command = false;
-                }
-                if ($code === '') {
-                    $command = true;
-                } elseif ($mode === 'NUMERIC') {
-                    $text .= $code;
-                } elseif ($mode === 'UPPERCASE') {
-                    $text .= $alpha['k' . $code] ?? '';
-                } elseif ($mode === 'LOWERCASE') {
-                    $text .= strtolower($alpha['k' . $code] ?? '');
-                } elseif ($mode == 'SYMBOL') {
-                    $text .= $symbol['k' . $code] ?? '';
-                }
-            }
-            $this->say_punctuation($text);
-        } while (str_ends_with($result['result'], '**'));
-
-        return $text;
-    }
-
-    /**
-     * Say Puncutation in a string.
-     *
-     * @param string $text
-     * @param string $escape_digits
-     * @param int $frequency
-     * @return Response|AgiArray `result` is -1 on hangup or error, 0 if playback completes with no
-     * digit received, otherwise the ASCII code of the DTMF key
-     */
-    public function say_punctuation(
-        string $text,
-        string $escape_digits = '',
-        int $frequency = 8000,
-    ): Response|array
-    {
-        $punc = [
-            ' ' => 'SPACE',
-            ',' => 'COMMA',
-            '.' => 'PERIOD',
-            '?' => 'QUESTION MARK',
-            '!' => 'EXPLANATION POINT',
-            ':' => 'COLON',
-            ';' => 'SEMICOLON',
-            '#' => 'POUND',
-            '=' => 'EQUALS',
-            '<' => 'LESS THAN',
-            '(' => 'LEFT PARENTHESIS',
-            '[' => 'LEFT BRACKET',
-            '{' => 'LEFT BRACE',
-            '@' => 'AT',
-            '$' => 'DOLLAR SIGN',
-            '&' => 'AMPERSAND',
-            '%' => 'PERCENT',
-            '>' => 'GREATER THAN',
-            ')' => 'RIGHT PARENTHESIS',
-            ']' => 'RIGHT BRACKET',
-            '}' => 'RIGHT BRACE',
-            '+' => 'PLUS',
-            '-' => 'MINUS',
-            '*' => 'ASTERISK',
-            '/' => 'SLASH',
-            "'" => 'SINGLE QUOTE',
-            '`' => 'BACK TICK',
-            '"' => 'QUOTE',
-            '^' => 'CAROT',
-            '\\' => 'BACK SLASH',
-            '|' => 'BAR',
-            '_' => 'UNDERSCORE',
-            '~' => 'TILDE',
-        ];
-        $text = preg_replace('/(.)/', ' $1 ', $text);
-        $text = str_replace(
-            array_keys($punc), 
-            array_values($punc), 
-            $text
-        );
-
-        return $this->text2wav($text, $escape_digits, $frequency);
     }
 
     /**

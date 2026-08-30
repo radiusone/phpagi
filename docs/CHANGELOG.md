@@ -16,7 +16,9 @@ manually if not
     <dd>
         This is now an object of type `PhpAgi\AGI\Request`, instead
         of an array. All properties are public, and maintain the same
-        names as the previous array keys.
+        names as the previous array keys. For compatibility, this object
+        implements the `Arrayable` interface, but users are encouraged
+        to switch to object property access.
     </dd>
     <dt><code>AGI::receive_char(int $timeout)</code></dt>
     <dt><code>AGI::set_autohangup(int $timeout)</code></dt>
@@ -29,7 +31,17 @@ manually if not
     </dd>
     <dt><code>AGI::verbose()</code></dt>
     <dd>
-        This method no longer calls PHP's `syslog()` function.
+        This method no longer calls PHP's `syslog()` function in addition
+        to outputting on console.
+    </dd>
+    <dt><code>AGI::menu()</code></dt>
+    <dt><code>AGI::parse_callerid()</code></dt>
+    <dt><code>AGI::say_punctuation()</code></dt>
+    <dt><code>AGI::fastpass_say_punctuation()</code></dt>
+    <dt><code>AGI::text_input()</code></dt>
+    <dd>
+        These methods are doing things that should be implemented in user
+        code. They are not suitable for this library and have been removed.
     </dd>
     <dt><code>AGI::channel_status(string $channelname = '')</code></dt>
     <dt><code>AGI::get_data(string $file, int $timeout = 0, int $max_digits = 1024)</code></dt>
@@ -46,8 +58,9 @@ manually if not
     <dt><code>AGI::stream_file(string $filename, string $escape_digits = '', int $sample_offset = 0)</code></dt>
     <dt><code>AGI::</code></dt>
     <dd>
-        Some parameters in these methods have changed names to
-        match documentation.
+        Some parameters in these methods have changed names to match
+        documentation. The order has not changed, so this will only have
+        an effect on code using named parameters.
     </dd>
 </dl>
 
