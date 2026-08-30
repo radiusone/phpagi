@@ -193,7 +193,7 @@ trait Commands
      */
     public function exec(string $application, array $options = []): Response|array
     {
-        $options = implode($this->option_delim, $options);
+        $options = implode(',', $options);
 
         return $this->evaluate('EXEC %s %s', $application, $options);
     }

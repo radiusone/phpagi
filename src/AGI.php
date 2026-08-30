@@ -59,9 +59,6 @@ class AGI
     /** @var false|resource Audio Stream */
     public $audio = false;
 
-    /** @var string Application option delimiter */
-    public string $option_delim = ",";
-
     /** @var string|null An email address to send errors to */
     protected ?string $phpagi_error_handler_email = null;
     

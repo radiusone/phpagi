@@ -43,6 +43,10 @@ manually if not
         These methods are doing things that should be implemented in user
         code. They are not suitable for this library and have been removed.
     </dd>
+    <dt><code>AGI::$option_delim</code></dt>
+    <dd>
+        This property has been removed.
+    </dd>
     <dt><code>AGI::channel_status(string $channelname = '')</code></dt>
     <dt><code>AGI::get_data(string $file, int $timeout = 0, int $max_digits = 1024)</code></dt>
     <dt><code>AGI::get_fullvariable(string $variable, string $channelname = '', bool $getvalue = false)</code></dt>
