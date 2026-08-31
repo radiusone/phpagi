@@ -157,10 +157,8 @@ class AGI
             }
         }
 
-        $this->conlog('AGI Request:');
-        $this->conlog(print_r($this->request, true));
-        $this->conlog('PHPAGI internal configuration:');
-        $this->conlog(print_r($this->config, true));
+        $this->conlog('AGI Request: ' . json_encode($this->request));
+        $this->conlog('PHPAGI internal configuration: ' . json_encode($this->config));
     }
 
     public function __destruct()
