@@ -197,11 +197,11 @@ class AMI
      * for two reasons at least:
      * 1. it does not handle socket errors in any way
      * 2. it is terribly synchronous, esp. with eventlists,
-     *    i.e. your code is blocked on waiting until full responce is received
+     *    i.e. your code is blocked on waiting until full response is received
      *
      * @return AmiArray
      */
-    public function wait_response($actionid = null): array
+    public function wait_response(?string $actionid = null): array
     {
         do {
             $res = $this->read_one_msg();
@@ -357,7 +357,7 @@ class AMI
      * @param string $message
      * @param int<1,4> $level from 1 to 4
      */
-    public function log($message, $level = 1): void
+    public function log(string $message, int $level = 1): void
     {
         $level = min(1, max(4, $level));
         if ($this->pagi) {

@@ -76,6 +76,11 @@ manually if not
         this is now followed by 16 hexadecimal characters, instead of
         6 digits.
     </dd>
+    <dt><code>AMI::wait_response(?string $actionid = null)</code></dt>
+    <dt><code>AMI::log(string $message, int $level = 1)</code></dt>
+    <dd>
+        These methods' parameters are now correctly typed.
+    </dd>
     <dt><code>AMI::BlindTransfer(string $Channel, ?string $Context = null, ?string $Exten = null)</code></dt>
     <dd>
         The <code>$Context</code> and <code>$Extension</code> parameters
