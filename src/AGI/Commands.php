@@ -211,6 +211,9 @@ trait Commands
      */
     public function get_data(string $file, int $timeout = 0, int $max_digits = 1024): Response|array
     {
+        $timeout = max(0, $timeout);
+        $max_digits = min(1, max(1024, $max_digits));
+
         return $this->evaluate('GET DATA %s %d %d', $file, $timeout, $max_digits);
     }
 
@@ -340,6 +343,8 @@ trait Commands
      */
     public function receive_char(int $timeout): Response|array
     {
+        $timeout = max(0, $timeout);
+
         return $this->evaluate('RECEIVE CHAR %d', $timeout);
     }
 
@@ -876,7 +881,7 @@ trait Commands
             "\n",
             str_replace("\r\n", "\n", $message)
         );
-        $level = max(min($level, 4), 0);
+        $level = min(1, max(4, $level));
         foreach ($lines as $msg) {
             $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
         }
@@ -890,12 +895,14 @@ trait Commands
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/wait_for_digit/
      *
-     * @param int $timeout Use -1 for the timeout value if you desire the call to block indefinitely
+     * @param int<-1,max> $timeout Use -1 for the timeout value if you desire the call to block indefinitely
      * @return Response|AgiArray `result` is -1 on channel failure, 0 if no digit is receive in the timeout, or the
      * numerical value of the ascii digit if one is received.
      */
     public function wait_for_digit(int $timeout = -1): Response|array
     {
+        $timeout = max(-1, $timeout);
+
         return $this->evaluate('WAIT FOR DIGIT %d', $timeout);
     }
 }

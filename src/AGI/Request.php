@@ -69,7 +69,8 @@ class Request implements ArrayAccess
             [$key, $val] = explode(':', $str, 2);
             $key = trim($key);
             if (preg_match('/^agi_arg_(\d+)$/', $key, $match)) {
-                $req->agi_args[$match[1]] = trim($val);
+                $i = max(1, (int)$match[1]);
+                $req->agi_args[$i] = trim($val);
             } elseif (property_exists($req, $key)) {
                 $req->$key = trim($val);
             }

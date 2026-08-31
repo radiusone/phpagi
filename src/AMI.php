@@ -355,10 +355,11 @@ class AMI
      * Log a message
      *
      * @param string $message
-     * @param integer $level from 1 to 4
+     * @param int<1,4> $level from 1 to 4
      */
     public function log($message, $level = 1): void
     {
+        $level = min(1, max(4, $level));
         if ($this->pagi) {
             $this->pagi->conlog($message, $level);
         } elseif ($this->config['write_log']) {

@@ -272,7 +272,8 @@ class AGI
                 ($res['code'] === AgiResult::Ok || $res['code'] === AgiResult::Ok->value)
                 && $res['result'] > 0
             ) {
-                $buffer .= chr($res['result']);
+                $cp = max(1, min(255, (int)$res['result']));
+                $buffer .= chr($cp);
             }
 
             return $res;
@@ -492,7 +493,7 @@ class AGI
      * @param string $buffer
      * @param string $filename file to play. Do not include file extension.
      * @param int $timeout milliseconds
-     * @param int $max_digits
+     * @param positive-int $max_digits
      * @return Response|AgiArray `result` holds the keys pressed (i.e. it will match [0-9A-D*]*) and `data` will be "timeout"
      * if applicable. This differs from other commands which return ASCII codes of the DTMF keys pressed.
      */
@@ -503,6 +504,7 @@ class AGI
         int $max_digits = 1024,
     ): Response|array
     {
+        $max_digits = max(1, $max_digits);
         if ($buffer === '') {
             $res = $this->get_data($filename, $timeout, $max_digits);
             if (
@@ -522,10 +524,11 @@ class AGI
             ) {
                 return $res;
             }
-            if ((int)$res['result'] === ord('#')) {
+            $cp = max(1, min(255, (int)$res['result']));
+            if ($cp === ord('#')) {
                 break;
             }
-            $buffer .= chr($res['result']);
+            $buffer .= chr($cp);
         }
         $ret = new Response(AgiResult::Ok, $buffer);
 
@@ -788,12 +791,13 @@ class AGI
      * @example examples/ping.php Ping an IP address
      *
      * @param string $str
-     * @param int $vbl verbose level
+     * @param int<1,4> $vbl verbose level
      * @return void
      */
     public function conlog(string $str, int $vbl = 1): void
     {
         static $busy = false;
+        $vbl = max(1, min(4, $vbl));
 
         if ($this->config['phpagi']['debug'] && $busy === false) {
             // no conlogs inside conlog!!!
