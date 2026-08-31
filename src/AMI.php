@@ -92,9 +92,6 @@ class AMI
         $req = ["Action: $action"];
         $actionid = null;
         foreach ($parameters as $var => $val) {
-            if (is_null($val)) {
-                continue;
-            }
             if (is_array($val)) {
                 foreach ($val as $line) {
                     $req[] = "$var: $line";
@@ -168,12 +165,10 @@ class AMI
             $kv = explode(':', $str, 2);
             $key = trim($kv[0]);
             $val = trim($kv[1] ?? '');
-            if (!isset($parameters[$key])) {
-                $parameters[$key] = $val;
-            } else {
-                $parameters[$key] .= "\n$val";
-            }
+            $parameters[$key] ??= '';
+            $parameters[$key] .= "\n$val";
         }
+        $parameters = array_map('trim', $parameters);
         if (isset($parameters['Event'])) {
             $this->process_event($parameters);
         } elseif (isset($parameters['Response'])) {
@@ -243,7 +238,7 @@ class AMI
         // get port from server if specified
         $c = explode(':', $server);
         $this->server = $c[0];
-        $this->port = $c[1] ?? $this->config['port'];
+        $this->port = (int)($c[1] ?? $this->config['port']);
 
         // connect the socket
         $result = fsockopen($this->server, $this->port, $errno, $errstr);
@@ -320,6 +315,9 @@ class AMI
                 $val = array_key_exists($pos, $functionArgs)
                     ? $functionArgs[$pos]
                     : $param->getDefaultValue();
+                if ($val === null || is_array($val)) {
+                    continue;
+                }
                 $type = $param->getType();
                 $isBool = false;
                 if ($type instanceof ReflectionNamedType) {
@@ -336,10 +334,10 @@ class AMI
                         }
                     );
                 }
-                if ($isBool) {
+                if ($isBool && is_bool($val)) {
                     $val = $val ? 'True' : 'False';
                 }
-                $args[$name] = $val;
+                $args[$name] = "$val";
             } catch (ReflectionException) {
                 // arguments from user code are missing a required argument
                 $this->log("Required arguments missing from call to $functionName");

@@ -37,25 +37,25 @@ class SpeechRecognizeResponse extends Response
         return $this->$name;
     }
 
-    public function __set(string $name, mixed $value): void
+    public function __set(string $name, float|int|string $value): void
     {
         if (preg_match('/^(score|text|grammar)(\d+)$/', $name, $m)) {
             $store = $m[1] . 's';
             $i = $m[2];
             $this->{$store} ??= [];
-            $this->{$store}[$i] = $value;
+            $this->{$store}[$i] = "$value";
         } else {
-            $this->$name = $value;
+            $this->$name = "$value";
         }
     }
 
     public function toArray(): array
     {
         $arr = parent::toArray();
-        foreach ($this->scores as $i => $score) {
+        foreach ($this->scores ?? [] as $i => $score) {
             $arr['score' . $i] = $score;
-            $arr['text' . $i] = $this->texts[$i];
-            $arr['grammar' . $i] = $this->grammars[$i];
+            $arr['text' . $i] = $this->texts[$i] ?? '';
+            $arr['grammar' . $i] = $this->grammars[$i] ?? '';
         }
 
         return $arr;
@@ -63,11 +63,11 @@ class SpeechRecognizeResponse extends Response
 
     public function getResults(): Generator
     {
-        foreach ($this->scores as $i => $score) {
+        foreach ($this->scores ?? [] as $i => $score) {
             yield [
                 'score' . $i => $score,
-                'text' . $i => $this->texts[$i],
-                'grammar' . $i => $this->grammars[$i],
+                'text' . $i => $this->texts[$i] ?? '',
+                'grammar' . $i => $this->grammars[$i] ?? '',
             ];
         }
     }

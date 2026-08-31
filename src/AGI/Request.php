@@ -6,6 +6,9 @@ use ArrayAccess;
 use InvalidArgumentException;
 use LogicException;
 
+/**
+ * @implements ArrayAccess<string,array<positive-int,string>|string|null>
+ */
 class Request implements ArrayAccess
 {
     /**
@@ -61,6 +64,9 @@ class Request implements ArrayAccess
     {
     }
 
+    /**
+     * @param resource $input
+     */
     public static function fromInput($input): self
     {
         $req = new self();

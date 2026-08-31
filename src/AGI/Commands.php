@@ -59,9 +59,9 @@ trait Commands
             ? $this->evaluate('CHANNEL STATUS %s', $channelname)
             : $this->evaluate('CHANNEL STATUS');
 
-        $res = (int)$ret['result'];
+        $res = $ret['result'];
         try {
-            $ret['data'] = ChannelState::from($res)->label();
+            $ret['data'] = ChannelState::from((int)$res)->label();
         } catch (ValueError) {
             $ret['data'] = "Unknown ($res)";
         }
@@ -238,7 +238,7 @@ trait Commands
             ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channelname)
             : $this->evaluate('GET FULL VARIABLE %s', $variable);
 
-        return $getvalue ? strval($res['data']) : $res;
+        return $getvalue ? strval($res['data'] ?? '') : $res;
     }
 
     /**
@@ -274,7 +274,7 @@ trait Commands
     {
         $res = $this->evaluate('GET VARIABLE %s', $variablename);
 
-        return $getvalue ? strval($res['data']) : $res;
+        return $getvalue ? strval($res['data'] ?? '') : $res;
     }
 
     /**
@@ -475,7 +475,7 @@ trait Commands
             $args[] = $timezone;
         }
 
-        return $this->evaluate($cmd, $args);
+        return $this->evaluate($cmd, ...$args);
     }
 
     /**
@@ -648,7 +648,7 @@ trait Commands
     public function set_global_var(string $pVariable, float|int|string $pValue): Response|array
     {
         $pVariable = preg_replace('/\W/', '', $pVariable);
-        $pValue = str_replace(['"', "\r\n", "\r", "\n"], ['\\"', '\\n'], $pValue);
+        $pValue = str_replace(['"', "\r\n", "\r", "\n"], ['\\"', '\\n'], "$pValue");
 
         return $this->exec('Set', [sprintf('GLOBAL(%s)="%s"', $pVariable, $pValue)]);
     }

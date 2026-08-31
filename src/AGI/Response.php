@@ -8,6 +8,7 @@ use PhpAgi\Enums\AgiResult;
 use ValueError;
 
 /**
+ * @implements ArrayAccess<string,mixed>
  * @phpstan-type AgiArray array{code:-1|200|500|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
  */
 class Response implements ArrayAccess
@@ -19,7 +20,7 @@ class Response implements ArrayAccess
 
     /**
      * @param AgiResult $code
-     * @param numeric-string $result
+     * @param string $result
      * @param string|null $data
      * @param int|null $endpos
      */
@@ -52,7 +53,7 @@ class Response implements ArrayAccess
 
     public function offsetGet(mixed $offset): mixed
     {
-        if ($this->offsetExists($offset)) {
+        if ($this->offsetExists("$offset")) {
             return $this->$offset;
         }
 
@@ -61,7 +62,7 @@ class Response implements ArrayAccess
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        if ($this->offsetExists($offset)) {
+        if ($this->offsetExists("$offset")) {
             $this->$offset = $value;
         }
     }

@@ -7,6 +7,7 @@ use PhpAgi\AGI\Commands;
 use PhpAgi\AGI\Request;
 use PhpAgi\AGI\Response;
 use PhpAgi\Enums\AgiResult;
+use SplFileInfo;
 
 /**
  * PHP Asterisk Manager Interface (AMI) client
@@ -222,7 +223,7 @@ class AGI
         ?string $url = null
     ): Response|array
     {
-        $args = array_filter(["$type/$identifier", $timeout, $options, $url]);
+        $args = array_values(array_filter(["$type/$identifier", $timeout, $options, $url]));
 
         return $this->exec('Dial', $args);
     }
@@ -240,7 +241,7 @@ class AGI
      */
     public function exec_goto(...$args): Response|array
     {
-        return $this->exec('Goto', $args);
+        return $this->exec('Goto', array_values($args));
     }
 
 
@@ -267,6 +268,7 @@ class AGI
             $proceed = true;
         }
         if ($buffer === '' || $proceed) {
+            /** @var Response|AgiArray $res */
             $res = $method(...$args);
             if (
                 ($res['code'] === AgiResult::Ok || $res['code'] === AgiResult::Ok->value)
@@ -508,7 +510,7 @@ class AGI
         if ($buffer === '') {
             $res = $this->get_data($filename, $timeout, $max_digits);
             if (
-                (is_int($res['code']) && $res['code'] === AgiResult::Ok->value)
+                (is_array($res) && $res['code'] === AgiResult::Ok->value)
                 || ($res instanceof Response && $res->code === AgiResult::Ok)
             ) {
                 $buffer .= $res['result'];
@@ -519,7 +521,7 @@ class AGI
         while (strlen($buffer) < $max_digits) {
             $res = $this->wait_for_digit();
             if (
-                (is_int($res['code']) && $res['code'] !== AgiResult::Ok->value)
+                (is_array($res) && $res['code'] !== AgiResult::Ok->value)
                 || ($res instanceof Response && $res->code !== AgiResult::Ok)
             ) {
                 return $res;
@@ -607,7 +609,7 @@ class AGI
         int $frequency = 8000,
     ): Response|array
     {
-        if (!is_executable($this->config['festival']['text2wave'])) {
+        if (!is_executable($this->config['festival']['text2wave'] ?? '')) {
             return new Response(AgiResult::Error, "-1");
         }
         $fname = $this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . 'tts_' . md5($text);
@@ -638,7 +640,7 @@ class AGI
         ?string $voice = null,
     ): Response|array
     {
-        if (!is_executable($this->config['cepstral']['swift'])) {
+        if (!is_executable($this->config['cepstral']['swift'] ?? '')) {
             return new Response(AgiResult::Error, "-1");
         }
         $voice ??= $this->config['cepstral']['voice'] ?? '';
@@ -669,17 +671,15 @@ class AGI
         return $this->asm;
     }
 
-
     /**
-     * NEW SIGNATURE IN 3.0
      * Send an AGI command and parse the response
      *
      * @param string $command the AGI command string to send
-     * @param mixed $args if present, $command is a printf format specification that $args are applied to;
+     * @param float|int|string ...$args if present, $command is a printf format specification that $args are applied to;
      *    string values will be escaped and quoted
      * @return Response|AgiArray
      */
-    public function evaluate(string $command, ...$args): Response|array
+    public function evaluate(string $command, float|int|string ...$args): Response|array
     {
         $broken = new Response(AgiResult::Error, "-1");
 
@@ -706,7 +706,7 @@ class AGI
         // command is SEND TEXT.
         $count = 0;
         do {
-            $str = trim(fgets($this->in));
+            $str = trim(fgets($this->in) ?: '');
         } while ($str === '' && $count++ < 5);
 
         if ($count >= 5 && $str === '') {
@@ -740,10 +740,10 @@ class AGI
         if ($code !== -1 && $sep === '-') {
             // we have a multiline response!
             $empty_count = 0;
-            $line = trim(fgets($this->in));
+            $line = trim(fgets($this->in) ?: '');
             while (!str_starts_with($line, "$code") && $empty_count < 5) {
                 $str .= "\n" . $line;
-                $line = trim(fgets($this->in));
+                $line = trim(fgets($this->in) ?: '');
                 $empty_count = $line ? $empty_count + 1 : 0;
             }
             $str = trim($str);
@@ -775,8 +775,6 @@ class AGI
 
     /**
      * Log to console if debug mode.
-     *
-     * @example examples/ping.php Ping an IP address
      *
      * @param string $str
      * @param int<1,4> $vbl verbose level
@@ -844,6 +842,7 @@ class AGI
         // send the mail if fewer than 5 errors
         if (
             self::$mailcount > 5
+            || $this->phpagi_error_handler_email === null
             || !filter_var($this->phpagi_error_handler_email, FILTER_VALIDATE_EMAIL)
         ) {
             return true;
@@ -858,11 +857,13 @@ class AGI
         if (extension_loaded('sockets')) {
             $addr = null;
             $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-            socket_connect($socket, '224.0.0.0', 1);
-            socket_getsockname($socket, $addr);
-            socket_close($socket);
-            if ($addr) {
-                $message .= "\n\nIP Address: $addr\n";
+            if ($socket) {
+                socket_connect($socket, '224.0.0.0', 1);
+                socket_getsockname($socket, $addr);
+                socket_close($socket);
+                if ($addr) {
+                    $message .= "\n\nIP Address: $addr\n";
+                }
             }
         }
 
@@ -873,7 +874,7 @@ class AGI
         // include code fragment
         if (file_exists($file) && is_readable($file) && filesize($file) < 1024 * 1024) {
             $message .= "\n\n$file:\n";
-            $code = file($file, FILE_IGNORE_NEW_LINES);
+            $code = file($file, FILE_IGNORE_NEW_LINES) ?: [];
             $code = array_slice($code, max(0, $line - 5), 10, true);
             foreach ($code as $k => $v) {
                 $message .= sprintf("%-5d %s\n", $k + 1, $v);
@@ -885,7 +886,7 @@ class AGI
             '/[^ -~\\t\\r\\n]/', // matches anything that isn't printable or whitespace
             fn($c) => '\\x0' . dechex(ord($c[0])),
             $message
-        );
+        ) ?: '';
 
         mail($this->phpagi_error_handler_email, $subject, $message);
         self::$mailcount++;
@@ -905,6 +906,7 @@ class AGI
         $dir = new GlobIterator($this->config['phpagi']['tempdir'] . DIRECTORY_SEPARATOR . $glob);
 
         foreach ($dir as $file) {
+            /** @var SplFileInfo $file */
             if ($delete === 0 || $file->getMTime() < $delete) {
                 unlink($file);
             }
