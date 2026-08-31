@@ -264,8 +264,10 @@ class AMI
         }
 
         // login
-        $res = $this->Login($username, $secret);
-        if ($res['Response'] === 'Success') {
+        $chal = $this->Challenge('MD5')['Challenge'] ?? '';
+        $key = md5($chal . $secret);
+        $res = $this->Login(Username: $username, AuthType: 'MD5', Key: $key);
+        if (($res['Response'] ?? '') === 'Success') {
             $this->logged_in = true;
 
             return true;
