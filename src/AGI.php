@@ -733,11 +733,11 @@ class AGI
          */
         // parse result
         preg_match('/^(?P<code>\d+)(?:(?P<sep>[ -])(?P<data>.+))?/', $str, $matches);
-        $code = (int)$matches['code'];
+        $code = (int)($matches['code'] ?? -1);
         $sep = trim($matches['sep'] ?? '');
         $str = trim($matches['data'] ?? '');
 
-        if ($sep === '-') {
+        if ($code !== -1 && $sep === '-') {
             // we have a multiline response!
             $empty_count = 0;
             $line = trim(fgets($this->in));
@@ -756,17 +756,10 @@ class AGI
             }
         }
 
-        if ($code === AgiResult::BadCommand->value) {
-            $ret = new Response(AgiResult::BadCommand, "0");
-            $this->conlog("AGI returned unknown command error: $str");
-        } elseif ($code === AgiResult::Invalid->value) {
-            $ret = new Response(AgiResult::Invalid, "0");
-            $this->conlog("AGI returned invalid command syntax error: $str");
-        } elseif ($code !== AgiResult::Ok->value) {
-            $ret = new Response(AgiResult::tryFrom($code) ?? AgiResult::Invalid, "0");
-            $this->conlog("AGI returned unknown error $code: $str");
-        } else {
-            $ret = new Response(AgiResult::Ok, "0");
+        $this->conlog('AGI returned ' . $code . ': ' . $str);
+        $rescode = AgiResult::tryFrom($code) ?? AgiResult::Error;
+        $ret = new Response($rescode, "0");
+        if ($rescode === AgiResult::Ok) {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
                 // this will be $ret['result'] or $ret['endpos']
                 $ret[$matches['key']] = $matches['value'];
@@ -775,11 +768,6 @@ class AGI
                 }
                 $str = trim(str_replace($matches[0], '', $str));
             }
-        }
-
-        // log some errors
-        if (($ret['result'] ?? "0") < 0) {
-            $this->conlog("$command returned $ret[result]");
         }
 
         return self::$returnObjects ? $ret : $ret->toArray();
