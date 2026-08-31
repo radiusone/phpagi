@@ -19,11 +19,20 @@ if (!class_exists('PhpAgi\\AGI')) {
  * @copyright 2004 - 2010 Matthew Asham <matthew@ochrelabs.com>, David Eder <david@eder.us> and others
  * @copyright 2023 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
+ * @phpstan-type ConfigAmi array{server:string, port:int, username:string, secret:string, write_log:bool}
  */
 class AMI
 {
-    /** @var array<string,string|array<string,string>> Config variables */
-    public array $config;
+    public const DEFAULT_CONFIG = [
+        'server' => 'localhost',
+        'port' => 5038,
+        'username' => 'phpagi',
+        'secret' => 'phpagi',
+        'write_log' => false,
+    ];
+
+    /** @var ConfigAmi Config variables */
+    public array $config = ['asmanager' => self::DEFAULT_CONFIG];
 
     /** @var resource Socket */
     public $socket = null;
@@ -55,19 +64,13 @@ class AMI
         // load config
         $config ??= AGI::DEFAULT_PHPAGI_CONFIG;
         if (file_exists($config)) {
-            $this->config = parse_ini_file($config, true);
+            $result = parse_ini_file($config, true, INI_SCANNER_TYPED) ?: [];
+            $this->config = array_merge_recursive($this->config, $result);
         }
 
-        // If optconfig is specified, stuff vals and vars into 'asmanager' config array,
-        // add default values to config for uninitialized values
-        $defaults = [
-            'server' => 'localhost',
-            'port' => 5038,
-            'username' => 'phpagi',
-            'secret' => 'phpagi',
-            'write_log' => false,
-        ];
-        $this->config['asmanager'] = array_merge($defaults, $optconfig);
+        if ($optconfig) {
+            $this->config['asmanager'] = array_merge($this->config, $optconfig);
+        }
     }
 
     /**
