@@ -1674,11 +1674,11 @@ class AGI
          */
         // parse result
         preg_match('/^(?P<code>\d+)(?:(?P<sep>[ -])(?P<data>.+))?/', $str, $matches);
-        $code = (int)$matches['code'];
+        $code = (int)($matches['code'] ?? -1);
         $sep = trim($matches['sep'] ?? '');
         $str = trim($matches['data'] ?? '');
 
-        if ($sep === '-') {
+        if ($code !== -1 && $sep === '-') {
             // we have a multiline response!
             $empty_count = 0;
             $line = trim(fgets($this->in));
@@ -1698,19 +1698,10 @@ class AGI
             }
         }
 
-        $ret = [
-            'result' => null,
-            'data' => null,
-            'code' => $code,
-        ];
+        $ret = ['code' => $code, 'result' => null, 'data' => null];
+        $this->conlog('AGI returned ' . $code . ': ' . $str);
 
-        if ($code === self::AGIRES_BADCMD) {
-            $this->conlog("AGI returned unknown command error: $str");
-        } elseif ($code === self::AGIRES_INVALID) {
-            $this->conlog("AGI returned invalid command syntax error: $str");
-        } elseif ($code !== self::AGIRES_OK) {
-            $this->conlog("AGI returned unknown error $code: $str");
-        } else {
+        if ($code === self::AGIRES_OK) {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
                 // this will be $ret['result']
                 $ret[$matches['key']] = $matches['value'];
@@ -1719,11 +1710,6 @@ class AGI
                 }
                 $str = trim(str_replace($matches[0], '', $str));
             }
-        }
-
-        // log some errors
-        if (($ret['result'] ?? "0") < 0) {
-            $this->conlog("$command returned $ret[result]");
         }
 
         return $ret;
