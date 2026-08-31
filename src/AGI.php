@@ -649,7 +649,7 @@ class AGI
         if (!isset($this->asm)) {
             $this->asm = new AMI(null, $this->config['asmanager']);
             $this->asm->setPagi($this);
-            $this->config['asmanager'] = $this->asm->config['asmanager'];
+            $this->config['asmanager'] = $this->asm->config;
         }
 
         return $this->asm;

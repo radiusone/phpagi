@@ -23,13 +23,22 @@ use ReflectionUnionType;
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
  * @phpstan-type EventHandler callable(string $event, array<string,mixed> $parameters, string $server, int $port):void
  * @phpstan-type AmiArray array{Response?:string, Message?:string, Output?:string, ActionID?:string, EventList?:string, events?:list<array<string,mixed>>, ...<string,string>}
+ * @phpstan-type ConfigAmi array{server:string, port:int, username:string, secret:string, write_log:bool}
  */
 class AMI
 {
     use Actions;
 
-    /** @var array<string,mixed> Config variables */
-    public array $config;
+    protected const DEFAULT_CONFIG = [
+        'server' => 'localhost',
+        'port' => 5038,
+        'username' => 'phpagi',
+        'secret' => 'phpagi',
+        'write_log' => false,
+    ];
+
+    /** @var ConfigAmi Config variables */
+    public array $config = self::DEFAULT_CONFIG;
 
     /** @var resource Socket */
     public $socket = null;
@@ -61,19 +70,14 @@ class AMI
         // load config
         $config ??= AGI::DEFAULT_PHPAGI_CONFIG;
         if (file_exists($config)) {
-            $this->config = parse_ini_file($config, true);
+            $result = parse_ini_file($config, true, INI_SCANNER_TYPED) ?: [];
+            $result = is_array($result['asmanager'] ?? null) ? $result['asmanager'] : [];
+            $this->config = array_merge($this->config, $result);
         }
 
-        // If optconfig is specified, stuff vals and vars into 'asmanager' config array,
-        // add default values to config for uninitialized values
-        $defaults = [
-            'server' => 'localhost',
-            'port' => 5038,
-            'username' => 'phpagi',
-            'secret' => 'phpagi',
-            'write_log' => false,
-        ];
-        $this->config['asmanager'] = array_merge($defaults, $optconfig);
+        if ($optconfig) {
+            $this->config = array_merge($this->config, $optconfig);
+        }
     }
 
     /**
@@ -232,14 +236,14 @@ class AMI
     public function connect(?string $server = null, ?string $username = null, ?string $secret = null): bool
     {
         // use config if not specified
-        $server ??= $this->config['asmanager']['server'];
-        $username ??= $this->config['asmanager']['username'];
-        $secret ??= $this->config['asmanager']['secret'];
+        $server ??= $this->config['server'];
+        $username ??= $this->config['username'];
+        $secret ??= $this->config['secret'];
 
         // get port from server if specified
         $c = explode(':', $server);
         $this->server = $c[0];
-        $this->port = $c[1] ?? $this->config['asmanager']['port'];
+        $this->port = $c[1] ?? $this->config['port'];
 
         // connect the socket
         $result = fsockopen($this->server, $this->port, $errno, $errstr);
@@ -355,7 +359,7 @@ class AMI
     {
         if ($this->pagi) {
             $this->pagi->conlog($message, $level);
-        } elseif ($this->config['asmanager']['write_log']) {
+        } elseif ($this->config['write_log']) {
             error_log(date('r') . ' - ' . $message);
         }
     }
