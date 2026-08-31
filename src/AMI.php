@@ -29,7 +29,7 @@ class AMI
 {
     use Actions;
 
-    protected const DEFAULT_CONFIG = [
+    public const DEFAULT_CONFIG = [
         'server' => 'localhost',
         'port' => 5038,
         'username' => 'phpagi',

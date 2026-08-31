@@ -19,6 +19,11 @@ use PhpAgi\Enums\AgiResult;
  * @copyright 2023 - 2026 RadiusOne Inc.
  * @license https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt GNU LGPL version 2.1
  * @phpstan-type AgiArray array{code:-1|200|500|510|511|520, result:string, data?:string, endpos?:int, ...<string,string>}
+ * @phpstan-type ConfigAgi array{error_handler:bool, debug:bool, admin:string|null, tempdir:string}
+ * @phpstan-type ConfigAmi array{server:string, port:int, username:string, secret:string, write_log:bool}
+ * @phpstan-type ConfigFestival array{text2wave?:string}
+ * @phpstan-type ConfigCepstral array{swift?:string, voice?:string}
+ * @phpstan-type ConfigFull array{phpagi:ConfigAgi, asmanager:ConfigAmi, cepstral:ConfigCepstral, festival:ConfigFestival}
  */
 class AGI
 {
@@ -26,6 +31,13 @@ class AGI
 
     /** @var bool whether methods will return AGI\Response objects or traditional arrays */
     public static bool $returnObjects = false;
+
+    public const DEFAULT_CONFIG = [
+        'error_handler' => true,
+        'debug' => false,
+        'admin' => null,
+        'tempdir' => self::AST_TMP_DIR,
+    ];
 
     /** @var string the Asterisk configuration directory */
     protected const AST_CONFIG_DIR = '/etc/asterisk/';
@@ -47,8 +59,13 @@ class AGI
 
     public Request $request;
 
-    /** @var array{phpagi?:array<string,mixed>, cepstral?:array<string,mixed>, festival?: array<string,mixed>, asmanager?:array<string,mixed>} Config variables */
-    public array $config;
+    /** @var ConfigFull Config variables */
+    public array $config = [
+        'phpagi' => self::DEFAULT_CONFIG,
+        'asmanager' => AMI::DEFAULT_CONFIG,
+        'cepstral' => [],
+        'festival' => [],
+    ];
 
     /** @var false|resource Input Stream */
     protected $in;
@@ -76,18 +93,12 @@ class AGI
         // load config
         $config ??= self::DEFAULT_PHPAGI_CONFIG;
         if (file_exists($config)) {
-            $this->config = parse_ini_file($config, true, INI_SCANNER_TYPED);
+            $result = parse_ini_file($config, true, INI_SCANNER_TYPED) ?: [];
+            $this->config = array_merge_recursive($this->config, $result);
         }
 
-        // If optconfig is specified, stuff vals and vars into 'phpagi' config array,
-        // add default values to config for uninitialized values
-        $defaults = [
-            'error_handler' => true,
-            'debug' => false,
-            'admin' => null,
-            'tempdir' => self::AST_TMP_DIR,
-        ];
-        $this->config['phpagi'] = array_merge($defaults, $optconfig);
+        // If optconfig is specified, stuff vals and vars into 'phpagi' config array
+        $this->config['phpagi'] = array_merge($this->config['phpagi'], $optconfig);
 
         // festival TTS config
         $this->config['festival']['text2wave'] ??= $this->which('text2wave');
