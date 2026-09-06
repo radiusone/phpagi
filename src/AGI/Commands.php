@@ -879,11 +879,11 @@ trait Commands
         $ret = [];
         $lines = explode(
             "\n",
-            str_replace("\r\n", "\n", $message)
+            str_replace(["\r\n", "\r", "\n\n"], "\n", $message)
         );
         $level = min(1, max(4, $level));
         foreach ($lines as $msg) {
-            $ret = $this->evaluate('VERBOSE %s %d', $msg, $level);
+            $ret = $this->evaluate('VERBOSE %s %d', trim($msg), $level);
         }
 
         return $ret;
