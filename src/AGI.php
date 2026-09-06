@@ -6,6 +6,7 @@ use GlobIterator;
 use PhpAgi\AGI\Commands;
 use PhpAgi\AGI\Request;
 use PhpAgi\AGI\Response;
+use PhpAgi\AGI\SpeechRecognizeResponse;
 use PhpAgi\Enums\AgiResult;
 use SplFileInfo;
 
@@ -675,9 +676,9 @@ class AGI
      * @param string $command the AGI command string to send
      * @param float|int|string ...$args if present, $command is a printf format specification that $args are applied to;
      *    string values will be escaped and quoted
-     * @return Response|AgiArray
+     * @return ($command is 'SPEECH RECOGNIZE %s %d %d' ? SpeechRecognizeResponse : Response)|AgiArray
      */
-    public function evaluate(string $command, float|int|string ...$args): Response|array
+    public function evaluate(string $command, float|int|string ...$args): Response|SpeechRecognizeResponse|array
     {
         $broken = new Response(AgiResult::Error, "-1");
 
@@ -756,7 +757,10 @@ class AGI
 
         $this->conlog('AGI returned ' . $code . ': ' . $str);
         $rescode = AgiResult::tryFrom($code) ?? AgiResult::Error;
-        $ret = new Response($rescode, "0");
+        // special case, should be fine as long as there aren't a bunch more added
+        $ret = ($command === 'SPEECH RECOGNIZE %s %d %d')
+            ? new SpeechRecognizeResponse($rescode, "0")
+            : new Response($rescode, "0");
         if ($rescode === AgiResult::Ok) {
             while(preg_match('/^(?P<key>\w+)=(?P<value>\S+)(?:\s+\((?P<data>.*)\))?/s', $str, $matches)) {
                 // this will be $ret['result'] or $ret['endpos']
@@ -776,9 +780,9 @@ class AGI
      *
      * @param string $str
      * @param int<1,4> $vbl verbose level
-     * @return void
+     * @return bool true if the message was dispatched, false otherwise
      */
-    public function conlog(string $str, int $vbl = 1): void
+    public function conlog(string $str, int $vbl = 1): bool
     {
         static $busy = false;
         $vbl = max(1, min(4, $vbl));
@@ -788,7 +792,11 @@ class AGI
             $busy = true;
             $this->verbose($str, $vbl);
             $busy = false;
+
+            return true;
         }
+
+        return false;
     }
 
     /**
