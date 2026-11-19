@@ -232,13 +232,23 @@ trait Commands
      * @return ($getvalue is true ? string : Response|AgiArray) when $getvalue is false, `result` is 0 if no channel
      * matching channelname exists, 1 otherwise; `data` holds the value
      */
-    public function get_fullvariable(string $variable, string $channelname = '', bool $getvalue = false): Response|array|string
+    public function get_full_variable(string $variable, string $channelname = '', bool $getvalue = false): Response|array|string
     {
         $res = strlen($channelname ?: '')
             ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channelname)
             : $this->evaluate('GET FULL VARIABLE %s', $variable);
 
         return $getvalue ? strval($res['data'] ?? '') : $res;
+    }
+
+    /**
+     * This is just an alias for get_full_variable
+     *
+     * @deprecated 3.0.8 use AGI::get_full_variable() instead
+     */
+    public function get_fullvariable(string $variable, string $channelname = '', bool $getvalue = false): Response|array|string
+    {
+        return $this->get_full_variable($variable, $channelname, $getvalue);
     }
 
     /**
@@ -693,7 +703,7 @@ trait Commands
     /**
      * This is just an alias for AGI::set_variable()
      *
-     * @deprecated since 3.0.6; use AGI::set_variable() instead
+     * @deprecated 3.0.6 use AGI::set_variable() instead
      * @return Response|AgiArray
      */
     public function set_var(string $pVariable, float|int|string $pValue): Response|array
