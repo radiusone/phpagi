@@ -37,6 +37,12 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
         Previously, <code>$args</code> could be a string or an array. Now,
         only an array can be passed.
     </dd>
+    <dt><code>AGI::get_fullvariable()</code></dt>
+    <dd>
+        This method is the only one that is not a snake case version of
+        its AGI command. It has been deprecated in favour of the more
+        consistent `AGI::get_full_variable()`.
+    </dd>
     <dt>AGI::set_var()</dt>
     <dd>
         Previously, this was broken and didn't actually do anything! Now,

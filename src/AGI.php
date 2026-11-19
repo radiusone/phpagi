@@ -400,7 +400,7 @@ class AGI
      * This is just an alias for AGI::set_variable()
      *
      * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/Dialplan_Applications/Set/
-     * @deprecated since 3.0.6; use AGI::set_variable() instead
+     * @deprecated 3.0.6 use AGI::set_variable() instead
      * @param string $pVariable
      * @param string|int|float $pValue
      * @return array{code:int, result:numeric-string|null, data:string|null} ['result'] is 1 on sucess, 0 otherwise
@@ -490,6 +490,15 @@ class AGI
     }
 
     /**
+     * This is just an alias for AGI::get_full_variable()
+     *
+     * @deprecated 3.0.8 use AGI::get_full_variable() instead
+     */
+    public function get_fullvariable(string $variable, $channel = false, bool $getvalue = false) {
+        return $this->get_full_variable($variable, $channel, $getvalue);
+    }
+
+    /**
      * Fetch the result of a dialplan-like expression.
      *
      * @link https://docs.asterisk.org/Asterisk_18_Documentation/API_Documentation/AGI_Commands/get_full_variable/
@@ -499,7 +508,7 @@ class AGI
      * @param bool $getvalue return the value only
      * @return ($getvalue is true ? string : array{code:int, result:numeric-string|null, data:string|null}) see evaluate for return information. ['result'] is 0 if variable hasn't been set, 1 if it has. ['data'] holds the value.  returns value if $getvalue is TRUE
      */
-    public function get_fullvariable(string $variable, $channel = false, bool $getvalue = false)
+    public function get_full_variable(string $variable, $channel = false, bool $getvalue = false)
     {
         $res = strlen($channel ?: '')
             ? $this->evaluate('GET FULL VARIABLE %s %s', $variable, $channel)
