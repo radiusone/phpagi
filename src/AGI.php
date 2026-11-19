@@ -1813,8 +1813,8 @@ class AGI
             }
 
             // include variables
-            $message .= "\n\nGLOBALS:\n" . print_r($GLOBALS, true);
-            $message .= "\n\nBacktrace:\n" . print_r(debug_backtrace(), true);
+            $message .= "\n\nGLOBALS:\n" . json_encode($GLOBALS);
+            $message .= "\n\nBacktrace:\n" . json_encode(debug_backtrace());
 
             // include code fragment
             if (file_exists($file) && is_readable($file) && filesize($file) < 1024 * 1024) {

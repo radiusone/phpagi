@@ -187,7 +187,7 @@ class AMI
             // keep 'data' element like in old code
             $parameters['data'] = $parameters['Output'] ?? '';
         } else {
-            $this->log('Unhandled response packet from Manager: ' . print_r($parameters, true));
+            $this->log('Unhandled response packet from Manager: ' . json_encode($parameters));
         }
 
         return $parameters;
