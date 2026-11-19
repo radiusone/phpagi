@@ -18,7 +18,7 @@ had their signatures and behaviour changed from the previous version.
 A possibly-not-exhaustive list of backwards-incompatible changes includes:
 
 <dl>
-    <dt>AGI::evaluate(string $command, ...$args)</dt>
+    <dt><code>AGI::evaluate(string $command, ...$args)</code></dt>
     <dd>
         The value of the <code>code</code> element of the return array
         will now always be an integer; the values of all other elements
@@ -32,7 +32,7 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
         and remaining ones are passed into the string. When using this mode,
         any string values are wrapped in double quotes.
     </dd>
-    <dt>AGI::exec(string $application, array $args)</dt>
+    <dt><code>AGI::exec(string $application, array $args)</code></dt>
     <dd>
         Previously, <code>$args</code> could be a string or an array. Now,
         only an array can be passed.
@@ -43,38 +43,38 @@ A possibly-not-exhaustive list of backwards-incompatible changes includes:
         its AGI command. It has been deprecated in favour of the more
         consistent `AGI::get_full_variable()`.
     </dd>
-    <dt>AGI::set_var()</dt>
+    <dt><code>AGI::set_var()</code></dt>
     <dd>
         Previously, this was broken and didn't actually do anything! Now,
         it's deprecated and `AGI::set_variable()` should be used instead.
     </dd>
-    <dt>`AMI::getConfig()`</dt>
+    <dt><code>AMI::getConfig()</code></dt>
     <dd>
         This method name conflicts with the GetConfig action, so the method has been
         deprecated. Directly access the `AMI::$config` array instead.
     </dd>
-    <dt>AMI::Atxfer(string $Channel, string $Exten, string $Context, string $ActionID = null)</dt>
+    <dt><code>AMI::Atxfer(string $Channel, string $Exten, string $Context, string $ActionID = null)</code></dt>
     <dd>
         The <code>$Priority</code> parameter is not supported by Asterisk
         and has been removed.
     </dd>
-    <dt>AMI::Getvar(string $Variable, string $Channel = null, string $ActionID = null)</dt>
-    <dt>AMI::Setvar(string $Variable, string $Value, string $Channel = null, string $ActionID = null)</dt>
+    <dt><code>AMI::Getvar(string $Variable, string $Channel = null, string $ActionID = null)</code></dt>
+    <dt><code>AMI::Setvar(string $Variable, string $Value, string $Channel = null, string $ActionID = null)</code></dt>
     <dd>
         The <code>$Variable</code> and <code>$Channel</code> parameters have
         swapped places, as the channel is now optional. If omitted, a global
         variable will instead be returned or set.
     </dd>
-    <dt>AMI::Originate(string $Channel, string $Exten = null, string $Context = null, string $Priority = null, string $Application = null, string $Data = null, $Timeout = 0, string $Variable = null, string $Account = null, bool $Async = false, string $ActionID = null, bool $EarlyMedia = false, string $Codecs = null, string $ChannelId = null, string $OtherChannelId = null, string $CallerID = null)</dt>
-    <dt>AMI::ParkedCalls(string $ParkingLot = null, string $ActionID = null)</dt>
-    <dt>AMI::QueueStatus(string $Queue = null, string $Member = null, string $ActionID = null)</dt>
-    <dt>AMI::Status(string $Channel = null, string $Variables = null, bool $AllVariables = false, string $ActionID = null)</dt>
+    <dt><code>AMI::Originate(string $Channel, string $Exten = null, string $Context = null, string $Priority = null, string $Application = null, string $Data = null, $Timeout = 0, string $Variable = null, string $Account = null, bool $Async = false, string $ActionID = null, bool $EarlyMedia = false, string $Codecs = null, string $ChannelId = null, string $OtherChannelId = null, string $CallerID = null)</code></dt>
+    <dt><code>AMI::ParkedCalls(string $ParkingLot = null, string $ActionID = null)</code></dt>
+    <dt><code>AMI::QueueStatus(string $Queue = null, string $Member = null, string $ActionID = null)</code></dt>
+    <dt><code>AMI::Status(string $Channel = null, string $Variables = null, bool $AllVariables = false, string $ActionID = null)</code></dt>
     <dd>
         One or more additional parameters were added to match updates to the AMI
         commands. For consistency with other methods, the new parameters were inserted,
         keeping <code>$ActionID</code> as the last parameter.
     </dd>
-    <dt>AMI::Redirect(string $Channel, string $Exten, string $Context, string $Priority, string $ExtraChannel = null, string $ExtraExten = null, string $ExtraContext = null, string $ExtraPriority = null, string $ActionID = null)</dt>
+    <dt><code>AMI::Redirect(string $Channel, string $Exten, string $Context, string $Priority, string $ExtraChannel = null, string $ExtraExten = null, string $ExtraContext = null, string $ExtraPriority = null, string $ActionID = null)</code></dt>
     <dd>
         The parameters of this method have been extensively changed to reflect
         that the <code>$ExtraChannel</code> parameter is optional, and to allow
