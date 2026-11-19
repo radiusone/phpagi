@@ -28,6 +28,8 @@ trait Commands
      * Interrupts expected flow of Async AGI commands and returns control to previous source (typically, the PBX
      * dialplan)
      *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/asyncagi_break/
+     *
      * @return Response|AgiArray
      */
     public function asyncagi_break(): Response|array
@@ -79,6 +81,8 @@ trait Commands
      * - CPLAYBACKOFFSET Contains the offset in ms into the file where playback was at when it stopped. -1 is end of
      * file.
      * - CPLAYBACKSTOPKEY If the playback is stopped by the user this variable contains the key that was pressed.
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/control_stream_file/
      *
      * @param string $filename The file extension must not be included in the filename
      * @param string $escape_digits
@@ -456,7 +460,7 @@ trait Commands
      * Says a given time as specified by the format given
      * Say a given time, returning early if any of the given DTMF digits are received on the channel
      *
-     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_time/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/say_datetime/
      *
      * @param int|null $time Is number of seconds elapsed since 00:00:00 on January 1, 1970 Coordinated Universal Time
      * (UTC) or null for the current time
@@ -689,7 +693,7 @@ trait Commands
      * Changes the priority for continuation upon exiting the application. The priority must be a valid priority
      * or label
      *
-     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_music/
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/set_priority/
      *
      * @param string|int $priority
      * @return Response|AgiArray `result` is always 0
@@ -730,6 +734,8 @@ trait Commands
     /**
      * Activates a grammar
      * Activates the specified grammar on the speech object
+     *
+     * @link https://docs.asterisk.org/Asterisk_22_Documentation/API_Documentation/AGI_Commands/speech_activate_grammar/
      *
      * @param string $grammar_name
      * @return Response|AgiArray
